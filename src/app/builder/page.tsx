@@ -50,21 +50,30 @@ function BuilderContent() {
   });
 
   const cardRef = useRef<HTMLDivElement>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
-  // Tự động gắn email người tạo nếu đã đăng nhập
+  // Bắt buộc đăng nhập trước khi vào trình tạo thiệp
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('gp_auth_user');
-      if (stored) {
+      if (!stored) {
+        // Chưa đăng nhập -> Chuyển hướng tới trang đăng nhập kèm tham số quay lại
+        router.push('/login?redirect=/builder');
+      } else {
         try {
           const user = JSON.parse(stored);
           if (user?.email) {
             setFormData(prev => ({ ...prev, creatorEmail: user.email }));
+            setIsAuthenticated(true);
+          } else {
+            router.push('/login?redirect=/builder');
           }
-        } catch (e) {}
+        } catch (e) {
+          router.push('/login?redirect=/builder');
+        }
       }
     }
-  }, []);
+  }, [router]);
 
   // Tải ảnh chân dung
   const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -213,6 +222,19 @@ function BuilderContent() {
       setTimeout(() => setCopiedLink(false), 2500);
     }
   };
+
+  if (isAuthenticated === null) {
+    return (
+      <div className="min-h-screen bg-[#FAF8F8] flex items-center justify-center">
+        <div className="text-center space-y-3">
+          <div className="w-12 h-12 rounded-2xl bg-[#890F0D] text-white flex items-center justify-center mx-auto animate-spin">
+            <RefreshCw className="w-6 h-6" />
+          </div>
+          <p className="text-xs font-bold text-[#720000]">Đang kiểm tra đăng nhập...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#FAF8F8] flex flex-col selection:bg-[#FEE2E2] selection:text-[#720000]">

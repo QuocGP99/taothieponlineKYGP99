@@ -1,11 +1,21 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Camera, Sparkles, Menu, X, Phone, Heart, PlusCircle, Shield, User } from 'lucide-react';
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setIsLoggedIn(!!localStorage.getItem('gp_auth_user'));
+    }
+  }, []);
+
+  const builderUrl = isLoggedIn ? '/builder' : '/login?redirect=/builder';
+  const myInvitationsUrl = isLoggedIn ? '/dashboard' : '/login';
 
   return (
     <header className="sticky top-0 z-50 glass-panel border-b border-[#890F0D]/10 shadow-xs transition-all">
@@ -45,11 +55,11 @@ export default function Navbar() {
               Hướng dẫn
             </Link>
             <Link 
-              href="/login" 
+              href={myInvitationsUrl} 
               className="hover:text-[#890F0D] transition-colors flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#890F0D]/20 bg-[#FFF8F8] text-[#890F0D] font-bold"
             >
               <User className="w-4 h-4" />
-              <span>Thiệp của tôi</span>
+              <span>{isLoggedIn ? 'Thiệp của tôi' : 'Đăng nhập'}</span>
             </Link>
           </nav>
 
@@ -64,7 +74,7 @@ export default function Navbar() {
             </a>
             
             <Link
-              href="/builder"
+              href={builderUrl}
               className="relative inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-[#720000] to-[#890F0D] hover:from-[#540000] hover:to-[#720000] shadow-md shadow-[#890F0D]/25 hover:shadow-lg transform hover:-translate-y-0.5 transition-all"
             >
               <PlusCircle className="w-4 h-4" />
@@ -75,7 +85,7 @@ export default function Navbar() {
           {/* Mobile menu trigger */}
           <div className="flex md:hidden items-center gap-2">
             <Link
-              href="/builder"
+              href={builderUrl}
               className="px-3.5 py-1.5 rounded-lg text-xs font-bold text-white bg-[#890F0D] shadow"
             >
               Tạo thiệp
@@ -116,11 +126,11 @@ export default function Navbar() {
             Hướng dẫn tạo thiệp
           </Link>
           <Link
-            href="/login"
+            href={myInvitationsUrl}
             onClick={() => setMobileMenuOpen(false)}
             className="block px-3 py-2 rounded-lg font-bold text-[#890F0D] bg-[#FFF8F8] border border-[#890F0D]/20"
           >
-            Thiệp của tôi / Đăng nhập
+            {isLoggedIn ? 'Thiệp của tôi' : 'Đăng nhập bằng Gmail'}
           </Link>
           <div className="pt-2 border-t border-[#890F0D]/10 flex items-center justify-between">
             <span className="text-xs text-gray-500">Hotline Kỷ Yếu GP Studio99:</span>

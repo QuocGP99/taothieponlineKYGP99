@@ -1,0 +1,110 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Dancing+Script:wght@600;700&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Space+Grotesk:wght@500;700&family=Alex+Brush&family=Righteous&family=Cinzel:wght@700;900&display=swap');
+
+:root {
+  --gp-primary: #890F0D;
+  --gp-deep: #720000;
+  --gp-dark: #540000;
+  --gp-soft: #FEE2E2;
+  --gp-cream: #FFF8F8;
+  --gp-gold: #D97706;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', 'Be Vietnam Pro', system-ui, -apple-system, sans-serif;
+  color: #2b0504;
+  background-color: #fdf8f8;
+  overflow-x: hidden;
+}
+
+/* SaaS Glassmorphism in Crimson Red */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(137, 15, 13, 0.12);
+}
+
+.glass-panel-dark {
+  background: rgba(84, 0, 0, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.glass-panel-red {
+  background: rgba(255, 245, 245, 0.9);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(137, 15, 13, 0.2);
+}
+
+/* Soft shadows */
+.shadow-soft {
+  box-shadow: 0 10px 30px -10px rgba(114, 0, 0, 0.12), 0 4px 6px -2px rgba(114, 0, 0, 0.05);
+}
+
+.shadow-glow-red {
+  box-shadow: 0 0 25px rgba(137, 15, 13, 0.3);
+}
+
+.shadow-glow-gold {
+  box-shadow: 0 0 20px rgba(217, 119, 6, 0.3);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #fdf2f2;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #e28e8d;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #890F0D;
+}
+
+/* Template styles */
+.font-handwriting {
+  font-family: 'Dancing Script', cursive;
+}
+
+.font-script {
+  font-family: 'Alex Brush', 'Dancing Script', cursive;
+}
+
+.font-display-retro {
+  font-family: 'Righteous', 'Space Grotesk', sans-serif;
+}
+
+.font-cinzel {
+  font-family: 'Cinzel', serif;
+}
+
+.font-serif {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+.font-retro {
+  font-family: 'Space Grotesk', monospace;
+}
+
+/* Crimson Studio Spotlight effects */
+.spotlight-left {
+  background: conic-gradient(from 130deg at 20% 0%, rgba(255, 255, 255, 0.22) 0deg, rgba(255, 255, 255, 0.05) 25deg, transparent 50deg);
+  pointer-events: none;
+}
+
+.spotlight-right {
+  background: conic-gradient(from 230deg at 80% 0%, rgba(255, 255, 255, 0.22) 0deg, rgba(255, 255, 255, 0.05) 25deg, transparent 50deg);
+  pointer-events: none;
+}

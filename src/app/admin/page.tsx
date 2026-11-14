@@ -4,13 +4,15 @@ import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { InvitationData, RSVP } from '@/types/invitation';
+import { LeadData, LeadStatus } from '@/types/lead';
 import { getStoredInvitations, deleteInvitation, updateInvitationStatus } from '@/lib/storage';
 import { TEMPLATES } from '@/data/templates';
 import { 
   Shield, Search, Eye, Trash2, CheckCircle2, 
   HelpCircle, XCircle, Share2, Users, Layers, 
   Settings, Key, Phone, Mail, Globe, Sparkles, Filter, 
-  ExternalLink, Download, BarChart3, AlertCircle, User
+  ExternalLink, Download, BarChart3, AlertCircle, User,
+  Gift, MessageCircle, RefreshCw, Check
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -19,13 +21,50 @@ export default function AdminPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'draft' | 'archived'>('all');
   const [selectedInvitation, setSelectedInvitation] = useState<InvitationData | null>(null);
-  const [activeTab, setActiveTab] = useState<'invitations' | 'templates' | 'settings'>('invitations');
+  const [activeTab, setActiveTab] = useState<'invitations' | 'leads' | 'templates' | 'settings'>('invitations');
 
-  // Load invitations
+  // Leads state
+  const [leads, setLeads] = useState<LeadData[]>([]);
+  const [leadSearch, setLeadSearch] = useState('');
+  const [leadStatusFilter, setLeadStatusFilter] = useState<'all' | 'new' | 'contacted' | 'closed'>('all');
+  const [loadingLeads, setLoadingLeads] = useState(false);
+
+  // Load invitations & leads
   useEffect(() => {
     const list = getStoredInvitations();
     setInvitations(list);
+    loadLeads();
   }, []);
+
+  const loadLeads = async () => {
+    setLoadingLeads(true);
+    try {
+      const res = await fetch('/api/leads');
+      if (res.ok) {
+        const data = await res.json();
+        setLeads(data);
+      }
+    } catch (err) {
+      console.error('Failed to load leads:', err);
+    } finally {
+      setLoadingLeads(false);
+    }
+  };
+
+  const handleUpdateLeadStatus = async (id: string, status: LeadStatus) => {
+    try {
+      const res = await fetch('/api/leads', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, status })
+      });
+      if (res.ok) {
+        setLeads(prev => prev.map(l => l.id === id ? { ...l, status } : l));
+      }
+    } catch (err) {
+      console.error('Error updating lead status:', err);
+    }
+  };
 
   // Filtered invitations
   const filteredInvitations = invitations.filter(inv => {
@@ -39,6 +78,25 @@ export default function AdminPage() {
     const matchesStatus = statusFilter === 'all' || inv.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  // Filtered leads
+  const filteredLeads = leads.filter(l => {
+    const matchesSearch = 
+      l.fullName.toLowerCase().includes(leadSearch.toLowerCase()) ||
+      l.phone.includes(leadSearch) ||
+      l.schoolClass.toLowerCase().includes(leadSearch.toLowerCase()) ||
+      l.region.toLowerCase().includes(leadSearch.toLowerCase()) ||
+      (l.notes && l.notes.toLowerCase().includes(leadSearch.toLowerCase())) ||
+      (l.discountCode && l.discountCode.toLowerCase().includes(leadSearch.toLowerCase()));
+
+    const matchesStatus = leadStatusFilter === 'all' || l.status === leadStatusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
+  // Lead metrics
+  const newLeadsCount = leads.filter(l => l.status === 'new').length;
+  const contactedLeadsCount = leads.filter(l => l.status === 'contacted').length;
+  const closedLeadsCount = leads.filter(l => l.status === 'closed').length;
 
   // Calculate metrics
   const totalViews = invitations.reduce((sum, item) => sum + (item.views || 0), 0);
@@ -137,6 +195,26 @@ export default function AdminPage() {
             }`}
           >
             Quản lý Thiệp mời ({invitations.length})
+          </button>
+
+          <button
+            onClick={() => {
+              setActiveTab('leads');
+              loadLeads();
+            }}
+            className={`px-4 py-2 rounded-xl transition-all flex items-center gap-1.5 ${
+              activeTab === 'leads'
+                ? 'bg-[#890F0D] text-white shadow'
+                : 'bg-white text-stone-600 hover:bg-[#FFF8F8]'
+            }`}
+          >
+            <Gift className="w-3.5 h-3.5 text-amber-300" />
+            <span>Khách Nhận Ưu Đãi 10% ({leads.length})</span>
+            {leads.filter(l => l.status === 'new').length > 0 && (
+              <span className="px-1.5 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-black animate-pulse">
+                {leads.filter(l => l.status === 'new').length} mới
+              </span>
+            )}
           </button>
 
           <button
@@ -343,6 +421,211 @@ export default function AdminPage() {
                 </div>
               </div>
             )}
+
+          </div>
+        )}
+
+        {/* ========================================================= */}
+        {/* TAB: QUẢN LÝ KHÁCH NHẬN ƯU ĐÃI 10% (LEADS)                */}
+        {/* ========================================================= */}
+        {activeTab === 'leads' && (
+          <div className="space-y-6 animate-fade-in">
+            
+            {/* Lead Stats Mini-cards */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="bg-white p-4 rounded-2xl shadow-xs border border-[#890F0D]/15">
+                <span className="text-[11px] font-bold text-gray-500 uppercase block">Tổng yêu cầu ưu đãi</span>
+                <span className="text-2xl font-black text-[#720000] mt-1 block">{leads.length}</span>
+              </div>
+              <div className="bg-[#FFF5F5] p-4 rounded-2xl shadow-xs border border-rose-200">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-rose-700 uppercase block">Chưa gọi (Mới)</span>
+                  {newLeadsCount > 0 && (
+                    <span className="w-2.5 h-2.5 rounded-full bg-rose-600 animate-ping" />
+                  )}
+                </div>
+                <span className="text-2xl font-black text-rose-700 mt-1 block">{newLeadsCount}</span>
+              </div>
+              <div className="bg-[#FFFBEB] p-4 rounded-2xl shadow-xs border border-amber-200">
+                <span className="text-[11px] font-bold text-amber-800 uppercase block">Đang tư vấn</span>
+                <span className="text-2xl font-black text-amber-800 mt-1 block">{contactedLeadsCount}</span>
+              </div>
+              <div className="bg-[#F0FDF4] p-4 rounded-2xl shadow-xs border border-emerald-200">
+                <span className="text-[11px] font-bold text-emerald-800 uppercase block">Đã chốt hợp đồng</span>
+                <span className="text-2xl font-black text-emerald-800 mt-1 block">{closedLeadsCount}</span>
+              </div>
+            </div>
+
+            {/* Filter & Search Bar */}
+            <div className="bg-white p-4 rounded-2xl shadow-xs border border-[#890F0D]/15 flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center gap-2 bg-[#FFF8F8] px-3 py-2 rounded-xl border border-[#890F0D]/20 flex-1 max-w-md">
+                <Search className="w-4 h-4 text-[#890F0D] shrink-0" />
+                <input
+                  type="text"
+                  value={leadSearch}
+                  onChange={e => setLeadSearch(e.target.value)}
+                  placeholder="Tìm theo họ tên, SĐT, trường lớp, khu vực..."
+                  className="bg-transparent text-xs text-[#720000] font-medium outline-none w-full"
+                />
+              </div>
+
+              <div className="flex items-center gap-2 text-xs font-semibold">
+                <span className="text-gray-400">Trạng thái:</span>
+                {(['all', 'new', 'contacted', 'closed'] as const).map(st => (
+                  <button
+                    key={st}
+                    onClick={() => setLeadStatusFilter(st)}
+                    className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all ${
+                      leadStatusFilter === st 
+                        ? 'bg-[#890F0D] text-white shadow-xs' 
+                        : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                    }`}
+                  >
+                    {st === 'all' ? 'Tất cả' : st === 'new' ? 'Chưa gọi (Mới)' : st === 'contacted' ? 'Đang tư vấn' : 'Đã chốt'}
+                  </button>
+                ))}
+
+                <button
+                  type="button"
+                  onClick={loadLeads}
+                  disabled={loadingLeads}
+                  className="p-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-600 transition-colors ml-1"
+                  title="Tải lại danh sách"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${loadingLeads ? 'animate-spin text-[#890F0D]' : ''}`} />
+                </button>
+              </div>
+            </div>
+
+            {/* Leads Table */}
+            <div className="bg-white rounded-3xl shadow-xl border border-[#890F0D]/15 overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-[#FFF8F8] border-b border-[#890F0D]/15 text-[#720000] font-black uppercase tracking-wider">
+                    <tr>
+                      <th className="p-4">Khách hàng / SĐT</th>
+                      <th className="p-4">Trường – Lớp</th>
+                      <th className="p-4">Sĩ số & Khu vực</th>
+                      <th className="p-4">Dự kiến chụp</th>
+                      <th className="p-4">Ghi chú concept</th>
+                      <th className="p-4">Mã ưu đãi</th>
+                      <th className="p-4">Trạng thái</th>
+                      <th className="p-4 text-right">Liên hệ nhanh</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-stone-100 font-medium text-stone-700">
+                    {filteredLeads.length === 0 ? (
+                      <tr>
+                        <td colSpan={8} className="p-8 text-center text-gray-400">
+                          {leads.length === 0 
+                            ? 'Chưa có khách hàng nào để lại thông tin nhận ưu đãi.' 
+                            : 'Không tìm thấy yêu cầu tư vấn nào khớp với bộ lọc.'}
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredLeads.map(lead => (
+                        <tr key={lead.id} className="hover:bg-[#FFFDFD] transition-colors">
+                          {/* Khách hàng */}
+                          <td className="p-4">
+                            <span className="font-extrabold text-stone-900 block text-xs sm:text-sm">
+                              {lead.fullName}
+                            </span>
+                            <span className="font-mono text-stone-500 text-[11px] block mt-0.5">
+                              {lead.phone}
+                            </span>
+                          </td>
+
+                          {/* Trường – Lớp */}
+                          <td className="p-4 font-semibold text-stone-800">
+                            {lead.schoolClass}
+                          </td>
+
+                          {/* Sĩ số & Khu vực */}
+                          <td className="p-4">
+                            <span className="font-bold text-stone-800 block">
+                              {lead.region || 'Đà Nẵng'}
+                            </span>
+                            <span className="text-[11px] text-stone-500 block">
+                              {lead.studentCount ? `Sĩ số: ${lead.studentCount} bạn` : 'Chưa rõ sĩ số'}
+                            </span>
+                          </td>
+
+                          {/* Dự kiến chụp */}
+                          <td className="p-4">
+                            <span className="px-2.5 py-1 rounded-full bg-stone-100 text-stone-700 font-bold text-[11px]">
+                              {lead.expectedMonth || 'Chưa rõ'}
+                            </span>
+                            <span className="block text-[10px] text-gray-400 mt-1">
+                              {new Date(lead.createdAt).toLocaleDateString('vi-VN')}
+                            </span>
+                          </td>
+
+                          {/* Ghi chú */}
+                          <td className="p-4 max-w-xs">
+                            {lead.notes ? (
+                              <p className="text-[11px] text-stone-600 line-clamp-2 italic" title={lead.notes}>
+                                "{lead.notes}"
+                              </p>
+                            ) : (
+                              <span className="text-gray-300 text-[11px]">Không có</span>
+                            )}
+                          </td>
+
+                          {/* Mã ưu đãi */}
+                          <td className="p-4">
+                            <span className="px-2 py-0.5 rounded-md bg-[#FFF0F3] border border-[#F8BBD0] text-[#890F0D] font-mono text-[10px] font-bold">
+                              {lead.discountCode || 'GPKY10-XUAN2026'}
+                            </span>
+                          </td>
+
+                          {/* Trạng thái dropdown */}
+                          <td className="p-4">
+                            <select
+                              value={lead.status}
+                              onChange={e => handleUpdateLeadStatus(lead.id, e.target.value as LeadStatus)}
+                              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-colors outline-none cursor-pointer ${
+                                lead.status === 'new' 
+                                  ? 'bg-rose-50 text-rose-700 border-rose-300' 
+                                  : lead.status === 'contacted'
+                                  ? 'bg-amber-50 text-amber-800 border-amber-300'
+                                  : 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                              }`}
+                            >
+                              <option value="new">🔴 Chưa gọi (Mới)</option>
+                              <option value="contacted">🟡 Đang tư vấn</option>
+                              <option value="closed">🟢 Đã chốt lịch</option>
+                            </select>
+                          </td>
+
+                          {/* Liên hệ nhanh */}
+                          <td className="p-4 text-right">
+                            <div className="flex items-center justify-end gap-1.5">
+                              <a
+                                href={`tel:${lead.phone.replace(/\s+/g, '')}`}
+                                className="p-2 rounded-xl bg-white hover:bg-stone-100 border border-stone-200 text-[#890F0D] shadow-2xs transition-colors"
+                                title={`Gọi ngay ${lead.phone}`}
+                              >
+                                <Phone className="w-3.5 h-3.5" />
+                              </a>
+                              <a
+                                href={`https://zalo.me/${lead.phone.replace(/\s+/g, '')}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="p-2 rounded-xl bg-[#0068FF] hover:bg-blue-700 text-white shadow-2xs transition-colors"
+                                title="Mở Zalo nhắn tin trực tiếp"
+                              >
+                                <MessageCircle className="w-3.5 h-3.5" />
+                              </a>
+                            </div>
+                          </td>
+
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
 
           </div>
         )}

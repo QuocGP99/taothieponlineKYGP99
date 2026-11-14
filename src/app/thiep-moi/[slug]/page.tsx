@@ -10,6 +10,9 @@ import RSVPSection from '@/components/RSVPSection';
 import MusicPlayer from '@/components/MusicPlayer';
 import PetalsEffect from '@/components/PetalsEffect';
 import ShareModal from '@/components/ShareModal';
+import PromoBannerBar from '@/components/PromoBannerBar';
+import MarketingShowcaseCard from '@/components/MarketingShowcaseCard';
+import DiscountLeadForm from '@/components/DiscountLeadForm';
 import { InvitationData, RSVP } from '@/types/invitation';
 import { getInvitationBySlug, addRSVP, incrementViewCount, incrementShareCount } from '@/lib/storage';
 import { SAMPLE_INVITATION } from '@/data/templates';
@@ -144,6 +147,7 @@ export default function PublicInvitationPage() {
   return (
     <div className="min-h-screen bg-[#FAF8F8] flex flex-col selection:bg-[#FEE2E2] selection:text-[#720000]">
       <PetalsEffect />
+      <PromoBannerBar />
       <Navbar />
 
       {/* Interactive Envelope Opener (Modal/Curtain) */}
@@ -209,36 +213,10 @@ export default function PublicInvitationPage() {
           />
         )}
 
-        {/* GP Studio99 Co-Branded Footer Card */}
-        <div className="bg-gradient-to-r from-[#3B0404] via-[#540000] to-[#3B0404] text-white rounded-3xl p-6 sm:p-8 shadow-xl border border-[#890F0D]/40 text-center space-y-4">
-          <div className="w-12 h-12 rounded-2xl bg-[#890F0D] flex items-center justify-center mx-auto text-white shadow-md">
-            <Camera className="w-6 h-6" />
-          </div>
-          <span className="text-[11px] font-extrabold uppercase tracking-widest text-amber-200 bg-white/10 border border-white/20 px-3 py-1 rounded-full">
-            KỶ YẾU ĐÀ NẴNG – GP STUDIO99
-          </span>
-          <h3 className="text-xl sm:text-2xl font-black">
-            Bạn Muốn Có Bộ Ảnh Kỷ Yếu Đẹp Như Thế Này?
-          </h3>
-          <p className="text-xs sm:text-sm text-stone-200 max-w-xl mx-auto leading-relaxed">
-            GP Studio99 cung cấp trọn gói chụp ảnh & quay phim kỷ yếu tại Đà Nẵng, Huế, Quảng Nam: xem trước 3-5 bản demo màu ảnh, trang phục đa dạng concept, flycam 4K và stylist nhiệt tình.
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-            <a
-              href="tel:0899236001"
-              className="px-6 py-3 rounded-2xl font-extrabold text-xs text-[#540000] bg-amber-300 hover:bg-amber-200 shadow-md flex items-center gap-2"
-            >
-              <Phone className="w-4 h-4 text-[#540000]" />
-              <span>Hotline / Zalo: 0899.236.001</span>
-            </a>
-            <Link
-              href="/builder"
-              className="px-6 py-3 rounded-2xl font-bold text-xs text-white bg-white/15 hover:bg-white/25 border border-white/30 flex items-center gap-2"
-            >
-              <Sparkles className="w-4 h-4 text-amber-300" />
-              <span>Tạo thiệp cho chính bạn</span>
-            </Link>
-          </div>
+        {/* GP Studio99 Marketing Showcase & Lead Form (Ảnh tham khảo 1 & 2) */}
+        <div className="space-y-8 pt-4">
+          <MarketingShowcaseCard />
+          <DiscountLeadForm />
         </div>
 
       </main>

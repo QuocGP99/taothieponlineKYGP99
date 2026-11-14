@@ -1,0 +1,41 @@
+[
+  {
+    "id": "lead-1794615941427-giid",
+    "fullName": "Nguy?n Ho�ng Nam",
+    "phone": "0899236001",
+    "schoolClass": "12A1 - THPT �ng �ch Khi�m",
+    "studentCount": 42,
+    "region": "D� N?ng",
+    "expectedMonth": "Th�ng 4",
+    "notes": "L?p mu?n ch?p concept Th�i Lan",
+    "createdAt": "2026-11-14T00:25:41.427Z",
+    "status": "new",
+    "discountCode": "GPKY10-XUAN2026"
+  },
+  {
+    "id": "lead-1794614001001",
+    "fullName": "Nguyễn Hoàng Nam",
+    "phone": "0912345678",
+    "schoolClass": "12A1 – THPT Ông Ích Khiêm",
+    "studentCount": 42,
+    "region": "Đà Nẵng",
+    "expectedMonth": "Tháng 4",
+    "notes": "Lớp muốn chụp concept Thái Lan và Cổ Phục tại Hội An",
+    "createdAt": "2026-11-14T06:30:00.000Z",
+    "status": "new",
+    "discountCode": "GPKY10-XUAN2026"
+  },
+  {
+    "id": "lead-1794613950002",
+    "fullName": "Lê Thị Thảo Trang",
+    "phone": "0987654321",
+    "schoolClass": "12 Chuyên Văn – THPT Phan Châu Trinh",
+    "studentCount": 38,
+    "region": "Đà Nẵng",
+    "expectedMonth": "Tháng 5",
+    "notes": "Concept thanh xuân học đường tươi sáng, chụp tại trường và biển Mỹ Khê",
+    "createdAt": "2026-11-13T14:15:00.000Z",
+    "status": "contacted",
+    "discountCode": "GPKY10-XUAN2026"
+  }
+]

@@ -6,13 +6,17 @@ import { Camera, Plus, Image as ImageIcon, X } from 'lucide-react';
 interface PhotoGallerySectionProps {
   photos?: string[];
   studentName?: string;
+  isEditable?: boolean;
   onAddPhoto?: (newPhotoUrl: string) => void;
+  onEditPrompt?: () => void;
 }
 
 export default function PhotoGallerySection({
   photos = [],
   studentName = 'Hoàng Ngọc',
-  onAddPhoto
+  isEditable = false,
+  onAddPhoto,
+  onEditPrompt
 }: PhotoGallerySectionProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activePhoto, setActivePhoto] = useState<string | null>(null);
@@ -54,22 +58,36 @@ export default function PhotoGallerySection({
           </div>
         </div>
 
-        {/* Nút Thêm ảnh của bạn (Button Add Photo) */}
-        <button
-          type="button"
-          onClick={() => fileInputRef.current?.click()}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#890F0D] hover:bg-[#720000] text-white text-xs font-bold shadow-md hover:scale-105 active:scale-95 transition-all"
-        >
-          <Plus className="w-3.5 h-3.5" />
-          <span>Thêm ảnh của bạn</span>
-        </button>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={handleFileChange}
-        />
+        {/* Nút Thêm ảnh của bạn (Chỉ hiển thị khi có onAddPhoto hoặc có onEditPrompt) */}
+        {onAddPhoto ? (
+          <>
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#890F0D] hover:bg-[#720000] text-white text-xs font-bold shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Thêm ảnh của bạn</span>
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+          </>
+        ) : onEditPrompt ? (
+          <button
+            type="button"
+            onClick={onEditPrompt}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-stone-100 hover:bg-[#890F0D] hover:text-white text-stone-700 text-xs font-bold border border-stone-200 transition-all cursor-pointer"
+            title="Đăng nhập để thêm ảnh vào template"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Thêm ảnh (Cần đăng nhập)</span>
+          </button>
+        ) : null}
       </div>
 
       {/* Grid danh sách ảnh */}

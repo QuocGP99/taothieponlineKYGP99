@@ -10,9 +10,9 @@ import ShareModal from '@/components/ShareModal';
 import { SAMPLE_INVITATION, GREEN_STUDENT_INVITATION, PREMADE_MESSAGES } from '@/data/templates';
 import { InvitationData, TimelineItem } from '@/types/invitation';
 import { saveInvitation } from '@/lib/storage';
-import { 
-  Sparkles, Check, ChevronRight, ChevronLeft, Upload, 
-  Palette, Type, Eye, Send, Save, AlertCircle, Copy, Share2, 
+import {
+  Sparkles, Check, ChevronRight, ChevronLeft, Upload,
+  Palette, Type, Eye, Send, Save, AlertCircle, Copy, Share2,
   Download, RefreshCw, Smartphone, Monitor, ArrowLeft, User, Clock, Users, Navigation, ExternalLink, Plus, Trash2, Camera, Image as ImageIcon
 } from 'lucide-react';
 import { generateGoogleMapsUrl } from '@/lib/maps';
@@ -284,11 +284,27 @@ function BuilderContent() {
     }
   };
 
-  if (!isAuthenticated) {
+  // 1. Đang kiểm tra trạng thái đăng nhập (tránh nhấp nháy màn hình)
+  if (isAuthenticated === null) {
+    return (
+      <div className="min-h-screen bg-[#FAF8F8] flex items-center justify-center">
+        <div className="text-center space-y-3">
+          <div className="w-10 h-10 border-4 border-[#890F0D] border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-xs font-bold text-[#720000]">Đang xác thực thông tin tài khoản...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. Bắt buộc đăng nhập Google mới cho phép chỉnh sửa template
+  if (isAuthenticated === false) {
+    const tmplParam = searchParams.get('template') || 'modern-crimson-spotlight';
+    const tmplDisplayName = tmplParam === 'green-student' ? 'Green Student (Thanh Xuân)' : 'Modern Crimson Spotlight';
+
     return (
       <div className="min-h-screen bg-[#FAF8F8] flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white rounded-3xl p-8 shadow-2xl border border-[#890F0D]/20 text-center space-y-5 animate-fade-in">
-          
+
           <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#720000] via-[#890F0D] to-[#B91C1C] text-white flex items-center justify-center mx-auto shadow-lg shadow-[#890F0D]/25">
             <Sparkles className="w-8 h-8 text-amber-300" />
           </div>
@@ -298,14 +314,14 @@ function BuilderContent() {
               YÊU CẦU ĐĂNG NHẬP
             </span>
             <h2 className="text-2xl font-black text-stone-900 mt-2">
-              Đăng Nhập Bằng Google Để Chỉnh Sửa
+              Đăng Nhập Để Chỉnh Sửa Template
             </h2>
             <p className="text-xs text-stone-500 mt-1.5 leading-relaxed font-normal">
-              Vui lòng đăng nhập bằng Google để bảo vệ thiết kế và xuất bản đường link thiệp mời kỷ yếu riêng của bạn.
+              Bạn đang chuẩn bị chỉnh sửa mẫu <strong className="text-[#890F0D] font-bold">"{tmplDisplayName}"</strong>. Vui lòng đăng nhập bằng Google để bảo vệ thiết kế và xuất bản link thiệp riêng của bạn.
             </p>
           </div>
 
-          {/* Nút đăng nhập Google */}
+          {/* Nút đăng nhập Google 1 chạm */}
           <button
             type="button"
             onClick={handleGoogleSignIn}
@@ -332,10 +348,10 @@ function BuilderContent() {
             <span>Tiếp tục với Google</span>
           </button>
 
-          {/* Hoặc đăng nhập Gmail OTP */}
+          {/* Hoặc đăng nhập Gmail OTP (Giữ nguyên tham số template) */}
           <div className="pt-2 flex flex-col gap-2">
             <Link
-              href="/login?redirect=/builder"
+              href={`/login?redirect=${encodeURIComponent(`/builder?template=${tmplParam}`)}`}
               className="text-xs text-[#890F0D] hover:underline font-bold"
             >
               Hoặc đăng nhập bằng mã OTP qua Gmail →
@@ -360,7 +376,7 @@ function BuilderContent() {
       {/* Builder Breadcrumb & Top Bar */}
       <div className="bg-white border-b border-[#890F0D]/10 py-3.5 px-4 sm:px-8 sticky top-16 z-30 shadow-xs">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
-          
+
           <div className="flex items-center gap-3">
             <Link
               href="/"
@@ -394,13 +410,12 @@ function BuilderContent() {
                 key={step.num}
                 type="button"
                 onClick={() => setCurrentStep(step.num)}
-                className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl transition-all cursor-pointer ${
-                  currentStep === step.num
+                className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl transition-all cursor-pointer ${currentStep === step.num
                     ? 'bg-[#890F0D] text-white shadow-sm'
                     : currentStep > step.num
-                    ? 'bg-[#FEE2E2] text-[#720000]'
-                    : 'text-stone-400 hover:text-stone-600'
-                }`}
+                      ? 'bg-[#FEE2E2] text-[#720000]'
+                      : 'text-stone-400 hover:text-stone-600'
+                  }`}
               >
                 <span className="w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-black border border-current">
                   {currentStep > step.num ? '✓' : step.num}
@@ -410,18 +425,39 @@ function BuilderContent() {
             ))}
           </div>
 
+          {/* User Auth Badge & Sign Out */}
+          <div className="hidden sm:flex items-center gap-2">
+            <div className="flex items-center gap-1.5 px-3 py-1 bg-emerald-50 border border-emerald-200 rounded-full text-[11px] font-bold text-emerald-800">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="max-w-[120px] sm:max-w-[180px] truncate">{formData.creatorEmail || 'Google User'}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                if (typeof window !== 'undefined') {
+                  localStorage.removeItem('gp_auth_user');
+                }
+                setIsAuthenticated(false);
+              }}
+              className="text-[11px] text-stone-400 hover:text-red-600 font-semibold px-2 py-1 rounded-lg hover:bg-red-50 transition-colors cursor-pointer"
+              title="Đăng xuất khỏi trình tạo thiệp"
+            >
+              Đăng xuất
+            </button>
+          </div>
+
         </div>
       </div>
 
       {/* Main Workspace Layout */}
       <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 flex-1">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
+
           {/* ========================================================= */}
           {/* LEFT COLUMN: CONTROLS & FORMS (lg:col-span-6)             */}
           {/* ========================================================= */}
           <div className="lg:col-span-6 bg-white rounded-3xl p-6 sm:p-8 shadow-xl border border-[#890F0D]/15 space-y-6">
-            
+
             {/* ---------------------------------------------------- */}
             {/* BƯỚC 1: ẢNH CHÂN DUNG & POSTER KỶ YẾU               */}
             {/* ---------------------------------------------------- */}
@@ -1012,7 +1048,7 @@ function BuilderContent() {
           {/* RIGHT COLUMN: REAL-TIME PREVIEW PANEL (lg:col-span-6)     */}
           {/* ========================================================= */}
           <div className="lg:col-span-6 lg:sticky lg:top-36 space-y-4">
-            
+
             {/* Preview Toolbar */}
             <div className="bg-white rounded-2xl p-3 shadow-xs border border-[#890F0D]/15 flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -1024,9 +1060,8 @@ function BuilderContent() {
                 <button
                   type="button"
                   onClick={() => setDevicePreview('mobile')}
-                  className={`p-1.5 rounded-lg text-xs font-bold flex items-center gap-1 ${
-                    devicePreview === 'mobile' ? 'bg-[#FEE2E2] text-[#720000]' : 'text-stone-400 hover:text-stone-600'
-                  }`}
+                  className={`p-1.5 rounded-lg text-xs font-bold flex items-center gap-1 ${devicePreview === 'mobile' ? 'bg-[#FEE2E2] text-[#720000]' : 'text-stone-400 hover:text-stone-600'
+                    }`}
                   title="Giao diện điện thoại"
                 >
                   <Smartphone className="w-4 h-4" />
@@ -1036,9 +1071,8 @@ function BuilderContent() {
                 <button
                   type="button"
                   onClick={() => setDevicePreview('desktop')}
-                  className={`p-1.5 rounded-lg text-xs font-bold flex items-center gap-1 ${
-                    devicePreview === 'desktop' ? 'bg-[#FEE2E2] text-[#720000]' : 'text-stone-400 hover:text-stone-600'
-                  }`}
+                  className={`p-1.5 rounded-lg text-xs font-bold flex items-center gap-1 ${devicePreview === 'desktop' ? 'bg-[#FEE2E2] text-[#720000]' : 'text-stone-400 hover:text-stone-600'
+                    }`}
                   title="Giao diện máy tính"
                 >
                   <Monitor className="w-4 h-4" />
@@ -1050,11 +1084,10 @@ function BuilderContent() {
             {/* Live Interactive Preview Container */}
             <div className="flex justify-center bg-stone-100/70 p-4 rounded-3xl border border-stone-200 min-h-[620px] max-h-[820px] overflow-y-auto">
               <div
-                className={`transition-all duration-300 ${
-                  devicePreview === 'mobile'
+                className={`transition-all duration-300 ${devicePreview === 'mobile'
                     ? 'w-full max-w-[420px] bg-transparent'
                     : 'w-full max-w-[580px] bg-transparent'
-                }`}
+                  }`}
               >
                 <InvitationCard
                   data={formData}

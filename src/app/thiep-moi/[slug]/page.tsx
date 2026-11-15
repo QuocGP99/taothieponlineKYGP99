@@ -127,15 +127,15 @@ export default function PublicInvitationPage() {
     slug.includes('green-student')
       ? GREEN_STUDENT_INVITATION
       : (slug.includes('bao-anh') || slug.includes('12a1') || slug.includes('hoang-ngoc') || slug === 'sample' || slug.includes('crimson') || slug.includes('spotlight')
-          ? SAMPLE_INVITATION
-          : null)
+        ? SAMPLE_INVITATION
+        : null)
   );
 
-  const isTemplatePreview = 
-    slug.includes('green-student') || 
-    slug.includes('hoang-ngoc') || 
-    slug.includes('sample') || 
-    slug.includes('crimson') || 
+  const isTemplatePreview =
+    slug.includes('green-student') ||
+    slug.includes('hoang-ngoc') ||
+    slug.includes('sample') ||
+    slug.includes('crimson') ||
     slug.includes('spotlight');
 
   const handleEditTemplate = () => {
@@ -225,12 +225,13 @@ export default function PublicInvitationPage() {
           </div>
         </div>
 
-        {/* Master Invitation Card */}
+        {/* Master Invitation Card (Chế độ Xem Preview Template: Chỉ Đọc) */}
         <div className="animate-fade-in">
           <InvitationCard
             data={activeData}
-            isInteractive={true}
+            isInteractive={false}
             cardRef={cardRef}
+            onEditPrompt={handleEditTemplate}
           />
         </div>
 
@@ -258,7 +259,7 @@ export default function PublicInvitationPage() {
       {/* ============================================================== */}
       <div className="fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#890F0D]/20 py-3 px-4 sm:px-6 shadow-2xl">
         <div className="max-w-4xl mx-auto flex items-center justify-between gap-3">
-          
+
           {/* Mode 1 indicator: Preview Template */}
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
@@ -290,11 +291,12 @@ export default function PublicInvitationPage() {
       <GoogleLoginModal
         isOpen={googleModalOpen}
         onClose={() => setGoogleModalOpen(false)}
-        templateName={activeData.templateId === 'green-student' ? 'Green Student' : 'Modern Crimson Spotlight'}
-        redirectUrl={`/builder?template=${activeData.templateId || 'modern-crimson-spotlight'}`}
+        templateName={activeData.templateId === 'green-student' ? 'Green Student (Thanh Xuân)' : 'Modern Crimson Spotlight'}
+        redirectUrl={`/builder?template=${activeData.templateId || (slug.includes('green-student') ? 'green-student' : 'modern-crimson-spotlight')}`}
         onSuccess={() => {
           setGoogleModalOpen(false);
-          router.push(`/builder?template=${activeData.templateId || 'modern-crimson-spotlight'}`);
+          const target = activeData.templateId || (slug.includes('green-student') ? 'green-student' : 'modern-crimson-spotlight');
+          router.push(`/builder?template=${target}`);
         }}
       />
 

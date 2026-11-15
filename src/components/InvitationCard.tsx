@@ -20,6 +20,7 @@ interface InvitationCardProps {
   onUpdate?: (partial: Partial<InvitationData>) => void;
   guestName?: string;
   cardRef?: React.RefObject<HTMLDivElement>;
+  onEditPrompt?: () => void;
 }
 
 export default function InvitationCard({ 
@@ -28,7 +29,8 @@ export default function InvitationCard({
   onRSVPClick,
   onUpdate,
   guestName,
-  cardRef 
+  cardRef,
+  onEditPrompt
 }: InvitationCardProps) {
   const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number }>({
     days: 0,
@@ -85,6 +87,7 @@ export default function InvitationCard({
         isEditable={isInteractive}
         onUpdate={onUpdate}
         guestName={guestName}
+        onEditPrompt={onEditPrompt}
       />
 
       {/* ============================================================== */}
@@ -173,11 +176,13 @@ export default function InvitationCard({
       <PhotoGallerySection
         photos={data.gallery}
         studentName={data.studentName}
-        onAddPhoto={(newUrl) => {
+        isEditable={isInteractive}
+        onAddPhoto={isInteractive && onUpdate ? (newUrl) => {
           if (onUpdate) {
             onUpdate({ gallery: [newUrl, ...(data.gallery || [])] });
           }
-        }}
+        } : undefined}
+        onEditPrompt={onEditPrompt}
       />
 
       {/* ============================================================== */}

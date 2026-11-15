@@ -76,13 +76,14 @@ export default function HomePage() {
 
               {/* Action Buttons */}
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
-                <Link
-                  href="/builder"
+                <button
+                  type="button"
+                  onClick={() => handleEditTemplate('modern-crimson-spotlight')}
                   className="px-8 py-4 rounded-2xl font-extrabold text-sm text-white bg-gradient-to-r from-[#720000] via-[#890F0D] to-[#B91C1C] hover:from-[#540000] hover:to-[#720000] shadow-xl shadow-[#890F0D]/30 hover:shadow-2xl hover:shadow-[#890F0D]/40 transform hover:-translate-y-1 transition-all flex items-center gap-2.5 cursor-pointer"
                 >
                   <PlusCircle className="w-5 h-5" />
                   <span>TẠO THIỆP POSTER CỦA BẠN NGAY</span>
-                </Link>
+                </button>
 
                 <a
                   href="/thiep-moi/hoang-ngoc-dai-hoc-dong-a-2027"
@@ -228,13 +229,14 @@ export default function HomePage() {
           </div>
 
           <div className="mt-12 text-center">
-            <Link
-              href="/builder"
-              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl font-bold text-sm text-white bg-gradient-to-r from-[#720000] to-[#890F0D] hover:opacity-95 shadow-lg shadow-[#890F0D]/30"
+            <button
+              type="button"
+              onClick={() => handleEditTemplate('modern-crimson-spotlight')}
+              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl font-bold text-sm text-white bg-gradient-to-r from-[#720000] to-[#890F0D] hover:opacity-95 shadow-lg shadow-[#890F0D]/30 cursor-pointer hover:scale-105 transition-all"
             >
               <span>BẮT ĐẦU TẠO THIỆP NGAY</span>
               <ArrowRight className="w-4 h-4" />
-            </Link>
+            </button>
           </div>
 
         </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import InvitationCard from '@/components/InvitationCard';
@@ -13,24 +13,32 @@ import ShareModal from '@/components/ShareModal';
 import PromoBannerBar from '@/components/PromoBannerBar';
 import MarketingShowcaseCard from '@/components/MarketingShowcaseCard';
 import DiscountLeadForm from '@/components/DiscountLeadForm';
+import GoogleLoginModal from '@/components/GoogleLoginModal';
 import { InvitationData, RSVP } from '@/types/invitation';
 import { getInvitationBySlug, addRSVP, incrementViewCount, incrementShareCount } from '@/lib/storage';
-import { SAMPLE_INVITATION } from '@/data/templates';
+import { SAMPLE_INVITATION, GREEN_STUDENT_INVITATION } from '@/data/templates';
 import {
   Share2, Camera, Heart, Download, Calendar,
-  MapPin, Phone, Sparkles, AlertCircle, ArrowLeft
+  MapPin, Phone, Sparkles, AlertCircle, ArrowLeft, Edit3, Eye
 } from 'lucide-react';
 import * as htmlToImage from 'html-to-image';
 import Link from 'next/link';
 
 export default function PublicInvitationPage() {
+  const router = useRouter();
   const params = useParams();
   const slug = (params?.slug as string) || '';
 
-  const [invitation, setInvitation] = useState<InvitationData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const isPresetTemplate = slug.includes('green-student') || slug.includes('hoang-ngoc') || slug === 'sample';
+  const [invitation, setInvitation] = useState<InvitationData | null>(() => {
+    if (slug.includes('green-student')) return GREEN_STUDENT_INVITATION;
+    if (slug.includes('hoang-ngoc') || slug === 'sample') return SAMPLE_INVITATION;
+    return null;
+  });
+  const [loading, setLoading] = useState(!isPresetTemplate);
   const [envelopeOpen, setEnvelopeOpen] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [googleModalOpen, setGoogleModalOpen] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
   // Fetch invitation data from local storage or server API
@@ -114,8 +122,31 @@ export default function PublicInvitationPage() {
     );
   }
 
-  // Fallback to sample invitation if slug is demo
-  const activeData = invitation || (slug.includes('bao-anh') || slug.includes('12a1') || slug.includes('hoang-ngoc') || slug === 'sample' ? SAMPLE_INVITATION : null);
+  // Fallback to sample invitation if slug is demo or template
+  const activeData = invitation || (
+    slug.includes('green-student')
+      ? GREEN_STUDENT_INVITATION
+      : (slug.includes('bao-anh') || slug.includes('12a1') || slug.includes('hoang-ngoc') || slug === 'sample' || slug.includes('crimson') || slug.includes('spotlight')
+          ? SAMPLE_INVITATION
+          : null)
+  );
+
+  const isTemplatePreview = 
+    slug.includes('green-student') || 
+    slug.includes('hoang-ngoc') || 
+    slug.includes('sample') || 
+    slug.includes('crimson') || 
+    slug.includes('spotlight');
+
+  const handleEditTemplate = () => {
+    const user = typeof window !== 'undefined' ? localStorage.getItem('gp_auth_user') : null;
+    const targetTemplateId = activeData?.templateId || (slug.includes('green-student') ? 'green-student' : 'modern-crimson-spotlight');
+    if (user) {
+      router.push(`/builder?template=${targetTemplateId}`);
+    } else {
+      setGoogleModalOpen(true);
+    }
+  };
 
   if (!activeData) {
     return (
@@ -204,7 +235,7 @@ export default function PublicInvitationPage() {
         </div>
 
         {/* RSVP & Guestbook Section */}
-        {activeData.componentsVisible.showRSVP && (
+        {activeData.componentsVisible?.showRSVP !== false && (
           <RSVPSection
             slug={slug}
             studentName={studentDisplayName}
@@ -214,12 +245,58 @@ export default function PublicInvitationPage() {
         )}
 
         {/* GP Studio99 Marketing Showcase & Lead Form (Ảnh tham khảo 1 & 2) */}
-        <div className="space-y-8 pt-4">
+        <div className="space-y-8 pt-4 pb-16">
           <MarketingShowcaseCard />
           <DiscountLeadForm />
         </div>
 
       </main>
+
+      {/* ============================================================== */}
+      {/* FLOATING ACTION BAR: 2 CHẾ ĐỘ PREVIEW & CHỈNH SỬA TEMPLATE    */}
+      {/* (Chuẩn theo mẫu thieponline.id.vn/invitation/green-student)   */}
+      {/* ============================================================== */}
+      <div className="fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#890F0D]/20 py-3 px-4 sm:px-6 shadow-2xl">
+        <div className="max-w-4xl mx-auto flex items-center justify-between gap-3">
+          
+          {/* Mode 1 indicator: Preview Template */}
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+            <div className="text-left">
+              <span className="text-[11px] sm:text-xs font-bold text-stone-800 flex items-center gap-1.5">
+                <Eye className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span>1. Xem Preview Template</span>
+              </span>
+              <span className="text-[10px] text-stone-500 hidden sm:block">
+                Mẫu: <strong className="text-[#890F0D]">{activeData.templateId === 'green-student' ? 'Green Student (Thanh Xuân)' : 'Modern Crimson Spotlight'}</strong>
+              </span>
+            </div>
+          </div>
+
+          {/* Mode 2 action: Edit template -> Requires Google Login */}
+          <button
+            type="button"
+            onClick={handleEditTemplate}
+            className="px-5 sm:px-7 py-2.5 sm:py-3 rounded-2xl font-black text-xs sm:text-sm text-white bg-gradient-to-r from-[#720000] via-[#890F0D] to-[#B91C1C] hover:from-[#540000] hover:to-[#720000] shadow-lg shadow-[#890F0D]/30 hover:scale-105 active:scale-95 flex items-center gap-2 cursor-pointer transition-all"
+          >
+            <Edit3 className="w-4 h-4" />
+            <span>2. Chỉnh sửa template này</span>
+          </button>
+
+        </div>
+      </div>
+
+      {/* Google Login Modal (Khi click Chỉnh sửa template mà chưa đăng nhập) */}
+      <GoogleLoginModal
+        isOpen={googleModalOpen}
+        onClose={() => setGoogleModalOpen(false)}
+        templateName={activeData.templateId === 'green-student' ? 'Green Student' : 'Modern Crimson Spotlight'}
+        redirectUrl={`/builder?template=${activeData.templateId || 'modern-crimson-spotlight'}`}
+        onSuccess={() => {
+          setGoogleModalOpen(false);
+          router.push(`/builder?template=${activeData.templateId || 'modern-crimson-spotlight'}`);
+        }}
+      />
 
       {/* Share Modal Dialog */}
       <ShareModal

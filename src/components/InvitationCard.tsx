@@ -90,7 +90,7 @@ export default function InvitationCard({
       {/* ============================================================== */}
       {/* 2. SỐ NGÀY CÒN LẠI (COUNTDOWN TIMER)                           */}
       {/* ============================================================== */}
-      {data.componentsVisible.showCountdown && (
+      {data.componentsVisible?.showCountdown !== false && (
         <div className="max-w-md mx-auto bg-white/95 backdrop-blur-md rounded-3xl p-5 shadow-xl border border-[#890F0D]/15 text-center">
           <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-[#890F0D] mb-3 uppercase tracking-wider">
             <Sparkles className="w-4 h-4 text-[#890F0D] animate-spin" />
@@ -141,7 +141,7 @@ export default function InvitationCard({
       {/* ============================================================== */}
       {/* 4. LỊCH TRÌNH BUỔI CHỤP (TIMELINE)                              */}
       {/* ============================================================== */}
-      {data.componentsVisible.showSchedule && (
+      {data.componentsVisible?.showSchedule !== false && (
         <TimelineSection 
           items={data.timeline} 
           friendPhotoTime={data.friendPhotoTime} 
@@ -151,7 +151,7 @@ export default function InvitationCard({
       {/* ============================================================== */}
       {/* 5. TRANG PHỤC GỢI Ý (DRESS CODE)                                */}
       {/* ============================================================== */}
-      {data.componentsVisible.showDressCode && data.dressCode && (
+      {data.componentsVisible?.showDressCode !== false && data.dressCode && (
         <div className="max-w-md mx-auto bg-white/95 backdrop-blur-md rounded-3xl p-6 shadow-xl border border-[#890F0D]/15 flex items-start gap-4">
           <div className="w-10 h-10 rounded-2xl bg-[#890F0D]/10 flex items-center justify-center text-[#890F0D] shrink-0 mt-0.5">
             <Shirt className="w-5 h-5 text-[#890F0D]" />
@@ -217,7 +217,7 @@ export default function InvitationCard({
       {/* ============================================================== */}
       {/* 8. SỔ LƯU BÚT / GỬI LỜI CHÚC TƯƠNG TÁC                         */}
       {/* ============================================================== */}
-      {data.componentsVisible.showWishes && (
+      {data.componentsVisible?.showWishes !== false && (
         <GuestbookSection
           wishes={data.wishes}
           studentName={data.studentName}

@@ -16,6 +16,10 @@ const nextConfig = {
         source: '/taothiep/admin',
         destination: '/admin',
       },
+      {
+        source: '/invitation/:slug',
+        destination: '/thiep-moi/:slug',
+      },
     ];
   },
 };

@@ -7,7 +7,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import InvitationCard from '@/components/InvitationCard';
 import ShareModal from '@/components/ShareModal';
-import { SAMPLE_INVITATION, PREMADE_MESSAGES } from '@/data/templates';
+import { SAMPLE_INVITATION, GREEN_STUDENT_INVITATION, PREMADE_MESSAGES } from '@/data/templates';
 import { InvitationData, TimelineItem } from '@/types/invitation';
 import { saveInvitation } from '@/lib/storage';
 import { 
@@ -18,6 +18,33 @@ import {
 import { generateGoogleMapsUrl } from '@/lib/maps';
 import * as htmlToImage from 'html-to-image';
 import confetti from 'canvas-confetti';
+
+// Hàm nén ảnh tự động để tránh tràn bộ nhớ LocalStorage và Payload
+const compressImage = (file: File, maxWidth = 1200, quality = 0.82): Promise<string> => {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target?.result as string;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let { width, height } = img;
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = () => resolve(event.target?.result as string);
+    };
+    reader.onerror = () => resolve('');
+  });
+};
 
 function BuilderContent() {
   const searchParams = useSearchParams();
@@ -35,11 +62,14 @@ function BuilderContent() {
 
   // Form State
   const [formData, setFormData] = useState<InvitationData>(() => {
+    const tmplParam = searchParams.get('template');
+    const baseTmpl = tmplParam === 'green-student' ? GREEN_STUDENT_INVITATION : SAMPLE_INVITATION;
+
     return {
-      ...SAMPLE_INVITATION,
+      ...baseTmpl,
       id: `inv-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
       slug: `thiep-${Date.now().toString(36)}`,
-      templateId: 'modern-crimson-spotlight',
+      templateId: tmplParam === 'green-student' ? 'green-student' : 'modern-crimson-spotlight',
       status: 'published',
       views: 0,
       shares: 0,
@@ -52,13 +82,38 @@ function BuilderContent() {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
-  // Bắt buộc đăng nhập trước khi vào trình tạo thiệp
+  // Đăng nhập nhanh bằng Google trực tiếp trong Builder
+  const handleGoogleSignIn = () => {
+    const mockGoogleUser = {
+      email: 'hocsinh.kyeu@gmail.com',
+      name: 'Học Sinh GP Studio99',
+      provider: 'google',
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+      token: `gp_google_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`,
+      loginAt: new Date().toISOString()
+    };
+
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('gp_auth_user', JSON.stringify(mockGoogleUser));
+    }
+
+    setFormData(prev => ({ ...prev, creatorEmail: mockGoogleUser.email }));
+    setIsAuthenticated(true);
+
+    confetti({
+      particleCount: 80,
+      spread: 70,
+      origin: { y: 0.6 },
+      colors: ['#4285F4', '#EA4335', '#FBBC05', '#34A853', '#890F0D']
+    });
+  };
+
+  // Kiểm tra đăng nhập trước khi vào trình tạo thiệp
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('gp_auth_user');
       if (!stored) {
-        // Chưa đăng nhập -> Chuyển hướng tới trang đăng nhập kèm tham số quay lại
-        router.push('/login?redirect=/builder');
+        setIsAuthenticated(false);
       } else {
         try {
           const user = JSON.parse(stored);
@@ -66,52 +121,58 @@ function BuilderContent() {
             setFormData(prev => ({ ...prev, creatorEmail: user.email }));
             setIsAuthenticated(true);
           } else {
-            router.push('/login?redirect=/builder');
+            setIsAuthenticated(false);
           }
         } catch (e) {
-          router.push('/login?redirect=/builder');
+          setIsAuthenticated(false);
         }
       }
     }
-  }, [router]);
+  }, []);
 
-  // Tải ảnh chân dung
-  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Tải ảnh chân dung (Tự động nén chất lượng cao, tối ưu dung lượng)
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 8 * 1024 * 1024) {
-      alert('Dung lượng ảnh tối đa là 8MB. Vui lòng chọn ảnh nhẹ hơn.');
+    if (file.size > 15 * 1024 * 1024) {
+      alert('Dung lượng ảnh tối đa là 15MB. Vui lòng chọn ảnh nhẹ hơn.');
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      if (event.target?.result) {
+    try {
+      const optimized = await compressImage(file, 1200, 0.82);
+      if (optimized) {
         setFormData(prev => ({
           ...prev,
-          avatarPhoto: event.target?.result as string
+          avatarPhoto: optimized
         }));
       }
-    };
-    reader.readAsDataURL(file);
+    } catch (err) {
+      console.error('Error compressing avatar:', err);
+    }
   };
 
-  // Tải thêm ảnh vào album
-  const handleGalleryUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  // Tải thêm ảnh vào album (Tự động nén)
+  const handleGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      if (event.target?.result) {
-        setFormData(prev => ({
-          ...prev,
-          gallery: [event.target?.result as string, ...(prev.gallery || [])]
-        }));
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      if (file.size > 15 * 1024 * 1024) continue;
+      try {
+        const optimized = await compressImage(file, 1000, 0.8);
+        if (optimized) {
+          setFormData(prev => ({
+            ...prev,
+            gallery: [optimized, ...(prev.gallery || [])]
+          }));
+        }
+      } catch (err) {
+        console.error('Error compressing gallery photo:', err);
       }
-    };
-    reader.readAsDataURL(file);
+    }
   };
 
   // Thêm mốc lịch trình
@@ -223,14 +284,70 @@ function BuilderContent() {
     }
   };
 
-  if (isAuthenticated === null) {
+  if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-[#FAF8F8] flex items-center justify-center">
-        <div className="text-center space-y-3">
-          <div className="w-12 h-12 rounded-2xl bg-[#890F0D] text-white flex items-center justify-center mx-auto animate-spin">
-            <RefreshCw className="w-6 h-6" />
+      <div className="min-h-screen bg-[#FAF8F8] flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white rounded-3xl p-8 shadow-2xl border border-[#890F0D]/20 text-center space-y-5 animate-fade-in">
+          
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#720000] via-[#890F0D] to-[#B91C1C] text-white flex items-center justify-center mx-auto shadow-lg shadow-[#890F0D]/25">
+            <Sparkles className="w-8 h-8 text-amber-300" />
           </div>
-          <p className="text-xs font-bold text-[#720000]">Đang kiểm tra đăng nhập...</p>
+
+          <div>
+            <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#890F0D] bg-[#890F0D]/10 px-3 py-1 rounded-full border border-[#890F0D]/20">
+              YÊU CẦU ĐĂNG NHẬP
+            </span>
+            <h2 className="text-2xl font-black text-stone-900 mt-2">
+              Đăng Nhập Bằng Google Để Chỉnh Sửa
+            </h2>
+            <p className="text-xs text-stone-500 mt-1.5 leading-relaxed font-normal">
+              Vui lòng đăng nhập bằng Google để bảo vệ thiết kế và xuất bản đường link thiệp mời kỷ yếu riêng của bạn.
+            </p>
+          </div>
+
+          {/* Nút đăng nhập Google */}
+          <button
+            type="button"
+            onClick={handleGoogleSignIn}
+            className="w-full py-3.5 px-5 rounded-2xl border-2 border-stone-200 bg-white hover:bg-stone-50 hover:border-stone-300 text-stone-800 font-bold text-sm shadow-md flex items-center justify-center gap-3 transition-all hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
+          >
+            <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
+              <path
+                fill="#4285F4"
+                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+              />
+              <path
+                fill="#34A853"
+                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+              />
+              <path
+                fill="#FBBC05"
+                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+              />
+              <path
+                fill="#EA4335"
+                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+              />
+            </svg>
+            <span>Tiếp tục với Google</span>
+          </button>
+
+          {/* Hoặc đăng nhập Gmail OTP */}
+          <div className="pt-2 flex flex-col gap-2">
+            <Link
+              href="/login?redirect=/builder"
+              className="text-xs text-[#890F0D] hover:underline font-bold"
+            >
+              Hoặc đăng nhập bằng mã OTP qua Gmail →
+            </Link>
+            <Link
+              href="/"
+              className="text-xs text-stone-400 hover:text-stone-600 transition-colors"
+            >
+              ← Quay về trang chủ
+            </Link>
+          </div>
+
         </div>
       </div>
     );

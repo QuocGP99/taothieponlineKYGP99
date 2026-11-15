@@ -9,16 +9,30 @@ import InvitationCard from '@/components/InvitationCard';
 import PromoBannerBar from '@/components/PromoBannerBar';
 import MarketingShowcaseCard from '@/components/MarketingShowcaseCard';
 import DiscountLeadForm from '@/components/DiscountLeadForm';
+import GoogleLoginModal from '@/components/GoogleLoginModal';
 import { TEMPLATES, SAMPLE_INVITATION } from '@/data/templates';
 import { TemplateCategory } from '@/types/invitation';
 import {
   Sparkles, PlusCircle, ArrowRight, CheckCircle2,
   Camera, Heart, Share2, Mail, Users, Star,
-  Calendar, Layers, ShieldCheck, ChevronRight, Phone, Clock, UserCheck
+  Calendar, Layers, ShieldCheck, ChevronRight, Phone, Clock, UserCheck,
+  Edit3, Eye
 } from 'lucide-react';
 
 export default function HomePage() {
   const [activeCategory, setActiveCategory] = useState<TemplateCategory | 'all'>('all');
+  const [googleModalOpen, setGoogleModalOpen] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<string>('modern-crimson-spotlight');
+
+  const handleEditTemplate = (templateId: string) => {
+    setSelectedTemplate(templateId);
+    const user = typeof window !== 'undefined' ? localStorage.getItem('gp_auth_user') : null;
+    if (user) {
+      window.location.href = `/builder?template=${templateId}`;
+    } else {
+      setGoogleModalOpen(true);
+    }
+  };
 
   const filteredTemplates = activeCategory === 'all'
     ? TEMPLATES
@@ -244,61 +258,80 @@ export default function HomePage() {
             </p>
           </div>
 
-          {/* Template Feature Showcase */}
-          <div className="max-w-xl mx-auto">
-            {TEMPLATES.map(tmpl => (
-              <div
-                key={tmpl.id}
-                className="bg-white rounded-3xl overflow-hidden border border-[#890F0D]/20 shadow-xl hover:shadow-2xl transition-all duration-300 flex flex-col group"
-              >
-                {/* Thumbnail Image */}
-                <div className="relative h-96 overflow-hidden bg-stone-100">
-                  <img
-                    src={tmpl.previewImage}
-                    alt={tmpl.name}
-                    className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+          {/* Template Feature Showcase Grid */}
+          <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+            {TEMPLATES.map(tmpl => {
+              const previewSlug = tmpl.id === 'green-student' ? 'green-student' : 'hoang-ngoc-dai-hoc-dong-a-2027';
+              return (
+                <div
+                  key={tmpl.id}
+                  className="bg-white rounded-3xl overflow-hidden border border-[#890F0D]/20 shadow-xl hover:shadow-2xl transition-all duration-300 flex flex-col group"
+                >
+                  {/* Thumbnail Image */}
+                  <div className="relative h-80 overflow-hidden bg-stone-100">
+                    <img
+                      src={tmpl.previewImage}
+                      alt={tmpl.name}
+                      className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
-                  {tmpl.badge && (
-                    <span className="absolute top-4 left-4 bg-[#890F0D] text-white text-[11px] font-extrabold px-3 py-1 rounded-full shadow">
-                      {tmpl.badge}
+                    {tmpl.badge && (
+                      <span className="absolute top-4 left-4 bg-[#890F0D] text-white text-[11px] font-extrabold px-3 py-1 rounded-full shadow">
+                        {tmpl.badge}
+                      </span>
+                    )}
+
+                    <span className="absolute top-4 right-4 bg-black/60 backdrop-blur text-white text-[10px] font-mono px-2.5 py-1 rounded-md">
+                      {tmpl.styleName}
                     </span>
-                  )}
 
-                  <span className="absolute top-4 right-4 bg-black/60 backdrop-blur text-white text-[10px] font-mono px-2.5 py-1 rounded-md">
-                    {tmpl.styleName}
-                  </span>
+                    <div className="absolute bottom-4 left-4 right-4 text-white">
+                      <span className="text-[11px] font-semibold text-[#FCA5A5] block uppercase tracking-wider">
+                        {tmpl.categoryName}
+                      </span>
+                      <h3 className="text-xl font-black mt-0.5">{tmpl.name}</h3>
+                    </div>
+                  </div>
 
-                  <div className="absolute bottom-4 left-4 right-4 text-white">
-                    <span className="text-[11px] font-semibold text-[#FCA5A5] block uppercase tracking-wider">
-                      {tmpl.categoryName}
-                    </span>
-                    <h3 className="text-2xl font-black mt-0.5">{tmpl.name}</h3>
+                  {/* Body description */}
+                  <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
+                    <p className="text-xs sm:text-sm text-stone-600 leading-relaxed font-normal">
+                      {tmpl.description}
+                    </p>
+
+                    {/* 2 Chế độ theo đúng mẫu reference */}
+                    <div className="pt-3 border-t border-stone-100 space-y-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        {/* 1. Xem Preview Template */}
+                        <a
+                          href={`/invitation/${previewSlug}`}
+                          className="flex-1 py-2.5 px-3 rounded-xl text-xs font-bold text-stone-800 bg-stone-100 hover:bg-stone-200 border border-stone-200 transition-colors flex items-center justify-center gap-1.5"
+                        >
+                          <Eye className="w-3.5 h-3.5 text-stone-600" />
+                          <span>1. Xem Preview</span>
+                        </a>
+
+                        {/* 2. Chỉnh Sửa Template -> Yêu Cầu Đăng Nhập Bằng Google */}
+                        <button
+                          type="button"
+                          onClick={() => handleEditTemplate(tmpl.id)}
+                          className="flex-1 py-2.5 px-3 rounded-xl text-xs font-black text-white bg-gradient-to-r from-[#720000] via-[#890F0D] to-[#B91C1C] hover:from-[#540000] hover:to-[#720000] shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                          <span>2. Chỉnh Sửa Template</span>
+                        </button>
+                      </div>
+
+                      <p className="text-[10px] text-stone-400 text-center">
+                        🔒 Chỉnh sửa template yêu cầu đăng nhập bằng Google
+                      </p>
+                    </div>
+
                   </div>
                 </div>
-
-                {/* Body description */}
-                <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
-                  <p className="text-xs sm:text-sm text-stone-600 leading-relaxed font-normal">
-                    {tmpl.description}
-                  </p>
-
-                  <div className="pt-2 border-t border-stone-100 flex items-center justify-between">
-                    <span className="text-xs font-bold text-[#890F0D]">
-                      Màu chủ đạo: #890F0D & #720000
-                    </span>
-                    <Link
-                      href={`/builder?template=${tmpl.id}`}
-                      className="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-[#890F0D] hover:bg-[#720000] shadow-md transition-all flex items-center gap-1.5"
-                    >
-                      <span>Tạo thiệp theo mẫu này</span>
-                      <ChevronRight className="w-4 h-4" />
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
         </div>
@@ -396,6 +429,18 @@ export default function HomePage() {
 
         </div>
       </section>
+
+      {/* Google Login Modal */}
+      <GoogleLoginModal
+        isOpen={googleModalOpen}
+        onClose={() => setGoogleModalOpen(false)}
+        templateName={selectedTemplate === 'green-student' ? 'Green Student (Thanh Xuân)' : 'Modern Crimson Spotlight'}
+        redirectUrl={`/builder?template=${selectedTemplate}`}
+        onSuccess={() => {
+          setGoogleModalOpen(false);
+          window.location.href = `/builder?template=${selectedTemplate}`;
+        }}
+      />
 
       <Footer />
     </div>

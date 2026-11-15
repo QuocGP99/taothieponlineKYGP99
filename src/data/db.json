@@ -1,5 +1,16 @@
 [
   {
+    "id": "test-inv-001",
+    "slug": "test-slug-001",
+    "schoolName": "THPT �ng �ch Khi�m",
+    "studentName": "Nguy?n Van Test",
+    "date": "2027-04-15",
+    "status": "published",
+    "createdAt": "2026-11-14T09:22:40.846Z",
+    "updatedAt": "2026-11-14T09:22:40.846Z",
+    "views": 1
+  },
+  {
     "id": "inv-1794613845564-shmu86",
     "slug": "hoang-ngoc-truong-ai-hoc-ong-a-syoy",
     "templateId": "modern-crimson-spotlight",

@@ -50,7 +50,42 @@ export async function sendOtpEmail({ to, otp }: SendOtpEmailParams): Promise<{ s
     </html>
   `;
 
-  // 1. Ưu tiên gửi bằng Gmail SMTP (Nodemailer) nếu có cấu hình GMAIL_USER & GMAIL_APP_PASSWORD
+  // 1. Cấu hình gửi mail qua Custom SMTP (Máy chủ Email iNET cPanel hoặc SMTP tùy chỉnh)
+  const smtpHost = process.env.SMTP_HOST;
+  const smtpUser = process.env.SMTP_USER;
+  const smtpPass = process.env.SMTP_PASSWORD || process.env.SMTP_PASS;
+  const smtpPort = Number(process.env.SMTP_PORT || 465);
+
+  if (smtpHost && smtpUser && smtpPass) {
+    try {
+      const transporter = nodemailer.createTransport({
+        host: smtpHost,
+        port: smtpPort,
+        secure: smtpPort === 465, // SSL đối với port 465
+        auth: {
+          user: smtpUser,
+          pass: smtpPass
+        },
+        tls: {
+          rejectUnauthorized: false // Chấp nhận chứng chỉ SSL cPanel iNET
+        }
+      });
+
+      await transporter.sendMail({
+        from: `"GP Studio99 Kỷ Yếu" <${smtpUser}>`,
+        to: normalizedEmail,
+        subject: `[GP Studio99] Mã xác thực đăng nhập: ${otp} 🎓`,
+        html: emailHtml
+      });
+
+      console.log(`[MAILER] Đã gửi mã OTP thực tế qua iNET SMTP (${smtpHost}) tới: ${normalizedEmail}`);
+      return { success: true, sentVia: 'inet_smtp' };
+    } catch (err: any) {
+      console.error('[MAILER] Lỗi gửi qua iNET SMTP:', err);
+    }
+  }
+
+  // 2. Gửi bằng Gmail SMTP (Nodemailer) nếu có GMAIL_USER & GMAIL_APP_PASSWORD
   const gmailUser = process.env.GMAIL_USER;
   const gmailPass = process.env.GMAIL_APP_PASSWORD;
 
@@ -78,7 +113,7 @@ export async function sendOtpEmail({ to, otp }: SendOtpEmailParams): Promise<{ s
     }
   }
 
-  // 2. Thử gửi qua Resend API nếu có RESEND_API_KEY
+  // 3. Thử gửi qua Resend API nếu có RESEND_API_KEY
   const resendApiKey = process.env.RESEND_API_KEY;
   if (resendApiKey) {
     try {
@@ -89,7 +124,7 @@ export async function sendOtpEmail({ to, otp }: SendOtpEmailParams): Promise<{ s
           'Authorization': `Bearer ${resendApiKey}`
         },
         body: JSON.stringify({
-          from: process.env.RESEND_FROM || 'GP Studio99 <onboarding@resend.dev>',
+          from: process.env.RESEND_FROM || 'GP Studio99 <thiep@chupanhdanang.com>',
           to: [normalizedEmail],
           subject: `[GP Studio99] Mã xác thực đăng nhập: ${otp} 🎓`,
           html: emailHtml
@@ -99,18 +134,14 @@ export async function sendOtpEmail({ to, otp }: SendOtpEmailParams): Promise<{ s
       if (res.ok) {
         console.log(`[MAILER] Đã gửi mã OTP thực tế qua Resend tới: ${normalizedEmail}`);
         return { success: true, sentVia: 'resend' };
-      } else {
-        const errorText = await res.text();
-        console.warn('[MAILER] Resend API trả về lỗi:', errorText);
       }
     } catch (err: any) {
       console.error('[MAILER] Lỗi gửi qua Resend:', err);
     }
   }
 
-  // 3. Nếu chưa cấu hình SMTP hay Resend Key: Trả về trạng thái chưa cấu hình
   return {
     success: false,
-    error: 'Chưa cấu hình dịch vụ gửi email (GMAIL_USER + GMAIL_APP_PASSWORD hoặc RESEND_API_KEY trong .env.local hoặc Vercel).'
+    error: 'Chưa cấu hình dịch vụ gửi email SMTP (iNET SMTP hoặc GMAIL_USER + GMAIL_APP_PASSWORD trong .env).'
   };
 }

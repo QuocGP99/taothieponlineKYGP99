@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generate6DigitOTP, saveOTP } from '@/lib/otpStore';
 import { sendOtpEmail } from '@/lib/mailer';
+import { isMysqlConfigured, saveOtpToDb } from '@/lib/mysql';
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,27 +16,40 @@ export async function POST(req: NextRequest) {
 
     const normalizedEmail = email.trim().toLowerCase();
     const otp = generate6DigitOTP();
+
+    // 1. Lưu vào MySQL nếu đã kết nối iNET
+    if (isMysqlConfigured()) {
+      try {
+        await saveOtpToDb(normalizedEmail, otp, 300);
+        console.log(`[AUTH] Đã lưu mã OTP cho ${normalizedEmail} vào MySQL.`);
+      } catch (err: any) {
+        console.warn('[AUTH] Lỗi lưu OTP vào MySQL:', err.message);
+      }
+    }
+
+    // 2. Lưu vào RAM store dự phòng
     saveOTP(normalizedEmail, otp, 300); // Mã có hiệu lực 5 phút
 
-    // Thử gửi email thực tế qua Gmail SMTP hoặc Resend
+    // 3. Gửi email thực tế qua iNET SMTP hoặc Gmail SMTP
     const mailResult = await sendOtpEmail({ to: normalizedEmail, otp });
 
     if (mailResult.success) {
       return NextResponse.json({
         success: true,
         message: `Mã xác thực 6 số đã được gửi trực tiếp đến Gmail: ${normalizedEmail}. Vui lòng kiểm tra hộp thư đến (hoặc mục Thư rác/Spam).`,
-        isLiveEmail: true
+        isLiveEmail: true,
+        sentVia: mailResult.sentVia
       });
     }
 
-    // Nếu chưa cấu hình SMTP thực tế, hiển thị mã xác thực ngay cho người dùng
-    console.log(`[AUTH OTP DEMO] Chưa cấu hình SMTP/Resend. Mã OTP cho ${normalizedEmail}: ${otp}`);
+    // Nếu chưa cấu hình SMTP thực tế, hiển thị mã xác thực ngay cho người dùng thử nghiệm
+    console.log(`[AUTH OTP DEMO] Chưa cấu hình SMTP. Mã OTP cho ${normalizedEmail}: ${otp}`);
     return NextResponse.json({
       success: true,
       message: `Mã xác thực của bạn là: ${otp}`,
       isLiveEmail: false,
       debugOtp: otp,
-      warning: 'Chưa cấu hình Gmail SMTP hoặc RESEND_API_KEY nên email chưa được gửi ra Internet. Bạn có thể dùng mã hiển thị trên màn hình để đăng nhập ngay.'
+      warning: 'Chưa cấu hình SMTP iNET hoặc Gmail App Password nên email chưa thể gửi ra ngoài. Bạn có thể sử dụng mã OTP hiển thị trên màn hình để đăng nhập ngay.'
     });
 
   } catch (error: any) {

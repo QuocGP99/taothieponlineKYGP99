@@ -31,7 +31,7 @@ export default function GoogleLoginModal({
     const emailToUse = selectedEmail || googleEmail.trim() || 'hocsinh.kyeu@gmail.com';
     const namePart = emailToUse.split('@')[0].replace(/[._-]/g, ' ').toUpperCase();
 
-    setTimeout(() => {
+    setTimeout(async () => {
       const mockGoogleUser = {
         email: emailToUse.toLowerCase(),
         name: namePart || 'Học Sinh GP Studio99',
@@ -43,6 +43,17 @@ export default function GoogleLoginModal({
 
       if (typeof window !== 'undefined') {
         localStorage.setItem('gp_auth_user', JSON.stringify(mockGoogleUser));
+      }
+
+      // Lưu tài khoản vào MySQL Backend
+      try {
+        await fetch('/api/auth/google', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(mockGoogleUser)
+        });
+      } catch (e) {
+        console.warn('Could not sync user to MySQL:', e);
       }
 
       // Bắn pháo hoa chào mừng

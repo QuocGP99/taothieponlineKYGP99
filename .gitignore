@@ -16,6 +16,8 @@
 # Misc
 .DS_Store
 *.pem
+*.zip
+.staging*
 .ag-kit-backups/
 
 # Debug logs

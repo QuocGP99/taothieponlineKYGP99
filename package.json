@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "pack:inet": "powershell -ExecutionPolicy Bypass -File ./scripts/pack-inet.ps1",
     "lint": "next lint"
   },
   "dependencies": {
@@ -14,6 +15,7 @@
     "framer-motion": "^11.11.9",
     "html-to-image": "^1.11.11",
     "lucide-react": "^0.453.0",
+    "mysql2": "^3.24.6",
     "next": "^14.2.15",
     "nodemailer": "^10.5.0",
     "react": "^18.3.1",

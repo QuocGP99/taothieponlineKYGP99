@@ -309,7 +309,9 @@ export default function InvitationCard({
 
         <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
           <a
-            href="/#lead-discount-form"
+            href="https://zalo.me/0899236001"
+            target="_blank"
+            rel="noreferrer"
             className="px-4 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-stone-950 shadow-md flex items-center gap-1.5 transition-transform hover:scale-105"
           >
             <Gift className="w-3.5 h-3.5" />

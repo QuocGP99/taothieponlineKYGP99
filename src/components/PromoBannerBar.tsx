@@ -8,16 +8,6 @@ export default function PromoBannerBar() {
 
   if (closed) return null;
 
-  const handleScrollToDiscount = (e: React.MouseEvent) => {
-    e.preventDefault();
-    const el = document.getElementById('lead-discount-form');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    } else {
-      window.location.href = '/#lead-discount-form';
-    }
-  };
-
   return (
     <div className="relative bg-[#FFF0F3] border-b border-[#F8BBD0] text-stone-800 text-xs py-2 px-3 sm:px-6 transition-all z-40">
       <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2.5">
@@ -45,13 +35,16 @@ export default function PromoBannerBar() {
             <ExternalLink className="w-2.5 h-2.5" />
           </a>
 
-          <button
-            type="button"
-            onClick={handleScrollToDiscount}
+          <a
+            href="https://zalo.me/0899236001"
+            target="_blank"
+            rel="noreferrer"
             className="px-3 py-1 rounded-full text-[11px] font-extrabold bg-white hover:bg-rose-50 text-[#890F0D] border border-[#F8BBD0] shadow-xs transition-colors flex items-center gap-1 cursor-pointer"
+            title="Liên hệ Zalo nhận ưu đãi 10%"
           >
             <span>🎁 Nhận ưu đãi 10%</span>
-          </button>
+            <ExternalLink className="w-2.5 h-2.5" />
+          </a>
 
           <button
             type="button"

@@ -7,27 +7,14 @@ import {
 } from 'lucide-react';
 
 interface MarketingShowcaseCardProps {
-  onScrollToDiscount?: () => void;
   className?: string;
   isCompact?: boolean;
 }
 
 export default function MarketingShowcaseCard({ 
-  onScrollToDiscount,
   className = '',
   isCompact = false
 }: MarketingShowcaseCardProps) {
-  const handleScroll = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (onScrollToDiscount) {
-      onScrollToDiscount();
-    } else {
-      const el = document.getElementById('lead-discount-form');
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth' });
-      }
-    }
-  };
 
   return (
     <div className={`relative overflow-hidden rounded-[32px] sm:rounded-[36px] bg-gradient-to-br from-[#240303] via-[#480505] to-[#1A0202] text-white border border-[#890F0D]/40 shadow-2xl ${className}`}>
@@ -96,14 +83,16 @@ export default function MarketingShowcaseCard({
               </a>
 
               {/* Giảm 10% */}
-              <button
-                type="button"
-                onClick={handleScroll}
-                className="px-4 py-2.5 rounded-xl font-bold text-xs bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-stone-950 shadow-lg shadow-amber-500/20 hover:scale-105 transition-all flex items-center gap-1.5 cursor-pointer"
+              <a
+                href="https://zalo.me/0899236001"
+                target="_blank"
+                rel="noreferrer"
+                className="px-4 py-2.5 rounded-xl font-bold text-xs bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-stone-950 shadow-lg shadow-amber-500/20 hover:scale-105 transition-all flex items-center gap-1.5"
+                title="Nhận mã giảm 10% qua Zalo GP Studio99"
               >
                 <span>🎁 Giảm 10%</span>
-                <ArrowDownCircle className="w-3.5 h-3.5" />
-              </button>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
 
               {/* Xem concept */}
               <a

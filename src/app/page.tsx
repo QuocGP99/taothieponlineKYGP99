@@ -8,7 +8,6 @@ import PetalsEffect from '@/components/PetalsEffect';
 import InvitationCard from '@/components/InvitationCard';
 import PromoBannerBar from '@/components/PromoBannerBar';
 import MarketingShowcaseCard from '@/components/MarketingShowcaseCard';
-import DiscountLeadForm from '@/components/DiscountLeadForm';
 import GoogleLoginModal from '@/components/GoogleLoginModal';
 import { TEMPLATES, SAMPLE_INVITATION } from '@/data/templates';
 import { TemplateCategory } from '@/types/invitation';
@@ -152,13 +151,12 @@ export default function HomePage() {
       </section>
 
       {/* ========================================================= */}
-      {/* KHỐI QUẢNG CÁO KỶ YẾU GP STUDIO99 & FORM NHẬN ƯU ĐÃI 10%    */}
+      {/* KHỐI QUẢNG CÁO KỶ YẾU GP STUDIO99                         */}
       {/* (Nằm ngay trước phần QUY TRÌNH ĐƠN GIẢN)                  */}
       {/* ========================================================= */}
       <section className="py-8 sm:py-12 relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <MarketingShowcaseCard />
-          <DiscountLeadForm />
         </div>
       </section>
 

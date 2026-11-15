@@ -12,7 +12,6 @@ import PetalsEffect from '@/components/PetalsEffect';
 import ShareModal from '@/components/ShareModal';
 import PromoBannerBar from '@/components/PromoBannerBar';
 import MarketingShowcaseCard from '@/components/MarketingShowcaseCard';
-import DiscountLeadForm from '@/components/DiscountLeadForm';
 import GoogleLoginModal from '@/components/GoogleLoginModal';
 import { InvitationData, RSVP } from '@/types/invitation';
 import { getInvitationBySlug, addRSVP, incrementViewCount, incrementShareCount } from '@/lib/storage';
@@ -245,10 +244,9 @@ export default function PublicInvitationPage() {
           />
         )}
 
-        {/* GP Studio99 Marketing Showcase & Lead Form (Ảnh tham khảo 1 & 2) */}
-        <div className="space-y-8 pt-4 pb-16">
+        {/* GP Studio99 Marketing Showcase */}
+        <div className="pt-4 pb-16">
           <MarketingShowcaseCard />
-          <DiscountLeadForm />
         </div>
 
       </main>

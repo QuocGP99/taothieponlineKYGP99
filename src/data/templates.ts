@@ -43,7 +43,7 @@ export const SAMPLE_INVITATION: InvitationData = {
   id: 'gp-hoang-ngoc-dong-a',
   slug: 'hoang-ngoc-dai-hoc-dong-a-2027',
   templateId: 'modern-crimson-spotlight',
-  
+
   // Tên người tạo & tên chia 2 bên poster
   studentName: 'HOÀNG NGỌC',
   namePart1: 'HOÀNG',
@@ -54,10 +54,10 @@ export const SAMPLE_INVITATION: InvitationData = {
   schoolYear: '2023 - 2027',
   senderName: 'Hoàng Ngọc',
   guestName: 'Mỹ Linh',
-  
+
   // Khung giờ đón bạn bè
   friendPhotoTime: '13:00 - 18:00 (Đón bạn bè & người thân chụp ảnh giao lưu)',
-  
+
   // Tiêu đề & thời gian
   title: 'HAPPY YEARBOOK EVENT – HOÀNG NGỌC',
   date: '2027-07-22',
@@ -70,7 +70,7 @@ export const SAMPLE_INVITATION: InvitationData = {
   googleMapsUrl: 'https://www.google.com/maps/search/Truong+Dai+Hoc+Dong+A',
   dressCode: 'Tone màu trắng, be hoặc trang phục tự do nhẹ nhàng, thanh lịch để chụp ảnh kỷ niệm nhé!',
   note: 'Mang theo nụ cười rạng rỡ và tinh thần hứng khởi đến chụp cùng Ngọc nha!',
-  
+
   // Lịch trình chi tiết (Timeline)
   timeline: [
     {
@@ -95,7 +95,7 @@ export const SAMPLE_INVITATION: InvitationData = {
       note: 'Khoảnh khắc tung nón lưu giữ thanh xuân cùng GP Studio99'
     }
   ],
-  
+
   // Bộ sưu tập ảnh & Album của bạn
   gallery: [
     '/images/poster-reference.jpg',
@@ -103,7 +103,7 @@ export const SAMPLE_INVITATION: InvitationData = {
     'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80',
     'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=800&q=80'
   ],
-  
+
   // Lời chúc từ bạn bè (Guestbook)
   wishes: [
     {
@@ -121,16 +121,16 @@ export const SAMPLE_INVITATION: InvitationData = {
       createdAt: '2026-11-13T09:15:00Z'
     }
   ],
-  
+
   // Lời nhắn gửi bạn bè
   inviteMessage: 'Bốn năm đại học trôi qua tựa một cái chớp mắt, ngày chụp ảnh kỷ yếu tốt nghiệp của mình đã đến. Sự hiện diện và nụ cười của bạn là món quà quý giá nhất trong ngày thanh xuân này. Hãy ghé qua chung vui và chụp cùng mình những bức ảnh thật đẹp nhé!',
   wishMessage: 'Cảm ơn bạn vì đã là một phần thanh xuân rực rỡ nhất của Hoàng Ngọc!',
   signature: 'Hoàng Ngọc • Trân trọng',
-  
+
   // Hình ảnh
   avatarPhoto: '/images/poster-reference.jpg',
   groupPhoto: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1200&q=80',
-  
+
   // Thiết kế
   primaryColor: '#890F0D',
   secondaryColor: '#720000',
@@ -148,7 +148,7 @@ export const SAMPLE_INVITATION: InvitationData = {
     showMusic: true,
     showRSVP: true
   },
-  
+
   // Người tạo (Không bắt buộc email)
   creatorName: 'Hoàng Ngọc',
   creatorEmail: 'hello@reallygreatsite.com',
@@ -178,30 +178,30 @@ export const GREEN_STUDENT_INVITATION: InvitationData = {
   id: 'gp-green-student',
   slug: 'green-student',
   templateId: 'green-student',
-  studentName: 'NGUYỄN XUÂN TRƯỜNG',
+  studentName: 'Tên gọi',
   namePart1: 'XUÂN',
   namePart2: 'TRƯỜNG',
-  nickname: 'Trường Kỷ Yếu',
-  className: '12A1 Kỷ Niệm',
-  schoolName: 'THPT CHUYÊN LÊ QUÝ ĐÔN',
-  schoolYear: '2023 - 2026',
-  senderName: 'Nguyễn Xuân Trường',
+  nickname: 'Tên gọi',
+  className: '12A1',
+  schoolName: 'Tên trường của bạn',
+  schoolYear: '2024 - 2027',
+  senderName: 'Tên gọi',
   guestName: 'Bạn thân mến',
   friendPhotoTime: '13:30 - 17:30 (Đón bạn bè chụp ảnh kỷ niệm)',
-  title: 'THIỆP MỜI KỶ YẾU – NGUYỄN XUÂN TRƯỜNG',
-  date: '2026-05-20',
-  dayOfWeek: 'Thứ bảy',
+  title: 'mùa phượng cuối',
+  date: '2026-12-30',
+  dayOfWeek: 'Thứ tư',
   startTime: '13:00',
   endTime: '18:00',
-  gatheringLocation: 'Sân trường THPT Chuyên Lê Quý Đôn',
-  shootLocation: 'Cơ sở chính THPT Chuyên Lê Quý Đôn, Đà Nẵng',
+  gatheringLocation: 'Sân trường của bạn',
+  shootLocation: 'Cơ sở chính trường học, Đà Nẵng',
   detailedAddress: 'Đà Nẵng',
-  googleMapsUrl: 'https://www.google.com/maps/search/THPT+Chuyen+Le+Quy+Don+Da+Nang',
+  googleMapsUrl: 'https://www.google.com/maps/search/Da+Nang',
   dressCode: 'Tone màu xanh sage, trắng hoặc be nhẹ nhàng thanh lịch',
-  note: 'Hãy ghé qua chụp ảnh cùng Trường nhé!',
+  note: 'Hãy ghé qua chụp ảnh cùng mình nhé!',
   inviteMessage: 'Ba năm cấp 3 trôi qua như một cái chớp mắt, ngày chụp ảnh kỷ yếu của mình đã đến rồi. Hãy ghé qua chung vui và chụp cùng mình vài tấm hình kỷ niệm thật vui nhé!',
-  wishMessage: 'Cảm ơn bạn vì đã đồng hành cùng Trường trong suốt những năm tháng thanh xuân cấp 3!',
-  signature: 'Xuân Trường • Trân trọng',
+  wishMessage: 'Cảm ơn bạn vì đã đồng hành cùng mình trong suốt những năm tháng thanh xuân!',
+  signature: 'Tên gọi • Trân trọng',
   avatarPhoto: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80',
   groupPhoto: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1200&q=80',
   primaryColor: '#15803D',

@@ -289,56 +289,6 @@ export default function InvitationCard({
       </div>
 
       {/* ============================================================== */}
-      {/* 10.5. PROMO CARD: KỶ YẾU GP STUDIO99 & GIẢM 10% CHO CẢ LỚP     */}
-      {/* ============================================================== */}
-      <div className="max-w-md mx-auto bg-gradient-to-br from-[#240303] via-[#480505] to-[#1A0202] text-white rounded-3xl p-5 shadow-xl border border-[#890F0D]/40 text-center space-y-3 relative overflow-hidden">
-        <div className="absolute -top-12 -right-12 w-32 h-32 bg-rose-600/20 rounded-full blur-xl pointer-events-none" />
-        
-        <div className="flex items-center justify-center gap-1.5 text-[11px] font-black uppercase tracking-wider text-rose-200">
-          <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-          <span>KỶ YẾU GP STUDIO99 • ƯU ĐÃI CHO LỚP BẠN</span>
-        </div>
-
-        <h4 className="text-base sm:text-lg font-black text-white leading-snug">
-          Lớp bạn muốn có bộ ảnh kỷ yếu đẹp như thế này?
-        </h4>
-
-        <p className="text-[11px] sm:text-xs text-stone-200 leading-relaxed">
-          Đăng ký ngay để nhận <strong className="text-amber-300 font-bold">mã giảm 10%</strong> trọn gói chụp ảnh kỷ yếu cùng GP Studio99 tại Đà Nẵng & miền Trung.
-        </p>
-
-        <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
-          <a
-            href="https://zalo.me/0899236001"
-            target="_blank"
-            rel="noreferrer"
-            className="px-4 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-stone-950 shadow-md flex items-center gap-1.5 transition-transform hover:scale-105"
-          >
-            <Gift className="w-3.5 h-3.5" />
-            <span>🎁 Nhận ưu đãi 10%</span>
-          </a>
-
-          <a
-            href="https://chupanhdanang.com/bang-gia-ky-yeu/"
-            target="_blank"
-            rel="noreferrer"
-            className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-white/10 hover:bg-white/20 border border-white/20 text-white backdrop-blur flex items-center gap-1 transition-colors"
-          >
-            <span>Báo giá</span>
-            <ExternalLink className="w-3 h-3 text-stone-300" />
-          </a>
-
-          <a
-            href="tel:0899236001"
-            className="px-3.5 py-2 rounded-xl text-xs font-bold bg-white text-stone-900 hover:bg-stone-100 shadow flex items-center gap-1.5 transition-colors"
-          >
-            <Phone className="w-3 h-3 text-[#890F0D]" />
-            <span>0899.236.001</span>
-          </a>
-        </div>
-      </div>
-
-      {/* ============================================================== */}
       {/* 11. FOOTER: CREATED BY GP STUDIO99                              */}
       {/* ============================================================== */}
       <div className="max-w-md mx-auto text-center pt-4 pb-2 border-t border-[#890F0D]/15">

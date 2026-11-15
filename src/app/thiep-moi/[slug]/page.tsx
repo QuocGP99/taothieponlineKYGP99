@@ -2,16 +2,12 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
 import InvitationCard from '@/components/InvitationCard';
 import EnvelopeOpener from '@/components/EnvelopeOpener';
 import RSVPSection from '@/components/RSVPSection';
 import MusicPlayer from '@/components/MusicPlayer';
 import PetalsEffect from '@/components/PetalsEffect';
 import ShareModal from '@/components/ShareModal';
-import PromoBannerBar from '@/components/PromoBannerBar';
-import MarketingShowcaseCard from '@/components/MarketingShowcaseCard';
 import GoogleLoginModal from '@/components/GoogleLoginModal';
 import { InvitationData, RSVP } from '@/types/invitation';
 import { getInvitationBySlug, addRSVP, incrementViewCount, incrementShareCount } from '@/lib/storage';
@@ -149,9 +145,8 @@ export default function PublicInvitationPage() {
 
   if (!activeData) {
     return (
-      <div className="min-h-screen bg-[#FAF8F8] flex flex-col">
-        <Navbar />
-        <div className="max-w-md mx-auto my-auto p-8 text-center space-y-4">
+      <div className="min-h-screen bg-[#FAF8F8] flex flex-col items-center justify-center p-4">
+        <div className="max-w-md mx-auto p-8 text-center space-y-4 bg-white rounded-3xl shadow-xl border border-stone-200">
           <div className="w-16 h-16 rounded-full bg-[#FEE2E2] text-[#890F0D] flex items-center justify-center mx-auto text-2xl">
             <AlertCircle className="w-8 h-8" />
           </div>
@@ -166,7 +161,6 @@ export default function PublicInvitationPage() {
             Tự tạo thiệp mời kỷ yếu
           </Link>
         </div>
-        <Footer />
       </div>
     );
   }
@@ -175,10 +169,45 @@ export default function PublicInvitationPage() {
   const studentDisplayName = activeData.studentName || activeData.senderName || 'mình';
 
   return (
-    <div className="min-h-screen bg-[#FAF8F8] flex flex-col selection:bg-[#FEE2E2] selection:text-[#720000]">
+    <div className="min-h-screen bg-[#FAF8F8] flex flex-col selection:bg-[#FEE2E2] selection:text-[#720000] relative">
       <PetalsEffect />
-      <PromoBannerBar />
-      <Navbar />
+
+      {/* Floating Navigation: Back to Home (Left) */}
+      <Link
+        href="/"
+        className="fixed top-4 left-4 z-40 p-2.5 sm:px-3.5 sm:py-2 rounded-full bg-white/85 hover:bg-white text-stone-700 hover:text-[#890F0D] shadow-md border border-stone-200/60 backdrop-blur transition-all flex items-center gap-1.5 text-xs font-bold"
+        title="Trang chủ GP Studio99"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        <span className="hidden sm:inline">Trang chủ</span>
+      </Link>
+
+      {/* Floating Tools: Share & Download Card (Right) */}
+      <div className="fixed top-4 right-16 sm:right-20 z-40 flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => {
+            incrementShareCount(slug);
+            setShareModalOpen(true);
+          }}
+          className="p-2.5 rounded-full bg-white/85 hover:bg-white text-stone-700 hover:text-[#890F0D] shadow-md border border-stone-200/60 backdrop-blur transition-all cursor-pointer"
+          title="Chia sẻ thiệp"
+        >
+          <Share2 className="w-4 h-4" />
+        </button>
+
+        <button
+          type="button"
+          onClick={handleDownloadCard}
+          className="p-2.5 rounded-full bg-white/85 hover:bg-white text-stone-700 hover:text-[#890F0D] shadow-md border border-stone-200/60 backdrop-blur transition-all cursor-pointer"
+          title="Tải ảnh thiệp PNG"
+        >
+          <Download className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Background Youth Music Player (Fixed top-4 right-4) */}
+      <MusicPlayer />
 
       {/* Interactive Envelope Opener (Modal/Curtain) */}
       <EnvelopeOpener
@@ -189,40 +218,8 @@ export default function PublicInvitationPage() {
         onOpen={() => setEnvelopeOpen(true)}
       />
 
-      {/* Background Youth Music Player */}
-      <MusicPlayer />
-
-      {/* Main Content Area */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 flex-1 w-full space-y-8 animate-fade-in">
-
-        {/* Top Action Bar */}
-        <div className="flex items-center justify-between bg-white/90 backdrop-blur p-3.5 rounded-2xl border border-[#890F0D]/15 shadow-xs">
-          <Link href="/" className="flex items-center gap-1.5 text-xs font-bold text-[#890F0D] hover:underline">
-            <ArrowLeft className="w-4 h-4" />
-            <span>Trang chủ GP Studio99</span>
-          </Link>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => {
-                incrementShareCount(slug);
-                setShareModalOpen(true);
-              }}
-              className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#890F0D] hover:bg-[#720000] shadow-md shadow-[#890F0D]/25 flex items-center gap-1.5 transition-all cursor-pointer"
-            >
-              <Share2 className="w-3.5 h-3.5" />
-              <span>Chia sẻ thiệp</span>
-            </button>
-
-            <button
-              onClick={handleDownloadCard}
-              className="p-2 rounded-xl text-xs font-bold text-[#890F0D] bg-[#FFF5F5] hover:bg-[#FEE2E2] border border-[#890F0D]/20 transition-colors cursor-pointer"
-              title="Tải ảnh thiệp PNG"
-            >
-              <Download className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
+      {/* Main Content Area: CHỈ GIỮ LẠI THỰC TẾ NGƯỜI NHẬN */}
+      <main className="max-w-xl mx-auto px-4 py-8 sm:py-12 flex-1 w-full space-y-8 animate-fade-in pb-28">
 
         {/* Master Invitation Card (Chế độ Xem Preview Template: Chỉ Đọc) */}
         <div className="animate-fade-in">
@@ -244,52 +241,49 @@ export default function PublicInvitationPage() {
           />
         )}
 
-        {/* GP Studio99 Marketing Showcase */}
-        <div className="pt-4 pb-16">
-          <MarketingShowcaseCard />
-        </div>
-
       </main>
 
       {/* ============================================================== */}
       {/* FLOATING ACTION BAR: 2 CHẾ ĐỘ PREVIEW & CHỈNH SỬA TEMPLATE    */}
       {/* (Chuẩn theo mẫu thieponline.id.vn/invitation/green-student)   */}
       {/* ============================================================== */}
-      <div className="fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#890F0D]/20 py-3 px-4 sm:px-6 shadow-2xl">
-        <div className="max-w-4xl mx-auto flex items-center justify-between gap-3">
+      {isTemplatePreview && (
+        <div className="fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#890F0D]/20 py-3 px-4 sm:px-6 shadow-2xl">
+          <div className="max-w-xl mx-auto flex items-center justify-between gap-3">
 
-          {/* Mode 1 indicator: Preview Template */}
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-            <div className="text-left">
-              <span className="text-[11px] sm:text-xs font-bold text-stone-800 flex items-center gap-1.5">
-                <Eye className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span>1. Xem Preview Template</span>
-              </span>
-              <span className="text-[10px] text-stone-500 hidden sm:block">
-                Mẫu: <strong className="text-[#890F0D]">{activeData.templateId === 'green-student' ? 'Green Student (Thanh Xuân)' : 'Modern Crimson Spotlight'}</strong>
-              </span>
+            {/* Mode 1 indicator: Preview Template */}
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+              <div className="text-left">
+                <span className="text-[11px] sm:text-xs font-bold text-stone-800 flex items-center gap-1.5">
+                  <Eye className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <span>1. Xem Preview Template</span>
+                </span>
+                <span className="text-[10px] text-stone-500 hidden sm:block">
+                  Mẫu: <strong className="text-[#890F0D]">{activeData.templateId === 'green-student' ? 'Green Student (Mùa Phượng Cuối)' : 'Modern Crimson Spotlight'}</strong>
+                </span>
+              </div>
             </div>
+
+            {/* Mode 2 action: Edit template -> Requires Google Login */}
+            <button
+              type="button"
+              onClick={handleEditTemplate}
+              className="px-5 sm:px-7 py-2.5 sm:py-3 rounded-2xl font-black text-xs sm:text-sm text-white bg-gradient-to-r from-[#720000] via-[#890F0D] to-[#B91C1C] hover:from-[#540000] hover:to-[#720000] shadow-lg shadow-[#890F0D]/30 hover:scale-105 active:scale-95 flex items-center gap-2 cursor-pointer transition-all"
+            >
+              <Edit3 className="w-4 h-4" />
+              <span>2. Chỉnh sửa template này</span>
+            </button>
+
           </div>
-
-          {/* Mode 2 action: Edit template -> Requires Google Login */}
-          <button
-            type="button"
-            onClick={handleEditTemplate}
-            className="px-5 sm:px-7 py-2.5 sm:py-3 rounded-2xl font-black text-xs sm:text-sm text-white bg-gradient-to-r from-[#720000] via-[#890F0D] to-[#B91C1C] hover:from-[#540000] hover:to-[#720000] shadow-lg shadow-[#890F0D]/30 hover:scale-105 active:scale-95 flex items-center gap-2 cursor-pointer transition-all"
-          >
-            <Edit3 className="w-4 h-4" />
-            <span>2. Chỉnh sửa template này</span>
-          </button>
-
         </div>
-      </div>
+      )}
 
       {/* Google Login Modal (Khi click Chỉnh sửa template mà chưa đăng nhập) */}
       <GoogleLoginModal
         isOpen={googleModalOpen}
         onClose={() => setGoogleModalOpen(false)}
-        templateName={activeData.templateId === 'green-student' ? 'Green Student (Thanh Xuân)' : 'Modern Crimson Spotlight'}
+        templateName={activeData.templateId === 'green-student' ? 'Green Student (Mùa Phượng Cuối)' : 'Modern Crimson Spotlight'}
         redirectUrl={`/builder?template=${activeData.templateId || (slug.includes('green-student') ? 'green-student' : 'modern-crimson-spotlight')}`}
         onSuccess={() => {
           setGoogleModalOpen(false);
@@ -307,8 +301,6 @@ export default function PublicInvitationPage() {
         className={activeData.className}
         onDownloadImage={handleDownloadCard}
       />
-
-      <Footer />
     </div>
   );
 }

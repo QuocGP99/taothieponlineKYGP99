@@ -13,6 +13,68 @@ interface PosterHeroSectionProps {
   onEditPrompt?: () => void;
 }
 
+// Hoa phượng trang trí góc dành cho template Green Student / Mùa phượng cuối
+const FloralBranchTopLeft = () => (
+  <svg className="absolute -top-1 -left-1 w-28 sm:w-32 h-28 sm:h-32 pointer-events-none opacity-90 z-0" viewBox="0 0 120 120" fill="none">
+    <path d="M-5 5 Q30 20 48 55 T72 85" stroke="#2D5A27" strokeWidth="2.5" strokeLinecap="round" />
+    <path d="M25 22 Q45 15 65 30" stroke="#3E7B35" strokeWidth="2" strokeLinecap="round" />
+    <path d="M40 45 Q32 68 22 85" stroke="#3E7B35" strokeWidth="1.8" strokeLinecap="round" />
+    <ellipse cx="28" cy="18" rx="6" ry="3" transform="rotate(-30 28 18)" fill="#4CAF50" />
+    <ellipse cx="50" cy="22" rx="7" ry="3.5" transform="rotate(20 50 22)" fill="#388E3C" />
+    <ellipse cx="32" cy="62" rx="6" ry="3" transform="rotate(-60 32 62)" fill="#4CAF50" />
+    <ellipse cx="60" cy="70" rx="7" ry="3.5" transform="rotate(40 60 70)" fill="#2D5A27" />
+    <circle cx="68" cy="32" r="7" fill="#DC2626" />
+    <circle cx="75" cy="36" r="6" fill="#B91C1C" />
+    <circle cx="63" cy="40" r="5.5" fill="#EF4444" />
+    <circle cx="70" cy="35" r="2.5" fill="#FDE047" />
+    <circle cx="48" cy="58" r="8" fill="#DC2626" />
+    <circle cx="56" cy="62" r="6.5" fill="#B91C1C" />
+    <circle cx="44" cy="66" r="6" fill="#EF4444" />
+    <circle cx="50" cy="61" r="3" fill="#FEF08A" />
+    <circle cx="75" cy="88" r="6.5" fill="#DC2626" />
+    <circle cx="82" cy="92" r="5.5" fill="#B91C1C" />
+    <circle cx="78" cy="90" r="2.5" fill="#FDE047" />
+    <circle cx="18" cy="90" r="5" fill="#DC2626" />
+    <circle cx="22" cy="94" r="4" fill="#B91C1C" />
+  </svg>
+);
+
+const FloralBranchTopRight = () => (
+  <svg className="absolute -top-1 -right-1 w-28 sm:w-32 h-28 sm:h-32 pointer-events-none opacity-90 z-0 transform -scale-x-100" viewBox="0 0 120 120" fill="none">
+    <path d="M-5 5 Q30 20 48 55 T72 85" stroke="#2D5A27" strokeWidth="2.5" strokeLinecap="round" />
+    <path d="M25 22 Q45 15 65 30" stroke="#3E7B35" strokeWidth="2" strokeLinecap="round" />
+    <path d="M40 45 Q32 68 22 85" stroke="#3E7B35" strokeWidth="1.8" strokeLinecap="round" />
+    <ellipse cx="28" cy="18" rx="6" ry="3" transform="rotate(-30 28 18)" fill="#4CAF50" />
+    <ellipse cx="50" cy="22" rx="7" ry="3.5" transform="rotate(20 50 22)" fill="#388E3C" />
+    <ellipse cx="32" cy="62" rx="6" ry="3" transform="rotate(-60 32 62)" fill="#4CAF50" />
+    <ellipse cx="60" cy="70" rx="7" ry="3.5" transform="rotate(40 60 70)" fill="#2D5A27" />
+    <circle cx="68" cy="32" r="7" fill="#DC2626" />
+    <circle cx="75" cy="36" r="6" fill="#B91C1C" />
+    <circle cx="63" cy="40" r="5.5" fill="#EF4444" />
+    <circle cx="70" cy="35" r="2.5" fill="#FDE047" />
+    <circle cx="48" cy="58" r="8" fill="#DC2626" />
+    <circle cx="56" cy="62" r="6.5" fill="#B91C1C" />
+    <circle cx="44" cy="66" r="6" fill="#EF4444" />
+    <circle cx="50" cy="61" r="3" fill="#FEF08A" />
+    <circle cx="75" cy="88" r="6.5" fill="#DC2626" />
+    <circle cx="82" cy="92" r="5.5" fill="#B91C1C" />
+    <circle cx="78" cy="90" r="2.5" fill="#FDE047" />
+  </svg>
+);
+
+const FloralBranchBottomLeft = () => (
+  <svg className="absolute -bottom-1 -left-1 w-24 sm:w-28 h-24 sm:h-28 pointer-events-none opacity-80 z-0 transform -scale-y-100" viewBox="0 0 120 120" fill="none">
+    <path d="M-5 5 Q30 20 48 55 T72 85" stroke="#2D5A27" strokeWidth="2.2" strokeLinecap="round" />
+    <ellipse cx="28" cy="18" rx="6" ry="3" transform="rotate(-30 28 18)" fill="#4CAF50" />
+    <ellipse cx="50" cy="22" rx="7" ry="3.5" transform="rotate(20 50 22)" fill="#388E3C" />
+    <circle cx="68" cy="32" r="7" fill="#DC2626" />
+    <circle cx="75" cy="36" r="6" fill="#B91C1C" />
+    <circle cx="48" cy="58" r="7.5" fill="#DC2626" />
+    <circle cx="56" cy="62" r="6" fill="#B91C1C" />
+    <circle cx="50" cy="61" r="2.5" fill="#FEF08A" />
+  </svg>
+);
+
 export default function PosterHeroSection({
   data,
   isEditable = false,
@@ -108,6 +170,204 @@ export default function PosterHeroSection({
   const mapsUrl = data.googleMapsUrl || generateGoogleMapsUrl(data.schoolName || data.shootLocation);
   const avatarSrc = data.avatarPhoto || '/images/poster-reference.jpg';
 
+  // Định dạng ngày cho con dấu đỏ Polaroid (VD: 30.12.2026)
+  const getStampDateFormatted = (dateString?: string) => {
+    if (!dateString) return '30.12.2026';
+    try {
+      const parts = dateString.split('-');
+      if (parts.length === 3) {
+        return `${parts[2].padStart(2, '0')}.${parts[1].padStart(2, '0')}.${parts[0]}`;
+      }
+      const d = new Date(dateString);
+      return `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`;
+    } catch {
+      return '30.12.2026';
+    }
+  };
+
+  const isGreenStudent = data.templateId === 'green-student';
+
+  // 1. GIAO DIỆN PHONG CÁCH GREEN STUDENT / MÙA PHƯỢNG CUỐI POLAROID (Chuẩn Image 1)
+  if (isGreenStudent) {
+    return (
+      <div className="w-full max-w-md mx-auto relative select-none">
+        <div 
+          className="relative w-full rounded-[28px] sm:rounded-[36px] overflow-hidden shadow-2xl border border-amber-900/10 text-stone-900 px-6 sm:px-8 pt-8 pb-10 transition-all select-none"
+          style={{
+            background: 'linear-gradient(180deg, #FFFDF8 0%, #FAF5EE 50%, #F5EDE0 100%)'
+          }}
+        >
+          {/* Cành hoa phượng vĩ 4 góc */}
+          <FloralBranchTopLeft />
+          <FloralBranchTopRight />
+          <FloralBranchBottomLeft />
+
+          {/* Cánh hoa rơi rải rác */}
+          <div className="absolute top-28 left-6 w-3 h-3 bg-red-500/80 rounded-full rotate-45 blur-[0.3px] pointer-events-none" />
+          <div className="absolute top-44 right-6 w-3.5 h-2.5 bg-red-600/75 rounded-full rotate-12 blur-[0.3px] pointer-events-none" />
+          <div className="absolute bottom-32 left-5 w-2.5 h-2.5 bg-red-400/80 rounded-full -rotate-45 pointer-events-none" />
+          <div className="absolute bottom-24 right-7 w-3.5 h-3 bg-red-500/80 rounded-full rotate-30 pointer-events-none" />
+
+          {/* Nút chỉnh sửa nhanh khi ở chế độ tương tác/builder */}
+          {isEditable ? (
+            <div className="absolute top-3.5 right-3.5 z-30 flex items-center gap-1.5 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[11px] font-bold text-amber-300 border border-amber-300/30">
+              <Sparkles className="w-3 h-3 animate-spin" />
+              <span>Bấm vào ảnh & chữ để đổi nhanh</span>
+            </div>
+          ) : onEditPrompt ? (
+            <button
+              type="button"
+              onClick={onEditPrompt}
+              className="absolute top-3.5 right-3.5 z-30 flex items-center gap-1.5 bg-[#890F0D]/90 hover:bg-[#720000] backdrop-blur-md px-3 py-1.5 rounded-full text-[11px] font-bold text-white border border-white/20 shadow-lg transition-all cursor-pointer hover:scale-105 active:scale-95"
+              title="Đăng nhập Google để chỉnh sửa mẫu này"
+            >
+              <Edit3 className="w-3.5 h-3.5 text-amber-300" />
+              <span>Chỉnh sửa mẫu này</span>
+            </button>
+          ) : null}
+
+          {/* Nội dung Header */}
+          <div className="relative z-10 text-center space-y-1 mb-3">
+            {/* KỶ YẾU • 2024 - 2027 */}
+            <p className="text-[11px] font-extrabold tracking-[0.25em] text-[#890F0D] uppercase">
+              KỶ YẾU • {data.schoolYear || '2024 – 2027'}
+            </p>
+
+            {/* 12A1 (Tên lớp to nổi bật) */}
+            <h1 
+              onClick={() => {
+                if (isEditable) {
+                  setPart1Input(part1);
+                  setPart2Input(part2);
+                  setIsEditingName(true);
+                } else if (onEditPrompt) {
+                  onEditPrompt();
+                }
+              }}
+              className={`text-5xl sm:text-6xl font-black text-[#890F0D] tracking-tight ${
+                isEditable || onEditPrompt ? 'cursor-pointer hover:opacity-90' : ''
+              }`}
+              style={{ fontFamily: "'Playfair Display', serif" }}
+            >
+              {data.className || '12A1'}
+            </h1>
+
+            {/* mùa phượng cuối (Chữ script đỏ mềm mại) */}
+            <h2 
+              className="text-2xl sm:text-3xl text-[#991B1B] font-bold -mt-1 sm:-mt-2 transform -rotate-1"
+              style={{ fontFamily: "'Dancing Script', 'Alex Brush', cursive" }}
+            >
+              {data.title || 'mùa phượng cuối'}
+            </h2>
+
+            {/* Tên trường của bạn */}
+            <p className="text-xs font-semibold text-stone-600 mt-1">
+              {data.schoolName || 'Tên trường của bạn'}
+            </p>
+          </div>
+
+          {/* POLAROID PHOTO CARD (Trung tâm nghệ thuật) */}
+          <div className="relative z-10 mx-auto max-w-[270px] sm:max-w-[290px] my-4">
+            
+            {/* Miếng băng dính washi vàng dán phía trên */}
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-20 sm:w-24 h-6 bg-[#FBBF24]/85 rotate-[1.5deg] shadow-xs z-30 pointer-events-none rounded-2xs backdrop-blur-xs border border-amber-300/40" />
+
+            {/* Khung ảnh Polaroid trắng tự nhiên hơi nghiêng */}
+            <div 
+              onClick={() => {
+                if (isEditable) {
+                  fileInputRef.current?.click();
+                } else if (onEditPrompt) {
+                  onEditPrompt();
+                }
+              }}
+              className={`bg-white p-3.5 pb-6 rounded-2xs shadow-[0_15px_35px_rgba(0,0,0,0.12)] border border-stone-200/70 rotate-[-1deg] transition-transform duration-300 ${
+                isEditable || onEditPrompt ? 'cursor-pointer hover:rotate-0 hover:scale-[1.01]' : ''
+              }`}
+            >
+              {/* Vùng ảnh học sinh */}
+              <div className="relative aspect-[3/4] w-full overflow-hidden bg-stone-100 rounded-2xs">
+                <img
+                  src={avatarSrc}
+                  alt={data.studentName || 'Kỷ yếu học sinh'}
+                  className="w-full h-full object-cover object-top"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80';
+                  }}
+                />
+
+                {/* Con dấu đỏ vintage tròn ở góc dưới bên phải ảnh */}
+                <div className="absolute -bottom-1 -right-1 translate-x-2 translate-y-2 w-16 h-16 rounded-full border-2 border-dashed border-[#B91C1C] bg-white/95 backdrop-blur-xs flex flex-col items-center justify-center text-[#B91C1C] rotate-[-12deg] shadow-md z-20 pointer-events-none">
+                  <span className="text-[8px] font-bold uppercase tracking-wider leading-none">Ngày</span>
+                  <span className="text-[10px] font-extrabold leading-tight my-0.5">{getStampDateFormatted(data.date)}</span>
+                  <span className="text-[8px] font-bold uppercase tracking-wider leading-none">Kỷ yếu</span>
+                </div>
+              </div>
+
+              {/* Tên gọi dưới khung polaroid (Chữ viết tay nghệ thuật) */}
+              <div className="pt-3 text-center">
+                <p 
+                  className="text-xl sm:text-2xl font-bold text-stone-800 tracking-wide"
+                  style={{ fontFamily: "'Dancing Script', 'Alex Brush', cursive" }}
+                >
+                  {data.nickname || data.studentName || 'Tên gọi'}
+                </p>
+                {isEditable && (
+                  <span className="inline-block text-[9px] text-[#890F0D] font-bold uppercase tracking-tighter mt-0.5">
+                    ✏️ Bấm để đổi ảnh / tên
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Hidden file input for photo upload */}
+            {isEditable && (
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handlePhotoUpload}
+              />
+            )}
+          </div>
+
+          {/* Modal đổi tên nhanh khi click vào tên trong chế độ builder */}
+          {isEditingName && (
+            <div className="my-2 p-3 bg-white/95 backdrop-blur-md rounded-xl border border-stone-300 text-xs text-left w-full z-40 animate-in fade-in zoom-in-95 shadow-xl">
+              <p className="font-bold text-[#890F0D] mb-2">Đổi tên / lớp hiển thị trên thiệp:</p>
+              <div className="grid grid-cols-2 gap-2 mb-2">
+                <input
+                  type="text"
+                  placeholder="Lớp (12A1)"
+                  defaultValue={data.className}
+                  onChange={(e) => onUpdate && onUpdate({ className: e.target.value })}
+                  className="px-2.5 py-1.5 rounded-lg border border-stone-300 text-stone-900 font-bold"
+                />
+                <input
+                  type="text"
+                  placeholder="Tên gọi"
+                  defaultValue={data.nickname || data.studentName}
+                  onChange={(e) => onUpdate && onUpdate({ nickname: e.target.value, studentName: e.target.value })}
+                  className="px-2.5 py-1.5 rounded-lg border border-stone-300 text-stone-900 font-bold"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsEditingName(false)}
+                className="w-full py-1.5 bg-[#890F0D] text-white font-bold rounded-lg shadow-sm"
+              >
+                Xong
+              </button>
+            </div>
+          )}
+
+        </div>
+      </div>
+    );
+  }
+
+  // 2. GIAO DIỆN PHONG CÁCH SPOTLIGHT CRIMSON RED (Mặc định)
   return (
     <div className="w-full max-w-md mx-auto relative select-none">
       {/* Cấu trúc Header thông tin sự kiện */}

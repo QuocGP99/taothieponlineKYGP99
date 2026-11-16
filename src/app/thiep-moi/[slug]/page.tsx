@@ -176,7 +176,10 @@ export default function PublicInvitationPage() {
     );
   }
 
-  const currentUrl = typeof window !== 'undefined' ? window.location.href : `https://chupanhdanang.com/thiep-moi/${slug}`;
+  const defaultBase = process.env.NEXT_PUBLIC_APP_URL || 'https://taothiepkyyeugp99.io.vn';
+  const currentUrl = typeof window !== 'undefined' 
+    ? (window.location.hostname.includes('vercel.app') ? `${defaultBase}/thiep-moi/${slug}` : window.location.href)
+    : `${defaultBase}/thiep-moi/${slug}`;
   const studentDisplayName = activeData.studentName || activeData.senderName || 'mình';
   const isNotebookStyle = activeData.templateId === 'green-student';
   const isFilmRollStyle = activeData.templateId === 'vintage-film-roll' || activeData.templateId === 'film-roll';

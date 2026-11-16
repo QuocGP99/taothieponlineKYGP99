@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'GP STUDIO99 – YEARBOOK INVITATION MAKER',
     description: 'Biến buổi chụp kỷ yếu thành một ngày đáng nhớ cùng thiệp mời kỷ yếu online!',
-    url: 'https://chupanhdanang.com',
+    url: process.env.NEXT_PUBLIC_APP_URL || 'https://taothiepkyyeugp99.io.vn',
     siteName: 'GP Studio99 YearBook',
     images: [
       {

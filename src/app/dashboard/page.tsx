@@ -58,7 +58,8 @@ export default function UserDashboardPage() {
   // Sao chép link thiệp
   const handleCopyLink = (slug: string) => {
     if (typeof window !== 'undefined') {
-      const url = `${window.location.origin}/thiep-moi/${slug}`;
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (window.location.hostname.includes('vercel.app') ? 'https://taothiepkyyeugp99.io.vn' : window.location.origin);
+      const url = `${baseUrl}/thiep-moi/${slug}`;
       navigator.clipboard.writeText(url);
       setCopiedSlug(slug);
       setTimeout(() => setCopiedSlug(null), 2500);

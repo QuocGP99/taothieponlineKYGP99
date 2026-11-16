@@ -244,7 +244,8 @@ function BuilderContent() {
 
     try {
       const finalSlug = formData.slug.startsWith('thiep-') ? generateSlug() : formData.slug;
-      const fullUrl = `${window.location.origin}/thiep-moi/${finalSlug}`;
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (typeof window !== 'undefined' ? (window.location.hostname.includes('vercel.app') ? 'https://taothiepkyyeugp99.io.vn' : window.location.origin) : 'https://taothiepkyyeugp99.io.vn');
+      const fullUrl = `${baseUrl}/thiep-moi/${finalSlug}`;
 
       const finalInvitation: InvitationData = {
         ...formData,

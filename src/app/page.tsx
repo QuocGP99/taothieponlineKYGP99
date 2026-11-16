@@ -78,7 +78,7 @@ export default function HomePage() {
             </div>
             <div className="flex items-center gap-1.5">
               <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span>Nhận hoa & lời chúc RSVP trực tiếp</span>
+              <span>Nhận hoa & lời chúc </span>
             </div>
           </div>
         </div>
@@ -95,7 +95,7 @@ export default function HomePage() {
               BỘ SƯU TẬP MẪU THIỆP KỶ YẾU
             </span>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-stone-900 mt-2.5">
-              Chọn Mẫu Thiệp Kỷ Yếu Của Bạn
+              Chọn mẫu thiệp kỷ yếu của bạn
             </h2>
             <p className="text-stone-600 text-xs sm:text-sm mt-1.5">
               Xem thử giao diện thực tế của người nhận hoặc bấm chỉnh sửa để bắt đầu cá nhân hóa thiệp mời của bạn.
@@ -105,10 +105,10 @@ export default function HomePage() {
           {/* Template Feature Showcase Grid */}
           <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {TEMPLATES.map(tmpl => {
-              const previewSlug = tmpl.id === 'cyber-y2k-futuristic' 
-                ? 'cyber-2030' 
-                : (tmpl.id === 'green-student' 
-                  ? 'green-student' 
+              const previewSlug = tmpl.id === 'cyber-y2k-futuristic'
+                ? 'cyber-2030'
+                : (tmpl.id === 'green-student'
+                  ? 'green-student'
                   : (tmpl.id === 'vintage-film-roll' ? 'cuon-phim-thanh-xuan' : 'hoang-ngoc-dai-hoc-dong-a-2027'));
               return (
                 <div
@@ -157,7 +157,7 @@ export default function HomePage() {
                           className="flex-1 py-3 px-3 rounded-xl text-xs font-bold text-stone-800 bg-stone-100 hover:bg-stone-200 border border-stone-200 transition-colors flex items-center justify-center gap-1.5"
                         >
                           <Eye className="w-4 h-4 text-stone-600" />
-                          <span>1. Xem Preview</span>
+                          <span>1. Xem trước</span>
                         </a>
 
                         {/* 2. Chỉnh Sửa Template -> Yêu Cầu Đăng Nhập Bằng Google */}
@@ -167,13 +167,9 @@ export default function HomePage() {
                           className="flex-1 py-3 px-3 rounded-xl text-xs font-black text-white bg-gradient-to-r from-[#720000] via-[#890F0D] to-[#B91C1C] hover:from-[#540000] hover:to-[#720000] shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                         >
                           <Edit3 className="w-4 h-4" />
-                          <span>2. Chỉnh Sửa Template</span>
+                          <span>2. Sửa mẫu</span>
                         </button>
                       </div>
-
-                      <p className="text-[11px] text-stone-400 text-center">
-                        🔒 Chỉnh sửa template yêu cầu đăng nhập bằng Google
-                      </p>
                     </div>
 
                   </div>
@@ -205,7 +201,7 @@ export default function HomePage() {
               QUY TRÌNH ĐƠN GIẢN
             </span>
             <h2 className="text-3xl sm:text-4xl font-black text-stone-900 mt-3">
-              Tạo Thiệp Mời Kỷ Yếu Cá Nhân Trong 3 Phút
+              Tạo thiệp mời kỷ yếu cá nhân trong 3 phút
             </h2>
             <p className="text-stone-600 text-sm sm:text-base mt-2">
               Dành riêng cho bạn để gửi lời mời đến hội bạn thân, bạn cùng trường, người thương và gia đình ghé qua chụp ảnh kỷ niệm.
@@ -254,7 +250,7 @@ export default function HomePage() {
               </div>
               <h3 className="text-lg font-bold text-stone-900 mb-2">Xuất bản & Chia sẻ ngay</h3>
               <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-                Nhận đường link thiệp riêng ngay tức thì (không cần nhập Gmail), dễ dàng gửi qua Zalo, Messenger, Facebook!
+                Nhận đường link thiệp riêng ngay tức thì, dễ dàng gửi qua Zalo, Messenger, Facebook!
               </p>
             </div>
 
@@ -285,7 +281,7 @@ export default function HomePage() {
 
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="text-xs font-black uppercase tracking-widest bg-white/10 text-amber-300 border border-amber-400/30 px-3.5 py-1 rounded-full">
-              KỶ YẾU ĐÀ NẴNG – GP STUDIO99 (TỪ 2018)
+              KỶ YẾU ĐÀ NẴNG – GP STUDIO99
             </span>
             <h2 className="text-3xl sm:text-5xl font-black mt-4 tracking-tight leading-tight">
               THANH XUÂN CHỈ CÓ MỘT LẦN –{' '}
@@ -294,7 +290,7 @@ export default function HomePage() {
               </span>
             </h2>
             <p className="text-stone-300 text-sm sm:text-base mt-3 leading-relaxed">
-              GP Studio99 – Đơn vị chụp ảnh & quay phim kỷ yếu uy tín tại Đà Nẵng, Quảng Nam, Huế. Hơn 1.000+ lớp đã tin tưởng gửi gắm kỷ niệm tuổi học trò.
+              GP Studio99 – Đơn vị chụp ảnh & quay phim kỷ yếu uy tín tại miền Trung. Hơn 1.000+ lớp đã tin tưởng gửi gắm kỷ niệm tuổi học trò.
             </p>
           </div>
 
@@ -304,9 +300,9 @@ export default function HomePage() {
               <div className="w-12 h-12 rounded-2xl bg-[#890F0D] flex items-center justify-center text-white mb-5 shadow-lg">
                 <Camera className="w-6 h-6" />
               </div>
-              <h3 className="text-xl font-bold mb-2">Đa Dạng Concept Thanh Xuân</h3>
+              <h3 className="text-xl font-bold mb-2">Đa Dạng Concept</h3>
               <p className="text-xs sm:text-sm text-stone-300 leading-relaxed">
-                Concept Thanh xuân (Xám, Nâu, Xanh đen), Học sinh Hàn Quốc, Áo dài trắng, Cổ phục Việt Nam, Concept Đồ bao cấp và Party bãi biển.
+                Concept Thanh xuân, Học sinh Hàn Quốc, học sinh Mỹ, thanh xuân Thái Lan.
               </p>
             </div>
 
@@ -326,7 +322,7 @@ export default function HomePage() {
               </div>
               <h3 className="text-xl font-bold mb-2">Trang Phục & Ekip Tận Tâm</h3>
               <p className="text-xs sm:text-sm text-stone-300 leading-relaxed">
-                Kho trang phục đầy đủ phụ kiện (vòng hoa, nơ, cà vạt, pháo khói, gấu tốt nghiệp). Ekip có thợ chụp, thợ quay vlog và stylist hướng dẫn tạo dáng.
+                Kho trang phục & phụ kiện đa dạng. Ekip có thợ chụp, thợ quay phim và stylist hướng dẫn tạo dáng.
               </p>
             </div>
           </div>
@@ -337,7 +333,7 @@ export default function HomePage() {
               Tư Vấn & Đặt Lịch Chụp Kỷ Yếu Cùng GP Studio99
             </h3>
             <p className="text-xs sm:text-sm text-stone-200 max-w-xl mx-auto mb-6">
-              Liên hệ ngay để nhận báo giá chi tiết, trọn bộ concept mới nhất và ưu đãi gói quay Flycam toàn trường cho lớp của bạn!
+              Liên hệ ngay để nhận báo giá chi tiết, trọn bộ concept mới nhất và ưu đãi gói quay cho lớp của bạn!
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4">
               <a

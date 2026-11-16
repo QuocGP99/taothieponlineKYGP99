@@ -5,8 +5,8 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { 
-  Mail, ArrowRight, ArrowLeft, RefreshCw, CheckCircle2, 
+import {
+  Mail, ArrowRight, ArrowLeft, RefreshCw, CheckCircle2,
   AlertCircle, ShieldCheck, Sparkles, Key
 } from 'lucide-react';
 import { triggerConfetti } from '@/lib/confetti';
@@ -186,7 +186,7 @@ function LoginCard() {
 
   return (
     <div className="w-full max-w-md bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-[#890F0D]/15 relative overflow-hidden space-y-6">
-      
+
       {/* Top Header */}
       <div className="text-center space-y-2">
         <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#720000] via-[#890F0D] to-[#B91C1C] text-white flex items-center justify-center mx-auto shadow-lg shadow-[#890F0D]/20">

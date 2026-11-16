@@ -20,27 +20,25 @@ export async function GET(
     // 1. Tìm thiệp trong MySQL
     const dbItem = await getInvitationFromDb(slug);
     if (dbItem) {
-      await incrementViewsInDb(slug);
+      try {
+        await incrementViewsInDb(slug);
+      } catch (_) {}
       dbItem.views = (dbItem.views || 0) + 1;
       return NextResponse.json(dbItem);
     }
-
-    // 2. Fallback cho mẫu template mặc định nếu slug là preset demo
-    if (slug.includes('green-student')) {
-      return NextResponse.json(GREEN_STUDENT_INVITATION);
-    }
-    if (slug.includes('hoang-ngoc') || slug === 'sample' || slug.includes('crimson')) {
-      return NextResponse.json(SAMPLE_INVITATION);
-    }
-
-    return NextResponse.json({ error: 'Không tìm thấy thiệp mời kỷ yếu trong cơ sở dữ liệu.' }, { status: 404 });
   } catch (err: any) {
-    console.error(`[API/Slug GET MySQL Error for ${slug}]:`, err);
-    return NextResponse.json(
-      { error: 'Lỗi truy vấn cơ sở dữ liệu MySQL: ' + err.message },
-      { status: 500 }
-    );
+    console.warn(`[API/Slug GET MySQL Warning for ${slug}]:`, err.message);
   }
+
+  // 2. Fallback cho mẫu template mặc định nếu slug là preset demo
+  if (slug.includes('green-student')) {
+    return NextResponse.json(GREEN_STUDENT_INVITATION);
+  }
+  if (slug.includes('hoang-ngoc') || slug === 'sample' || slug.includes('crimson')) {
+    return NextResponse.json(SAMPLE_INVITATION);
+  }
+
+  return NextResponse.json({ error: 'Không tìm thấy thiệp mời kỷ yếu trong cơ sở dữ liệu.' }, { status: 404 });
 }
 
 // POST: Tương tác với thiệp mời trên MySQL (RSVP, chia sẻ)

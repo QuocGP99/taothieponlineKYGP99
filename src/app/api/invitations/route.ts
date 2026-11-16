@@ -17,11 +17,10 @@ export async function GET(request: Request) {
     }
     return NextResponse.json(dbList);
   } catch (err: any) {
-    console.error('[API/Invitations GET MySQL Error]:', err);
-    return NextResponse.json(
-      { error: 'Lỗi truy vấn cơ sở dữ liệu MySQL: ' + err.message },
-      { status: 500 }
-    );
+    console.warn('[API/Invitations GET MySQL Warning]:', err.message);
+    // Khi chưa kết nối được MySQL (hoặc chạy local không có MySQL), trả về các mẫu mặc định để website luôn hiển thị giao diện mượt mà
+    const defaults = email ? [] : [SAMPLE_INVITATION, GREEN_STUDENT_INVITATION];
+    return NextResponse.json(defaults);
   }
 }
 

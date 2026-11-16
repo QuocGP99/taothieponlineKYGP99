@@ -25,7 +25,7 @@ export const TEMPLATES: Template[] = [
     category: 'thanh-xuan',
     categoryName: 'Sổ Lưu Bút Thanh Xuân',
     description: 'Thiết kế cuốn sổ lưu bút tuổi học trò độc đáo: bìa sổ pastel chạm mở lật trang, giấy kẻ ô, washi tape dán ảnh polaroid, checklist và lưu bút.',
-    previewImage: '/templates/scrapbook.jpg',
+    previewImage: '/templates/scrapbook.webp',
     badge: 'Mẫu Sổ Lưu Bút Hot',
     defaultColors: {
       primary: '#D6BCFA',
@@ -43,7 +43,7 @@ export const TEMPLATES: Template[] = [
     category: 'thanh-xuan',
     categoryName: 'Cuộn Phim Hoài Niệm',
     description: 'Phong cách cuộn phim 35mm điện ảnh hoài niệm, vé xem phim vintage có cuống vé rời, dải phim timeline và bảng The End hoài niệm.',
-    previewImage: '/templates/vintage-film.jpg',
+    previewImage: '/templates/vintage-film.webp',
     badge: 'Mẫu Điện Ảnh Mới',
     defaultColors: {
       primary: '#382113',
@@ -61,7 +61,7 @@ export const TEMPLATES: Template[] = [
     category: 'thanh-xuan',
     categoryName: 'Cyber Y2K 2030',
     description: 'Phong cách 3D Cyber Futuristic & Y2K Neo-Pop: thẻ học sinh 3D trong suốt, cửa sổ hệ điều hành Retro OS, pixel art icon và tone màu neon sống động.',
-    previewImage: '/templates/cyber-2030.jpg',
+    previewImage: '/templates/cyber-2030.webp',
     badge: 'Mẫu 3D Futuristic Mới',
     defaultColors: {
       primary: '#FF2E93',

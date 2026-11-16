@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { SAMPLE_INVITATION, GREEN_STUDENT_INVITATION, FILM_ROLL_INVITATION } from '@/data/templates';
+import { SAMPLE_INVITATION, GREEN_STUDENT_INVITATION, FILM_ROLL_INVITATION, CYBER_FUTURISTIC_INVITATION } from '@/data/templates';
 import { InvitationData, RSVP } from '@/types/invitation';
 import {
   isMysqlConfigured,
@@ -31,6 +31,9 @@ export async function GET(
   }
 
   // 2. Fallback cho mẫu template mặc định nếu slug là preset demo
+  if (slug.includes('cyber') || slug.includes('2030') || slug.includes('futuristic')) {
+    return NextResponse.json(CYBER_FUTURISTIC_INVITATION);
+  }
   if (slug.includes('cuon-phim') || slug.includes('film')) {
     return NextResponse.json(FILM_ROLL_INVITATION);
   }

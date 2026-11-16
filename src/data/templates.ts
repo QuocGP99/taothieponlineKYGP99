@@ -54,6 +54,24 @@ export const TEMPLATES: Template[] = [
     },
     fontFamily: 'Cormorant Garamond',
     styleName: 'Vintage Cinema 35mm'
+  },
+  {
+    id: 'cyber-y2k-futuristic',
+    name: 'Cyber 2030 (Neo-Futuristic Y2K)',
+    category: 'thanh-xuan',
+    categoryName: 'Cyber Y2K 2030',
+    description: 'Phong cách 3D Cyber Futuristic & Y2K Neo-Pop: thẻ học sinh 3D trong suốt, cửa sổ hệ điều hành Retro OS, pixel art icon và tone màu neon sống động.',
+    previewImage: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80',
+    badge: 'Mẫu 3D Futuristic Mới',
+    defaultColors: {
+      primary: '#FF2E93',
+      secondary: '#A3E635',
+      background: '#38BDF8',
+      text: '#000000',
+      accent: '#FACC15',
+    },
+    fontFamily: 'Righteous',
+    styleName: 'Neo-Futuristic 2030'
   }
 ];
 
@@ -411,6 +429,137 @@ export const FILM_ROLL_INVITATION: InvitationData = {
   shares: 135,
   createdAt: '2026-11-14T10:00:00Z',
   updatedAt: '2026-11-15T10:00:00Z'
+};
+
+export const CYBER_FUTURISTIC_INVITATION: InvitationData = {
+  id: 'gp-cyber-y2k-futuristic',
+  slug: 'cyber-2030',
+  templateId: 'cyber-y2k-futuristic',
+  studentName: 'SHREYA PATEL',
+  namePart1: 'SHREYA',
+  namePart2: 'PATEL',
+  nickname: 'Shreya 2030',
+  className: 'K23 Multimedia & Design',
+  schoolName: 'ĐẠI HỌC CÔNG NGHỆ THIẾT KẾ GP',
+  schoolYear: '2023 - 2027',
+  senderName: 'Shreya Patel',
+  guestName: 'Bạn Thân Mến',
+  friendPhotoTime: '08:30 - 11:30 (Đón bạn bè chụp ảnh & check-in)',
+  title: 'CREATIVE YEARBOOK 2030 – SHREYA PATEL',
+  date: '2026-12-31',
+  dayOfWeek: 'Thứ Năm',
+  startTime: '07:00',
+  endTime: '12:00',
+  gatheringLocation: 'Sân Trường & Cyber Studio Hub',
+  shootLocation: 'Cơ sở chính - Đại học Công Nghệ GP, 14 đường Hồng Bàng, Quận 3, TP.HCM',
+  detailedAddress: '14 đường Hồng Bàng, Phường 6, Quận 3, TP. Hồ Chí Minh',
+  googleMapsUrl: 'https://maps.google.com/?q=Dai+Hoc+GP+Studio',
+  dressCode: 'Tone màu Neon Pop, Y2K Futuristic hoặc tự do sáng tạo rực rỡ nhất!',
+  note: 'Mang theo năng lượng tích cực và cùng check-in thẻ học sinh 3D xịn sò nhé!',
+  timeline: [
+    {
+      id: 'step-1',
+      time: '06:30',
+      title: 'Tập trung & Trang phục Cử nhân / Concept 3D',
+      location: 'Studio sảnh chính',
+      note: 'Chuẩn bị thẻ học sinh, dây đeo thẻ và phụ kiện'
+    },
+    {
+      id: 'step-2',
+      time: '07:30',
+      title: 'Chụp ảnh tập thể cả lớp & flycam sân trường',
+      location: 'Sân trường & Đài phun nước',
+      note: 'Khoảnh khắc đại gia đình lớp K23 tỏa sáng'
+    },
+    {
+      id: 'step-3',
+      time: '09:00',
+      title: 'Chụp concept nhóm bạn thân & Retro OS Booth',
+      location: 'Khu vực sáng tạo & Vườn sinh thái',
+      note: 'Chụp tự do cùng bạn bè và người thân'
+    },
+    {
+      id: 'step-4',
+      time: '10:30',
+      title: 'Ảnh cá nhân, ký tên lưu bút & ném nón cử nhân',
+      location: 'Sảnh danh dự',
+      note: 'Ký vào sổ Guestbook 3D và nhận hoa lưu niệm'
+    }
+  ],
+  gallery: [
+    'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=700&q=80',
+    'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=700&q=80',
+    'https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&w=700&q=80',
+    'https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=700&q=80',
+    'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=700&q=80',
+    'https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=700&q=80'
+  ],
+  wishes: [
+    {
+      id: 'wish-1',
+      senderName: 'Minh Hoàng',
+      relation: 'Bạn thân',
+      message: 'Chúc mừng Shreya tốt nghiệp đỉnh chóp! Chiếc thiệp 3D xịn quá, nhất định mình sẽ có mặt sớm nhất!',
+      createdAt: '2026-11-16T08:00:00Z'
+    },
+    {
+      id: 'wish-2',
+      senderName: 'Lan Chi',
+      relation: 'Bạn cùng lớp',
+      message: 'Chúc bạn luôn tỏa sáng rực rỡ và thành công trên chặng đường thiết kế tương lai!',
+      createdAt: '2026-11-16T08:30:00Z'
+    }
+  ],
+  inviteMessage: 'Một chặng đường đại học rực rỡ sắp khép lại để mở ra những chân trời mới. Ngày chụp ảnh kỷ yếu của mình đã đến rồi! Sự hiện diện của bạn là mảnh ghép tuyệt vời nhất để hoàn thiện cuốn Yearbook 2030 này. Hãy ghé qua chung vui và chụp cùng mình những khoảnh khắc đáng nhớ nhất nhé!',
+  wishMessage: 'Cảm ơn bạn vì đã cùng mình tạo nên những kỷ niệm thanh xuân 3D không thể nào quên!',
+  signature: 'Shreya Patel',
+  avatarPhoto: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80',
+  groupPhoto: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1200&q=80',
+  primaryColor: '#FF2E93',
+  secondaryColor: '#A3E635',
+  fontFamily: 'Righteous',
+  fontSize: 'md',
+  textAlign: 'center',
+  stickers: [],
+  componentsVisible: {
+    showCountdown: true,
+    showLocationMap: true,
+    showDressCode: true,
+    showSchedule: true,
+    showFriendPhotoTime: true,
+    showWishes: true,
+    showMusic: true,
+    showRSVP: true
+  },
+  creatorName: 'Shreya Patel',
+  creatorEmail: 'shreya.cyber2030@gmail.com',
+  creatorPhone: '0901234567',
+  agreedToTerms: true,
+  status: 'published',
+  views: 580,
+  shares: 210,
+  rsvps: [
+    {
+      id: 'rsvp-1',
+      invitationId: 'gp-cyber-y2k-futuristic',
+      guestName: 'Minh Hoàng',
+      relation: 'Bạn thân',
+      status: 'confirmed',
+      message: 'Hẹn gặp cậu tại trạm Cyber Studio 2030 đúng giờ nhé!',
+      createdAt: '2026-11-16T08:00:00Z'
+    },
+    {
+      id: 'rsvp-2',
+      invitationId: 'gp-cyber-y2k-futuristic',
+      guestName: 'Lan Chi',
+      relation: 'Bạn cùng lớp',
+      status: 'confirmed',
+      message: 'Đã sẵn sàng hoa và quà tặng cậu rồi nè!',
+      createdAt: '2026-11-16T08:30:00Z'
+    }
+  ],
+  createdAt: '2026-11-16T08:00:00Z',
+  updatedAt: '2026-11-16T08:00:00Z'
 };
 
 export const PREMADE_MESSAGES = [

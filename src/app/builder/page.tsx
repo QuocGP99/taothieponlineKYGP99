@@ -7,7 +7,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import InvitationCard from '@/components/InvitationCard';
 import ShareModal from '@/components/ShareModal';
-import { SAMPLE_INVITATION, GREEN_STUDENT_INVITATION, FILM_ROLL_INVITATION, PREMADE_MESSAGES } from '@/data/templates';
+import { SAMPLE_INVITATION, GREEN_STUDENT_INVITATION, FILM_ROLL_INVITATION, CYBER_FUTURISTIC_INVITATION, PREMADE_MESSAGES } from '@/data/templates';
 import { InvitationData, TimelineItem } from '@/types/invitation';
 import { saveInvitation } from '@/lib/storage';
 import {
@@ -65,7 +65,10 @@ function BuilderContent() {
     let baseTmpl = SAMPLE_INVITATION;
     let targetTemplateId = 'modern-crimson-spotlight';
 
-    if (tmplParam === 'vintage-film-roll' || tmplParam === 'film-roll') {
+    if (tmplParam === 'cyber-y2k-futuristic' || tmplParam === 'cyber-2030' || tmplParam === 'futuristic-3d') {
+      baseTmpl = CYBER_FUTURISTIC_INVITATION;
+      targetTemplateId = 'cyber-y2k-futuristic';
+    } else if (tmplParam === 'vintage-film-roll' || tmplParam === 'film-roll') {
       baseTmpl = FILM_ROLL_INVITATION;
       targetTemplateId = 'vintage-film-roll';
     } else if (tmplParam === 'green-student') {
@@ -307,7 +310,11 @@ function BuilderContent() {
   // 2. Bắt buộc đăng nhập Google mới cho phép chỉnh sửa template
   if (isAuthenticated === false) {
     const tmplParam = searchParams.get('template') || 'modern-crimson-spotlight';
-    const tmplDisplayName = tmplParam === 'green-student' ? 'Green Student (Thanh Xuân)' : 'Modern Crimson Spotlight';
+    const tmplDisplayName = tmplParam === 'cyber-y2k-futuristic' || tmplParam === 'cyber-2030'
+      ? 'Cyber 2030 (Neo-Futuristic 3D)'
+      : (tmplParam === 'vintage-film-roll' || tmplParam === 'film-roll'
+        ? 'Cuộn Phim Thanh Xuân'
+        : (tmplParam === 'green-student' ? 'Green Student (Thanh Xuân)' : 'Modern Crimson Spotlight'));
 
     return (
       <div className="min-h-screen bg-[#FAF8F8] flex items-center justify-center p-4">

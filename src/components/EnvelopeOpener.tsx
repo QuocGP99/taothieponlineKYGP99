@@ -27,6 +27,7 @@ export default function EnvelopeOpener({
 
   const isNotebookStyle = templateId === 'green-student';
   const isFilmRollStyle = templateId === 'vintage-film-roll' || templateId === 'film-roll';
+  const isCyberStyle = templateId === 'cyber-y2k-futuristic' || templateId === 'cyber-2030' || templateId === 'futuristic-3d';
 
   const handleOpenClick = () => {
     setOpening(true);
@@ -46,6 +47,14 @@ export default function EnvelopeOpener({
         spread: 85,
         origin: { y: 0.6 },
         colors: ['#F59E0B', '#D97706', '#B45309', '#FDE68A', '#78350F']
+      });
+    } else if (isCyberStyle) {
+      // Cyber neon pop confetti in pink, lime, sky blue, yellow
+      triggerConfetti({
+        particleCount: 110,
+        spread: 90,
+        origin: { y: 0.6 },
+        colors: ['#FF2E93', '#A3E635', '#38BDF8', '#FACC15', '#000000']
       });
     } else {
       // Crimson fireworks confetti
@@ -247,7 +256,106 @@ export default function EnvelopeOpener({
   }
 
   // ==============================================================
-  // 3. MẪU BÌ THƯ SƠN HOÀNG GIA CRIMSON SPOTLIGHT (MẶC ĐỊNH)
+  // 3. MẪU CYBER 2030 (3D FLOATING STUDENT ID BADGE OPENER)
+  // ==============================================================
+  if (isCyberStyle) {
+    return (
+      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center p-4 bg-gradient-to-b from-[#38BDF8] via-[#60A5FA] to-[#4ADE80] backdrop-blur-md overflow-hidden select-none font-quicksand bg-halftone">
+
+        {/* Floating background pixel icons */}
+        <div className="absolute top-12 left-10 text-3xl animate-bounce pointer-events-none" style={{ animationDuration: '4s' }}>
+          📁
+        </div>
+        <div className="absolute top-24 right-16 text-3xl animate-pulse pointer-events-none" style={{ animationDuration: '3s' }}>
+          ⭐
+        </div>
+        <div className="absolute bottom-20 left-16 text-3xl pointer-events-none">
+          ☻
+        </div>
+        <div className="absolute bottom-16 right-12 text-2xl animate-bounce pointer-events-none" style={{ animationDuration: '5s' }}>
+          🖱️
+        </div>
+
+        <div className={`flex flex-col items-center justify-center max-w-sm w-full transition-all duration-700 ${opening ? 'scale-125 opacity-0 rotate-6' : 'scale-100 opacity-100'}`}>
+
+          {/* Top Tag & Prompt */}
+          <div className="text-center mb-5 space-y-1.5">
+            <span className="inline-block bg-[#A3E635] text-black font-pixel font-bold text-[10px] px-3 py-1 border-2 border-black shadow-pop-sm">
+              YEARBOOK 2030 INVITATION
+            </span>
+            <h2 className="text-xl sm:text-2xl font-cyber text-white drop-shadow-[2px_2px_0px_#000000]">
+              HELLO, <span className="text-[#FF2E93] text-stroke-black">{guestName || 'BẠN'}</span>!
+            </h2>
+            <p className="text-xs font-pixel text-black font-bold">
+              CÓ 1 THẺ MỜI KỶ YẾU 3D ĐẶC BIỆT NÈ
+            </p>
+          </div>
+
+          {/* 3D Floating Student ID Badge Card */}
+          <div className="relative pt-4 w-68 sm:w-76">
+            
+            {/* Metal Lanyard Clip */}
+            <div className="w-10 h-10 bg-gradient-to-b from-stone-200 via-stone-300 to-stone-400 rounded-md border-2 border-black mx-auto -mb-4 z-20 shadow-md relative flex items-center justify-center">
+              <div className="w-3.5 h-3.5 rounded-full border-2 border-black bg-stone-100" />
+            </div>
+
+            {/* Clear Vinyl Badge Body */}
+            <div className="bg-white/95 rounded-3xl border-4 border-black p-5 shadow-pop-lg relative overflow-hidden group">
+              
+              <div className="flex items-center justify-between border-b-2 border-dashed border-black pb-2 mb-3">
+                <span className="text-lg font-cyber text-[#FF2E93]">
+                  CREATIVE YEARBOOK
+                </span>
+                <span className="text-[10px] font-pixel bg-[#A3E635] text-black font-bold px-1.5 py-0.5 border border-black rounded-xs">
+                  2030
+                </span>
+              </div>
+
+              {/* Badge Inner Card */}
+              <div className="space-y-3">
+                <div className="aspect-[4/3] rounded-xl overflow-hidden border-2 border-black bg-stone-100 relative">
+                  <img
+                    src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=600&q=80"
+                    alt="ID Badge"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute top-2 left-2 bg-black/80 text-white font-pixel text-[8px] px-2 py-0.5 rounded-xs">
+                    VIP PASS
+                  </div>
+                </div>
+
+                <div className="space-y-0.5 text-center font-pixel">
+                  <span className="text-[9px] text-[#FF2E93] font-bold block">STUDENT / HOST</span>
+                  <h3 className="text-base font-cyber text-black font-bold">
+                    {senderName || 'Bảo Anh'}
+                  </h3>
+                  <p className="text-[10px] text-stone-700">
+                    Lớp {classNameStr || '12A1'} • {schoolName || 'GP Studio99'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Pill Button below badge */}
+          <div className="mt-8">
+            <button
+              type="button"
+              onClick={handleOpenClick}
+              className="px-7 py-3 rounded-2xl border-3 border-black bg-[#A3E635] hover:bg-[#bef264] text-black font-pixel font-bold text-xs sm:text-sm uppercase tracking-wide shadow-pop transition-transform active:translate-x-0.5 active:translate-y-0.5 flex items-center gap-2 cursor-pointer animate-pulse"
+            >
+              <span>CHẠM ĐỂ MỞ THIỆP 3D</span>
+              <span className="text-base">⚡</span>
+            </button>
+          </div>
+
+        </div>
+      </div>
+    );
+  }
+
+  // ==============================================================
+  // 4. MẪU BÌ THƯ SƠN HOÀNG GIA CRIMSON SPOTLIGHT (MẶC ĐỊNH)
   // ==============================================================
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#240303]/85 backdrop-blur-md">

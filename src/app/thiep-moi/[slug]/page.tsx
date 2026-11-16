@@ -11,7 +11,7 @@ import ShareModal from '@/components/ShareModal';
 import GoogleLoginModal from '@/components/GoogleLoginModal';
 import { InvitationData, RSVP } from '@/types/invitation';
 import { getInvitationBySlug, addRSVP, incrementViewCount, incrementShareCount } from '@/lib/storage';
-import { SAMPLE_INVITATION, GREEN_STUDENT_INVITATION, FILM_ROLL_INVITATION } from '@/data/templates';
+import { SAMPLE_INVITATION, GREEN_STUDENT_INVITATION, FILM_ROLL_INVITATION, CYBER_FUTURISTIC_INVITATION } from '@/data/templates';
 import {
   Share2, Camera, Heart, Download, Calendar,
   MapPin, Phone, Sparkles, AlertCircle, ArrowLeft, Edit3, Eye
@@ -23,8 +23,9 @@ export default function PublicInvitationPage() {
   const params = useParams();
   const slug = (params?.slug as string) || '';
 
-  const isPresetTemplate = slug.includes('cuon-phim') || slug.includes('film') || slug.includes('green-student') || slug.includes('hoang-ngoc') || slug === 'sample';
+  const isPresetTemplate = slug.includes('cyber') || slug.includes('2030') || slug.includes('futuristic') || slug.includes('cuon-phim') || slug.includes('film') || slug.includes('green-student') || slug.includes('hoang-ngoc') || slug === 'sample';
   const [invitation, setInvitation] = useState<InvitationData | null>(() => {
+    if (slug.includes('cyber') || slug.includes('2030') || slug.includes('futuristic')) return CYBER_FUTURISTIC_INVITATION;
     if (slug.includes('cuon-phim') || slug.includes('film')) return FILM_ROLL_INVITATION;
     if (slug.includes('green-student')) return GREEN_STUDENT_INVITATION;
     if (slug.includes('hoang-ngoc') || slug === 'sample') return SAMPLE_INVITATION;
@@ -120,16 +121,21 @@ export default function PublicInvitationPage() {
 
   // Fallback to sample invitation if slug is demo or template
   const activeData = invitation || (
-    slug.includes('cuon-phim') || slug.includes('film')
-      ? FILM_ROLL_INVITATION
-      : (slug.includes('green-student')
-        ? GREEN_STUDENT_INVITATION
-        : (slug.includes('bao-anh') || slug.includes('12a1') || slug.includes('hoang-ngoc') || slug === 'sample' || slug.includes('crimson') || slug.includes('spotlight')
-          ? SAMPLE_INVITATION
-          : null))
+    slug.includes('cyber') || slug.includes('2030') || slug.includes('futuristic')
+      ? CYBER_FUTURISTIC_INVITATION
+      : (slug.includes('cuon-phim') || slug.includes('film')
+        ? FILM_ROLL_INVITATION
+        : (slug.includes('green-student')
+          ? GREEN_STUDENT_INVITATION
+          : (slug.includes('bao-anh') || slug.includes('12a1') || slug.includes('hoang-ngoc') || slug === 'sample' || slug.includes('crimson') || slug.includes('spotlight')
+            ? SAMPLE_INVITATION
+            : null)))
   );
 
   const isTemplatePreview =
+    slug.includes('cyber') ||
+    slug.includes('2030') ||
+    slug.includes('futuristic') ||
     slug.includes('cuon-phim') ||
     slug.includes('film') ||
     slug.includes('green-student') ||
@@ -140,7 +146,7 @@ export default function PublicInvitationPage() {
 
   const handleEditTemplate = () => {
     const user = typeof window !== 'undefined' ? localStorage.getItem('gp_auth_user') : null;
-    const targetTemplateId = activeData?.templateId || (slug.includes('green-student') ? 'green-student' : 'modern-crimson-spotlight');
+    const targetTemplateId = activeData?.templateId || (slug.includes('cyber') || slug.includes('2030') ? 'cyber-y2k-futuristic' : (slug.includes('green-student') ? 'green-student' : 'modern-crimson-spotlight'));
     if (user) {
       router.push(`/builder?template=${targetTemplateId}`);
     } else {
@@ -174,14 +180,17 @@ export default function PublicInvitationPage() {
   const studentDisplayName = activeData.studentName || activeData.senderName || 'mình';
   const isNotebookStyle = activeData.templateId === 'green-student';
   const isFilmRollStyle = activeData.templateId === 'vintage-film-roll' || activeData.templateId === 'film-roll';
+  const isCyberStyle = activeData.templateId === 'cyber-y2k-futuristic' || activeData.templateId === 'cyber-2030' || activeData.templateId === 'futuristic-3d';
 
   return (
     <div className={`min-h-screen flex flex-col relative transition-colors duration-500 ${
-      isFilmRollStyle
-        ? 'bg-[#1C1512] text-[#F7F2EA] selection:bg-amber-900 selection:text-amber-200'
-        : (isNotebookStyle 
-          ? 'bg-gradient-to-b from-[#FFF5F8] via-[#FAF5FF] to-[#F3E8FF] selection:bg-[#FCE7F3] selection:text-[#9D174D]' 
-          : 'bg-[#FAF8F8] selection:bg-[#FEE2E2] selection:text-[#720000]')
+      isCyberStyle
+        ? 'bg-gradient-to-b from-[#38BDF8] via-[#60A5FA] to-[#4ADE80] bg-halftone text-black selection:bg-[#FF2E93] selection:text-white'
+        : (isFilmRollStyle
+          ? 'bg-[#1C1512] text-[#F7F2EA] selection:bg-amber-900 selection:text-amber-200'
+          : (isNotebookStyle 
+            ? 'bg-gradient-to-b from-[#FFF5F8] via-[#FAF5FF] to-[#F3E8FF] selection:bg-[#FCE7F3] selection:text-[#9D174D]' 
+            : 'bg-[#FAF8F8] selection:bg-[#FEE2E2] selection:text-[#720000]'))
     }`}>
       <PetalsEffect />
 
@@ -247,8 +256,8 @@ export default function PublicInvitationPage() {
           />
         </div>
 
-        {/* RSVP & Guestbook Section (Chỉ hiển thị cho các mẫu khác; mẫu Sổ Lưu Bút và Cuộn Phim đã tích hợp trực tiếp) */}
-        {!isNotebookStyle && !isFilmRollStyle && activeData.componentsVisible?.showRSVP !== false && (
+        {/* RSVP & Guestbook Section (Chỉ hiển thị cho các mẫu khác; mẫu Sổ Lưu Bút, Cuộn Phim và Cyber 2030 đã tích hợp trực tiếp) */}
+        {!isNotebookStyle && !isFilmRollStyle && !isCyberStyle && activeData.componentsVisible?.showRSVP !== false && (
           <RSVPSection
             slug={slug}
             studentName={studentDisplayName}
@@ -276,7 +285,13 @@ export default function PublicInvitationPage() {
                   <span>1. Xem Preview Template</span>
                 </span>
                 <span className="text-[10px] text-stone-500 hidden sm:block">
-                  Mẫu: <strong className="text-[#890F0D]">{activeData.templateId === 'green-student' ? 'Green Student (Mùa Phượng Cuối)' : 'Modern Crimson Spotlight'}</strong>
+                  Mẫu: <strong className="text-[#890F0D]">
+                    {isCyberStyle 
+                      ? 'Cyber 2030 (Neo-Futuristic 3D)' 
+                      : (isNotebookStyle 
+                        ? 'Sổ Lưu Bút (Scrapbook)' 
+                        : (isFilmRollStyle ? 'Cuộn Phim Hoài Niệm' : 'Modern Crimson Spotlight'))}
+                  </strong>
                 </span>
               </div>
             </div>

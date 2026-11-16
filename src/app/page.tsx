@@ -103,11 +103,13 @@ export default function HomePage() {
           </div>
 
           {/* Template Feature Showcase Grid */}
-          <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {TEMPLATES.map(tmpl => {
-              const previewSlug = tmpl.id === 'green-student' 
-                ? 'green-student' 
-                : (tmpl.id === 'vintage-film-roll' ? 'cuon-phim-thanh-xuan' : 'hoang-ngoc-dai-hoc-dong-a-2027');
+              const previewSlug = tmpl.id === 'cyber-y2k-futuristic' 
+                ? 'cyber-2030' 
+                : (tmpl.id === 'green-student' 
+                  ? 'green-student' 
+                  : (tmpl.id === 'vintage-film-roll' ? 'cuon-phim-thanh-xuan' : 'hoang-ngoc-dai-hoc-dong-a-2027'));
               return (
                 <div
                   key={tmpl.id}

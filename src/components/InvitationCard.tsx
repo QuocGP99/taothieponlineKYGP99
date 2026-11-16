@@ -8,6 +8,7 @@ import PhotoGallerySection from './PhotoGallerySection';
 import GuestbookSection from './GuestbookSection';
 import ScrapbookInvitation from './ScrapbookInvitation';
 import VintageFilmInvitation from './VintageFilmInvitation';
+import CyberFuturisticInvitation from './CyberFuturisticInvitation';
 import { RSVP } from '@/types/invitation';
 import { 
   Calendar, Clock, MapPin, Navigation, Shirt, 
@@ -56,6 +57,21 @@ export default function InvitationCard({
   if (data.templateId === 'vintage-film-roll' || data.templateId === 'film-roll') {
     return (
       <VintageFilmInvitation
+        data={data}
+        isInteractive={isInteractive}
+        onUpdate={onUpdate}
+        guestName={guestName}
+        cardRef={cardRef}
+        onEditPrompt={onEditPrompt}
+        onRSVPSubmit={onRSVPSubmit}
+      />
+    );
+  }
+
+  // Nếu là mẫu Cyber 2030 (Neo-Futuristic Y2K)
+  if (data.templateId === 'cyber-y2k-futuristic' || data.templateId === 'cyber-2030' || data.templateId === 'futuristic-3d') {
+    return (
+      <CyberFuturisticInvitation
         data={data}
         isInteractive={isInteractive}
         onUpdate={onUpdate}

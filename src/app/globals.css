@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Dancing+Script:wght@600;700&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Space+Grotesk:wght@500;700&family=Alex+Brush&family=Righteous&family=Cinzel:wght@700;900&family=Quicksand:wght@500;600;700&family=Patrick+Hand&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Caveat:wght@600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Dancing+Script:wght@600;700&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Space+Grotesk:wght@500;700&family=Alex+Brush&family=Righteous&family=Cinzel:wght@700;900&family=Quicksand:wght@500;600;700&family=Patrick+Hand&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Caveat:wght@600;700&family=Silkscreen:wght@400;700&display=swap');
 
 :root {
   --gp-primary: #890F0D;
@@ -149,4 +149,38 @@ body {
 
 .bg-film-cream {
   background-color: #F7F2EA;
+}
+
+/* Y2K Cyber 3D Futuristic Styles */
+.font-pixel {
+  font-family: 'Silkscreen', 'Space Grotesk', monospace, sans-serif;
+}
+
+.font-cyber {
+  font-family: 'Righteous', 'Space Grotesk', sans-serif;
+}
+
+.shadow-pop {
+  box-shadow: 4px 4px 0px #000000;
+}
+
+.shadow-pop-sm {
+  box-shadow: 2px 2px 0px #000000;
+}
+
+.shadow-pop-lg {
+  box-shadow: 6px 6px 0px #000000;
+}
+
+.shadow-pop-pink {
+  box-shadow: 4px 4px 0px #FF2E93;
+}
+
+.shadow-pop-lime {
+  box-shadow: 4px 4px 0px #84CC16;
+}
+
+.bg-halftone {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.45) 1.5px, transparent 1.5px);
+  background-size: 12px 12px;
 }

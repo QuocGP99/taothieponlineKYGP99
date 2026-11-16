@@ -49,7 +49,7 @@ def main():
             shutil.copy2(f, os.path.join(staging_dir, f))
             
     # 2. Các thư mục source
-    folders_to_copy = ['public', 'database', 'src']
+    folders_to_copy = ['public', 'database', 'src', 'bin']
     for folder in folders_to_copy:
         if os.path.exists(folder):
             shutil.copytree(folder, os.path.join(staging_dir, folder))

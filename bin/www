@@ -1,0 +1,7 @@
+#!/usr/bin/env node
+
+// ========================================================
+// GP STUDIO99 – ENTRYPOINT CHO INET BIN/WWW
+// ========================================================
+// Dành cho trường hợp cPanel chọn tập tin khởi động là bin/www
+require('../server.js');

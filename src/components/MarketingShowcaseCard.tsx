@@ -154,7 +154,7 @@ export default function MarketingShowcaseCard({
               {/* Left tall photo (Col 7) */}
               <div className="col-span-7 relative rounded-2xl overflow-hidden shadow-xl border border-white/15 group aspect-[4/5] sm:aspect-[3/4]">
                 <img
-                  src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=800&auto=format&fit=crop"
+                  src="/showcase/tap-the-lop.jpg"
                   alt="Kỷ yếu tập thể GP Studio99"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
@@ -170,7 +170,7 @@ export default function MarketingShowcaseCard({
                 {/* Top couple */}
                 <div className="relative rounded-2xl overflow-hidden shadow-lg border border-white/15 group flex-1 aspect-square sm:aspect-auto">
                   <img
-                    src="https://images.unsplash.com/photo-1543269865-cbf427effbad?q=80&w=600&auto=format&fit=crop"
+                    src="/showcase/doi-ban-than.jpg"
                     alt="Concept đôi bạn thân kỷ yếu"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
@@ -183,7 +183,7 @@ export default function MarketingShowcaseCard({
                 {/* Bottom portrait */}
                 <div className="relative rounded-2xl overflow-hidden shadow-lg border border-white/15 group flex-1 aspect-square sm:aspect-auto">
                   <img
-                    src="https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?q=80&w=600&auto=format&fit=crop"
+                    src="/showcase/nang-thanh-xuan.jpg"
                     alt="Chân dung thanh xuân học đường"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />

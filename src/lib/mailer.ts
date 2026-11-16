@@ -50,9 +50,9 @@ export async function sendOtpEmail({ to, otp }: SendOtpEmailParams): Promise<{ s
     </html>
   `;
 
-  // 1. Cấu hình gửi mail qua Custom SMTP (Máy chủ Email iNET cPanel hoặc SMTP tùy chỉnh)
-  const smtpHost = process.env.SMTP_HOST;
-  const smtpUser = process.env.SMTP_USER;
+  // 1. Cấu hình gửi mail qua iNET OxMail SMTP (lienhe@taothiepkyyeugp99.io.vn) hoặc Custom SMTP
+  const smtpHost = process.env.SMTP_HOST || 'mail.taothiepkyyeugp99.io.vn';
+  const smtpUser = process.env.SMTP_USER || 'lienhe@taothiepkyyeugp99.io.vn';
   const smtpPass = process.env.SMTP_PASSWORD || process.env.SMTP_PASS;
   const smtpPort = Number(process.env.SMTP_PORT || 465);
 
@@ -61,27 +61,28 @@ export async function sendOtpEmail({ to, otp }: SendOtpEmailParams): Promise<{ s
       const transporter = nodemailer.createTransport({
         host: smtpHost,
         port: smtpPort,
-        secure: smtpPort === 465, // SSL đối với port 465
+        secure: smtpPort === 465, // SSL port 465
         auth: {
           user: smtpUser,
           pass: smtpPass
         },
         tls: {
-          rejectUnauthorized: false // Chấp nhận chứng chỉ SSL cPanel iNET
+          rejectUnauthorized: false
         }
       });
 
       await transporter.sendMail({
         from: `"GP Studio99 Kỷ Yếu" <${smtpUser}>`,
         to: normalizedEmail,
-        subject: `[GP Studio99] Mã xác thực đăng nhập: ${otp} 🎓`,
+        subject: `[GP Studio99] Mã xác thực tạo thiệp: ${otp} 🎓`,
         html: emailHtml
       });
 
-      console.log(`[MAILER] Đã gửi mã OTP thực tế qua iNET SMTP (${smtpHost}) tới: ${normalizedEmail}`);
+      console.log(`[MAILER] Đã gửi mã OTP thực tế từ ${smtpUser} tới: ${normalizedEmail}`);
       return { success: true, sentVia: 'inet_smtp' };
     } catch (err: any) {
       console.error('[MAILER] Lỗi gửi qua iNET SMTP:', err);
+      return { success: false, error: err.message };
     }
   }
 

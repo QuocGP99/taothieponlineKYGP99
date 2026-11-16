@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyOTP } from '@/lib/otpStore';
+import { verifyOTP, verifySignedOTP } from '@/lib/otpStore';
 import { isMysqlConfigured, verifyOtpInDb, upsertUserInDb } from '@/lib/mysql';
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, otp } = await req.json();
+    const { email, otp, verificationToken } = await req.json();
 
     if (!email || !otp) {
       return NextResponse.json(
@@ -14,20 +14,32 @@ export async function POST(req: NextRequest) {
     }
 
     const normalizedEmail = email.trim().toLowerCase();
+    const cleanOtp = String(otp).trim();
     let isOtpValid = false;
+    let failReason = 'Mã xác thực không chính xác hoặc đã hết hạn.';
 
-    // 1. Kiểm tra mã từ MySQL iNET nếu có cấu hình
-    if (isMysqlConfigured()) {
+    // 1. Xác thực bằng HMAC ký số không trạng thái (Hoạt động hoàn hảo trên Vercel Serverless)
+    if (verificationToken) {
+      const signedResult = verifySignedOTP(normalizedEmail, cleanOtp, verificationToken);
+      if (signedResult.success) {
+        isOtpValid = true;
+      } else {
+        failReason = signedResult.message;
+      }
+    }
+
+    // 2. Dự phòng: Kiểm tra mã từ MySQL iNET nếu có cấu hình
+    if (!isOtpValid && isMysqlConfigured()) {
       try {
-        isOtpValid = await verifyOtpInDb(normalizedEmail, otp);
+        isOtpValid = await verifyOtpInDb(normalizedEmail, cleanOtp);
       } catch (err: any) {
         console.warn('[AUTH] Lỗi xác thực OTP từ MySQL:', err.message);
       }
     }
 
-    // 2. Nếu MySQL chưa xác thực được, thử kiểm tra từ RAM store dự phòng
+    // 3. Dự phòng: Thử kiểm tra từ RAM store
     if (!isOtpValid) {
-      const memResult = verifyOTP(normalizedEmail, otp);
+      const memResult = verifyOTP(normalizedEmail, cleanOtp);
       if (memResult.success) {
         isOtpValid = true;
       }
@@ -35,20 +47,21 @@ export async function POST(req: NextRequest) {
 
     if (!isOtpValid) {
       return NextResponse.json(
-        { success: false, message: 'Mã xác thực không chính xác hoặc đã hết hạn.' },
+        { success: false, message: failReason },
         { status: 400 }
       );
     }
 
     // Tạo token phiên đăng nhập
-    const token = `gp_token_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const token = `gp_user_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    const displayName = normalizedEmail.split('@')[0].toUpperCase();
 
-    // 3. Cập nhật hoặc lưu user vào MySQL
+    // 4. Cập nhật hoặc lưu user vào MySQL nếu có
     if (isMysqlConfigured()) {
       try {
         await upsertUserInDb({
           email: normalizedEmail,
-          name: normalizedEmail.split('@')[0],
+          name: displayName,
           provider: 'email_otp',
           token
         });
@@ -59,9 +72,11 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: 'Xác thực thành công!',
+      message: 'Xác thực tài khoản thành công!',
       user: {
         email: normalizedEmail,
+        name: displayName,
+        provider: 'email_otp',
         token,
         loginAt: new Date().toISOString()
       }

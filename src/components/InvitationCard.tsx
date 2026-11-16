@@ -6,6 +6,8 @@ import PosterHeroSection from './PosterHeroSection';
 import TimelineSection from './TimelineSection';
 import PhotoGallerySection from './PhotoGallerySection';
 import GuestbookSection from './GuestbookSection';
+import ScrapbookInvitation from './ScrapbookInvitation';
+import { RSVP } from '@/types/invitation';
 import { 
   Calendar, Clock, MapPin, Navigation, Shirt, 
   Share2, ExternalLink, Heart, Sparkles, Check, Copy,
@@ -21,6 +23,7 @@ interface InvitationCardProps {
   guestName?: string;
   cardRef?: React.RefObject<HTMLDivElement>;
   onEditPrompt?: () => void;
+  onRSVPSubmit?: (rsvp: Omit<RSVP, 'id' | 'createdAt'>) => Promise<void> | void;
 }
 
 export default function InvitationCard({ 
@@ -30,8 +33,24 @@ export default function InvitationCard({
   onUpdate,
   guestName,
   cardRef,
-  onEditPrompt
+  onEditPrompt,
+  onRSVPSubmit
 }: InvitationCardProps) {
+  // Nếu là mẫu Sổ Lưu Bút Kỷ Yếu (Scrapbook / Green Student)
+  if (data.templateId === 'green-student') {
+    return (
+      <ScrapbookInvitation
+        data={data}
+        isInteractive={isInteractive}
+        onUpdate={onUpdate}
+        guestName={guestName}
+        cardRef={cardRef}
+        onEditPrompt={onEditPrompt}
+        onRSVPSubmit={onRSVPSubmit}
+      />
+    );
+  }
+
   const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number }>({
     days: 0,
     hours: 0,

@@ -167,9 +167,14 @@ export default function PublicInvitationPage() {
 
   const currentUrl = typeof window !== 'undefined' ? window.location.href : `https://chupanhdanang.com/thiep-moi/${slug}`;
   const studentDisplayName = activeData.studentName || activeData.senderName || 'mình';
+  const isNotebookStyle = activeData.templateId === 'green-student';
 
   return (
-    <div className="min-h-screen bg-[#FAF8F8] flex flex-col selection:bg-[#FEE2E2] selection:text-[#720000] relative">
+    <div className={`min-h-screen flex flex-col relative transition-colors duration-500 ${
+      isNotebookStyle 
+        ? 'bg-gradient-to-b from-[#FFF5F8] via-[#FAF5FF] to-[#F3E8FF] selection:bg-[#FCE7F3] selection:text-[#9D174D]' 
+        : 'bg-[#FAF8F8] selection:bg-[#FEE2E2] selection:text-[#720000]'
+    }`}>
       <PetalsEffect />
 
       {/* Floating Navigation: Back to Home (Left) */}
@@ -209,11 +214,13 @@ export default function PublicInvitationPage() {
       {/* Background Youth Music Player (Fixed top-4 right-4) */}
       <MusicPlayer />
 
-      {/* Interactive Envelope Opener (Modal/Curtain) */}
+      {/* Interactive Envelope / Notebook Opener (Modal/Curtain) */}
       <EnvelopeOpener
         classNameStr={activeData.className}
         schoolName={activeData.schoolName}
         senderName={studentDisplayName}
+        guestName={activeData.guestName}
+        templateId={activeData.templateId}
         isOpen={envelopeOpen}
         onOpen={() => setEnvelopeOpen(true)}
       />
@@ -228,11 +235,12 @@ export default function PublicInvitationPage() {
             isInteractive={false}
             cardRef={cardRef}
             onEditPrompt={handleEditTemplate}
+            onRSVPSubmit={handleRSVPSubmit}
           />
         </div>
 
-        {/* RSVP & Guestbook Section */}
-        {activeData.componentsVisible?.showRSVP !== false && (
+        {/* RSVP & Guestbook Section (Chỉ hiển thị cho các mẫu khác; mẫu Sổ Lưu Bút đã tích hợp trực tiếp) */}
+        {!isNotebookStyle && activeData.componentsVisible?.showRSVP !== false && (
           <RSVPSection
             slug={slug}
             studentName={studentDisplayName}

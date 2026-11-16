@@ -8,6 +8,8 @@ interface EnvelopeOpenerProps {
   classNameStr: string;
   schoolName: string;
   senderName: string;
+  guestName?: string;
+  templateId?: string;
   onOpen: () => void;
   isOpen: boolean;
 }
@@ -16,21 +18,35 @@ export default function EnvelopeOpener({
   classNameStr,
   schoolName,
   senderName,
+  guestName,
+  templateId,
   onOpen,
   isOpen
 }: EnvelopeOpenerProps) {
   const [opening, setOpening] = useState(false);
 
+  const isNotebookStyle = templateId === 'green-student';
+
   const handleOpenClick = () => {
     setOpening(true);
 
-    // Fire fireworks confetti in crimson, gold, rose and amber
-    confetti({
-      particleCount: 85,
-      spread: 75,
-      origin: { y: 0.6 },
-      colors: ['#890F0D', '#720000', '#D97706', '#F59E0B', '#E11D48']
-    });
+    if (isNotebookStyle) {
+      // Pastel confetti in lavender, pink, yellow, mint
+      confetti({
+        particleCount: 90,
+        spread: 80,
+        origin: { y: 0.6 },
+        colors: ['#D6BCFA', '#F472B6', '#FDE047', '#A7F3D0', '#C4B5FD', '#F43F5E']
+      });
+    } else {
+      // Crimson fireworks confetti
+      confetti({
+        particleCount: 85,
+        spread: 75,
+        origin: { y: 0.6 },
+        colors: ['#890F0D', '#720000', '#D97706', '#F59E0B', '#E11D48']
+      });
+    }
 
     setTimeout(() => {
       onOpen();
@@ -39,6 +55,99 @@ export default function EnvelopeOpener({
 
   if (isOpen) return null;
 
+  // ==============================================================
+  // 1. MẪU SỔ LƯU BÚT KỶ YẾU (SCRAPBOOK NOTEBOOK OPENER)
+  // Chuẩn theo reference image: "Ê Bạn ơi, có cuốn sổ gửi cậu nè!"
+  // ==============================================================
+  if (isNotebookStyle) {
+    return (
+      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center p-4 bg-gradient-to-br from-[#FFF5F7] via-[#FAF5FF] to-[#F5F3FF] backdrop-blur-md overflow-hidden select-none font-quicksand">
+
+        {/* Floating background graduation caps & hearts */}
+        <div className="absolute top-12 left-10 text-3xl opacity-40 animate-bounce pointer-events-none" style={{ animationDuration: '4s' }}>
+          🎓
+        </div>
+        <div className="absolute top-24 right-16 text-2xl opacity-40 animate-pulse pointer-events-none" style={{ animationDuration: '3s' }}>
+          🎓
+        </div>
+        <div className="absolute bottom-20 left-16 text-2xl opacity-35 animate-pulse pointer-events-none" style={{ animationDuration: '5s' }}>
+          💕
+        </div>
+        <div className="absolute bottom-16 right-12 text-3xl opacity-40 animate-bounce pointer-events-none" style={{ animationDuration: '6s' }}>
+          🤍
+        </div>
+
+        <div className={`flex flex-col items-center justify-center max-w-sm w-full transition-all duration-700 ${opening ? 'scale-125 opacity-0 rotate-6' : 'scale-100 opacity-100'}`}>
+
+          {/* Heading prompt */}
+          <div className="text-center mb-6 space-y-1">
+            <p className="text-sm sm:text-base font-semibold text-stone-700">
+              Ê <span className="text-[#EC4899] font-bold">{guestName || 'Bạn'}</span> ơi,
+            </p>
+            <p className="text-sm sm:text-base font-semibold text-stone-700">
+              có cuốn sổ gửi cậu nè!
+            </p>
+          </div>
+
+          {/* Notebook Cover 3D Card */}
+          <div className="relative w-64 sm:w-72 h-84 sm:h-92 rounded-2xl bg-[#D6BCFA] shadow-2xl shadow-purple-900/20 border-4 border-[#C4B5FD] flex items-center justify-center p-4 transition-all duration-500 hover:scale-102 bg-polka-dot group">
+
+            {/* Left Notebook Spine Binding */}
+            <div className="absolute left-0 top-0 bottom-0 w-6 bg-[#B794F4] rounded-l-xl border-r border-[#9F7AEA]/40 flex flex-col justify-around py-5 items-center">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#E9D8FD] shadow-xs" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#E9D8FD] shadow-xs" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#E9D8FD] shadow-xs" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#E9D8FD] shadow-xs" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#E9D8FD] shadow-xs" />
+            </div>
+
+            {/* Right Elastic Bookmark Band */}
+            <div className="absolute right-4 top-0 bottom-0 w-2.5 bg-[#F472B6] shadow-md z-10 rounded-full" />
+
+            {/* Floating Cap Sticker on Notebook */}
+            <div className="absolute -top-3.5 -right-2 text-3xl transform rotate-12 drop-shadow-md z-20">
+              🎓
+            </div>
+
+            {/* Floating Pink Heart Sticker on Notebook */}
+            <div className="absolute -bottom-3 left-4 text-2xl transform -rotate-12 drop-shadow-md z-20">
+              💖
+            </div>
+
+            {/* White Center Label */}
+            <div className="bg-white/95 backdrop-blur-xs rounded-xl p-5 w-48 sm:w-52 text-center shadow-md border border-purple-100 z-10 space-y-1">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-stone-400 font-mono block">
+                SỔ LƯU BÚT
+              </span>
+              <h3 className="text-2xl sm:text-3xl font-black text-stone-800 font-cute">
+                Kỷ yếu
+              </h3>
+              <p className="text-xs font-bold text-stone-500">
+                Lớp {classNameStr || '12A1'}
+              </p>
+            </div>
+          </div>
+
+          {/* Pill Button below notebook */}
+          <div className="mt-8">
+            <button
+              type="button"
+              onClick={handleOpenClick}
+              className="px-6 py-2.5 rounded-full border-2 border-dashed border-stone-600 hover:border-purple-600 bg-white/90 hover:bg-white text-stone-800 hover:text-purple-700 font-bold text-xs sm:text-sm tracking-wide shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center gap-1.5 cursor-pointer animate-pulse"
+            >
+              <span>chạm để lật sổ</span>
+              <span className="text-base font-normal">→</span>
+            </button>
+          </div>
+
+        </div>
+      </div>
+    );
+  }
+
+  // ==============================================================
+  // 2. MẪU BÌ THƯ SƠN HOÀNG GIA CRIMSON SPOTLIGHT (MẶC ĐỊNH)
+  // ==============================================================
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#240303]/85 backdrop-blur-md">
       <div className={`max-w-md w-full relative transition-all duration-700 ${opening ? 'scale-110 opacity-0' : 'scale-100 opacity-100'}`}>

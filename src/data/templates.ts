@@ -21,21 +21,21 @@ export const TEMPLATES: Template[] = [
   },
   {
     id: 'green-student',
-    name: 'Green Student (Thanh Xuân Học Đường)',
+    name: 'Sổ Lưu Bút Kỷ Yếu (Scrapbook)',
     category: 'thanh-xuan',
-    categoryName: 'Thanh Xuân Học Đường',
-    description: 'Phong cách thanh xuân tươi sáng, trong trẻo với sắc xanh học đường mộng mơ, phù hợp cho học sinh THPT và sinh viên.',
+    categoryName: 'Sổ Lưu Bút Thanh Xuân',
+    description: 'Thiết kế cuốn sổ lưu bút tuổi học trò độc đáo: bìa sổ pastel chạm mở lật trang, giấy kẻ ô, washi tape dán ảnh polaroid, checklist và lưu bút.',
     previewImage: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80',
-    badge: 'Mẫu Học Sinh Yêu Thích',
+    badge: 'Mẫu Sổ Lưu Bút Hot',
     defaultColors: {
-      primary: '#15803D',
-      secondary: '#166534',
-      background: '#F0FDF4',
-      text: '#14532D',
-      accent: '#EAB308',
+      primary: '#D6BCFA',
+      secondary: '#F472B6',
+      background: '#FFF5F8',
+      text: '#1F2937',
+      accent: '#FDE047',
     },
     fontFamily: 'Quicksand',
-    styleName: 'Green Youth'
+    styleName: 'Scrapbook Youth'
   }
 ];
 
@@ -178,70 +178,91 @@ export const GREEN_STUDENT_INVITATION: InvitationData = {
   id: 'gp-green-student',
   slug: 'green-student',
   templateId: 'green-student',
-  studentName: 'Tên gọi',
-  namePart1: 'XUÂN',
-  namePart2: 'TRƯỜNG',
-  nickname: 'Tên gọi',
+  studentName: 'Hoàng Ngọc Bảo Anh',
+  namePart1: 'BẢO',
+  namePart2: 'ANH',
+  nickname: 'Bảo Anh',
   className: '12A1',
   schoolName: 'Tên trường của bạn',
-  schoolYear: '2024 - 2027',
+  schoolYear: '2024 — 2027',
   senderName: 'Tên gọi',
   guestName: 'Bạn thân mến',
-  friendPhotoTime: '13:30 - 17:30 (Đón bạn bè chụp ảnh kỷ niệm)',
-  title: 'mùa phượng cuối',
-  date: '2026-12-30',
-  dayOfWeek: 'Thứ tư',
-  startTime: '13:00',
-  endTime: '18:00',
-  gatheringLocation: 'Sân trường của bạn',
-  shootLocation: 'Cơ sở chính trường học, Đà Nẵng',
-  detailedAddress: 'Đà Nẵng',
-  googleMapsUrl: 'https://www.google.com/maps/search/Da+Nang',
-  dressCode: 'Tone màu xanh sage, trắng hoặc be nhẹ nhàng thanh lịch',
-  note: 'Hãy ghé qua chụp ảnh cùng mình nhé!',
-  inviteMessage: 'Ba năm cấp 3 trôi qua như một cái chớp mắt, ngày chụp ảnh kỷ yếu của mình đã đến rồi. Hãy ghé qua chung vui và chụp cùng mình vài tấm hình kỷ niệm thật vui nhé!',
-  wishMessage: 'Cảm ơn bạn vì đã đồng hành cùng mình trong suốt những năm tháng thanh xuân!',
-  signature: 'Tên gọi • Trân trọng',
+  friendPhotoTime: '07:00 - 11:30 (Đón bạn bè chụp ảnh kỷ niệm)',
+  title: 'Kỷ yếu của tụi mình!',
+  date: '2026-12-31',
+  dayOfWeek: 'Thứ Năm',
+  startTime: '07:00',
+  endTime: '11:30',
+  gatheringLocation: 'Sân trường',
+  shootLocation: 'Sân trường',
+  detailedAddress: 'Địa chỉ trường của bạn',
+  googleMapsUrl: 'https://www.google.com/maps/search/San+Truong',
+  dressCode: 'Áo dài trắng hoặc đồng phục trường của bạn nhé!',
+  note: 'Nhớ đến đúng giờ và mang theo nụ cười thật tươi nhé!',
+  inviteMessage: 'Ba năm cấp ba trôi nhanh như một cái chớp mắt. Ngày chụp kỷ yếu sắp đến rồi — mình mong có cậu ở đó, cùng lưu lại khoảnh khắc thanh xuân rực rỡ nhất của chúng mình!',
+  wishMessage: 'Thanh xuân không có nếu như — chỉ có những ngày ta đã sống hết mình.',
+  signature: 'Tên gọi ♡',
   avatarPhoto: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80',
   groupPhoto: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1200&q=80',
-  primaryColor: '#15803D',
-  secondaryColor: '#166534',
+  primaryColor: '#D6BCFA',
+  secondaryColor: '#F472B6',
   fontFamily: 'Quicksand',
   timeline: [
     {
       id: 'tl-1',
-      time: '13:00 - 14:00',
-      title: 'Tập trung chụp ảnh đồng phục lớp',
-      location: 'Cổng chính & Giảng đường',
+      time: '06:30',
+      title: 'Trang điểm & thay trang phục',
+      location: 'Phòng học lớp 12A1',
       note: 'Chuẩn bị trang phục thanh xuân'
     },
     {
       id: 'tl-2',
-      time: '14:00 - 16:30',
-      title: 'Khung giờ đón bạn bè & người thân chụp ảnh',
+      time: '07:30',
+      title: 'Chụp ảnh tập thể cả lớp',
+      location: 'Cổng chính & Giảng đường',
+      note: 'Chụp cùng giáo viên chủ nhiệm và cả lớp'
+    },
+    {
+      id: 'tl-3',
+      time: '09:00',
+      title: 'Chụp concept, nhóm bạn thân',
       location: 'Sân trường & Vườn cây',
       note: 'Thời gian chụp tự do cùng bạn bè'
     },
     {
-      id: 'tl-3',
-      time: '16:30 - 18:00',
-      title: 'Chụp ảnh tập thể hoàng hôn',
-      location: 'Sân bóng trường',
-      note: 'Lưu giữ nụ cười thanh xuân'
+      id: 'tl-4',
+      time: '10:30',
+      title: 'Ảnh cá nhân, tặng hoa & lưu bút',
+      location: 'Hành lang & Sân bóng',
+      note: 'Ký lưu bút và tặng hoa tốt nghiệp'
     }
   ],
   gallery: [
     'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80',
     'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&w=800&q=80'
+    'https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=800&q=80'
   ],
-  wishes: [
+  rsvps: [
     {
-      id: 'wish-1',
-      senderName: 'Bạn thân mến',
+      id: 'rsvp-1',
+      invitationId: 'gp-green-student',
+      guestName: 'Bảo Trâm',
       relation: 'Bạn thân',
-      message: 'Chúc Xuân Trường có một ngày chụp kỷ yếu thật rực rỡ và đáng nhớ nhé!',
-      createdAt: '2026-11-15T10:00:00Z'
+      status: 'confirmed',
+      message: 'Tớ nhất định sẽ đến đúng 7h mang hoa cho cậu nhé!',
+      createdAt: '2026-11-15T08:30:00Z'
+    },
+    {
+      id: 'rsvp-2',
+      invitationId: 'gp-green-student',
+      guestName: 'Minh Quân',
+      relation: 'Bạn cùng lớp',
+      status: 'confirmed',
+      message: 'Chúc bạn có bộ ảnh thanh xuân rực rỡ nhất!',
+      createdAt: '2026-11-15T09:15:00Z'
     }
   ],
   componentsVisible: {
@@ -254,11 +275,11 @@ export const GREEN_STUDENT_INVITATION: InvitationData = {
     showMusic: true,
     showRSVP: true
   },
-  creatorName: 'Nguyễn Xuân Trường',
-  creatorEmail: 'xuantruong@gmail.com',
+  creatorName: 'Hoàng Ngọc Bảo Anh',
+  creatorEmail: 'baoanh.kyeu@gmail.com',
   status: 'published',
-  views: 245,
-  shares: 62,
+  views: 388,
+  shares: 112,
   createdAt: '2026-11-14T10:00:00Z',
   updatedAt: '2026-11-15T10:00:00Z'
 };

@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import { 
-  Sparkles, CheckCircle2, Phone, MessageCircle, 
+import {
+  Sparkles, CheckCircle2, Phone, MessageCircle,
   ExternalLink, ArrowDownCircle, Heart, Tag
 } from 'lucide-react';
 
@@ -11,14 +11,14 @@ interface MarketingShowcaseCardProps {
   isCompact?: boolean;
 }
 
-export default function MarketingShowcaseCard({ 
+export default function MarketingShowcaseCard({
   className = '',
   isCompact = false
 }: MarketingShowcaseCardProps) {
 
   return (
     <div className={`relative overflow-hidden rounded-[32px] sm:rounded-[36px] bg-gradient-to-br from-[#240303] via-[#480505] to-[#1A0202] text-white border border-[#890F0D]/40 shadow-2xl ${className}`}>
-      
+
       {/* Ambient background glows */}
       <div className="absolute -top-24 -right-24 w-80 h-80 bg-rose-600/20 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-[#890F0D]/30 rounded-full blur-3xl pointer-events-none" />
@@ -26,12 +26,12 @@ export default function MarketingShowcaseCard({
 
       <div className="relative z-10 p-6 sm:p-8 lg:p-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
-          
+
           {/* ============================================================== */}
           {/* LEFT CONTENT                                                   */}
           {/* ============================================================== */}
           <div className="lg:col-span-7 space-y-5">
-            
+
             {/* Badge pill */}
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[11px] font-black uppercase tracking-wider text-rose-200 shadow-xs">
               <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-spin" style={{ animationDuration: '6s' }} />
@@ -70,7 +70,7 @@ export default function MarketingShowcaseCard({
 
             {/* Action Buttons Row */}
             <div className="pt-2 flex flex-wrap items-center gap-2.5">
-              
+
               {/* Xem báo giá */}
               <a
                 href="https://chupanhdanang.com/bang-gia-ky-yeu/"
@@ -150,11 +150,11 @@ export default function MarketingShowcaseCard({
           {/* ============================================================== */}
           <div className="lg:col-span-5">
             <div className="grid grid-cols-12 gap-3 items-stretch">
-              
+
               {/* Left tall photo (Col 7) */}
               <div className="col-span-7 relative rounded-2xl overflow-hidden shadow-xl border border-white/15 group aspect-[4/5] sm:aspect-[3/4]">
                 <img
-                  src="/showcase/tap-the-lop.jpg"
+                  src="/showcase/tap-the-lop.webp"
                   alt="Kỷ yếu tập thể GP Studio99"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
@@ -166,11 +166,11 @@ export default function MarketingShowcaseCard({
 
               {/* Right 2 stacked photos (Col 5) */}
               <div className="col-span-5 flex flex-col gap-3">
-                
+
                 {/* Top couple */}
                 <div className="relative rounded-2xl overflow-hidden shadow-lg border border-white/15 group flex-1 aspect-square sm:aspect-auto">
                   <img
-                    src="/showcase/doi-ban-than.jpg"
+                    src="/showcase/doi-ban-than.webp"
                     alt="Concept đôi bạn thân kỷ yếu"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
@@ -183,7 +183,7 @@ export default function MarketingShowcaseCard({
                 {/* Bottom portrait */}
                 <div className="relative rounded-2xl overflow-hidden shadow-lg border border-white/15 group flex-1 aspect-square sm:aspect-auto">
                   <img
-                    src="/showcase/nang-thanh-xuan.jpg"
+                    src="/showcase/nang-thanh-xuan.webp"
                     alt="Chân dung thanh xuân học đường"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />

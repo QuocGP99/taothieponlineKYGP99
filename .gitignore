@@ -20,6 +20,14 @@
 *.zip
 .staging*
 .ag-kit-backups/
+.agents/
+
+# Temporary PHP/Bat scripts
+clean.php
+kill_process.php
+kill_pure.php
+start-web.bat
+quang-cao-ky-yeu.md
 
 # Debug logs
 npm-debug.log*

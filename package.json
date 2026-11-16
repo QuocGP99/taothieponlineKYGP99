@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "pack:inet": "powershell -ExecutionPolicy Bypass -File ./scripts/pack-inet.ps1",
+    "pack:inet": "python ./scripts/pack_linux.py",
     "lint": "next lint"
   },
   "dependencies": {

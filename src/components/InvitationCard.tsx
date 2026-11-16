@@ -7,6 +7,7 @@ import TimelineSection from './TimelineSection';
 import PhotoGallerySection from './PhotoGallerySection';
 import GuestbookSection from './GuestbookSection';
 import ScrapbookInvitation from './ScrapbookInvitation';
+import VintageFilmInvitation from './VintageFilmInvitation';
 import { RSVP } from '@/types/invitation';
 import { 
   Calendar, Clock, MapPin, Navigation, Shirt, 
@@ -40,6 +41,21 @@ export default function InvitationCard({
   if (data.templateId === 'green-student') {
     return (
       <ScrapbookInvitation
+        data={data}
+        isInteractive={isInteractive}
+        onUpdate={onUpdate}
+        guestName={guestName}
+        cardRef={cardRef}
+        onEditPrompt={onEditPrompt}
+        onRSVPSubmit={onRSVPSubmit}
+      />
+    );
+  }
+
+  // Nếu là mẫu Cuộn Phim Thanh Xuân (Vintage Film Roll)
+  if (data.templateId === 'vintage-film-roll' || data.templateId === 'film-roll') {
+    return (
+      <VintageFilmInvitation
         data={data}
         isInteractive={isInteractive}
         onUpdate={onUpdate}

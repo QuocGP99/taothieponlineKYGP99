@@ -7,7 +7,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import InvitationCard from '@/components/InvitationCard';
 import ShareModal from '@/components/ShareModal';
-import { SAMPLE_INVITATION, GREEN_STUDENT_INVITATION, PREMADE_MESSAGES } from '@/data/templates';
+import { SAMPLE_INVITATION, GREEN_STUDENT_INVITATION, FILM_ROLL_INVITATION, PREMADE_MESSAGES } from '@/data/templates';
 import { InvitationData, TimelineItem } from '@/types/invitation';
 import { saveInvitation } from '@/lib/storage';
 import {
@@ -63,13 +63,22 @@ function BuilderContent() {
   // Form State
   const [formData, setFormData] = useState<InvitationData>(() => {
     const tmplParam = searchParams.get('template');
-    const baseTmpl = tmplParam === 'green-student' ? GREEN_STUDENT_INVITATION : SAMPLE_INVITATION;
+    let baseTmpl = SAMPLE_INVITATION;
+    let targetTemplateId = 'modern-crimson-spotlight';
+
+    if (tmplParam === 'vintage-film-roll' || tmplParam === 'film-roll') {
+      baseTmpl = FILM_ROLL_INVITATION;
+      targetTemplateId = 'vintage-film-roll';
+    } else if (tmplParam === 'green-student') {
+      baseTmpl = GREEN_STUDENT_INVITATION;
+      targetTemplateId = 'green-student';
+    }
 
     return {
       ...baseTmpl,
       id: `inv-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
       slug: `thiep-${Date.now().toString(36)}`,
-      templateId: tmplParam === 'green-student' ? 'green-student' : 'modern-crimson-spotlight',
+      templateId: targetTemplateId,
       status: 'published',
       views: 0,
       shares: 0,
@@ -411,10 +420,10 @@ function BuilderContent() {
                 type="button"
                 onClick={() => setCurrentStep(step.num)}
                 className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl transition-all cursor-pointer ${currentStep === step.num
-                    ? 'bg-[#890F0D] text-white shadow-sm'
-                    : currentStep > step.num
-                      ? 'bg-[#FEE2E2] text-[#720000]'
-                      : 'text-stone-400 hover:text-stone-600'
+                  ? 'bg-[#890F0D] text-white shadow-sm'
+                  : currentStep > step.num
+                    ? 'bg-[#FEE2E2] text-[#720000]'
+                    : 'text-stone-400 hover:text-stone-600'
                   }`}
               >
                 <span className="w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-black border border-current">
@@ -1085,8 +1094,8 @@ function BuilderContent() {
             <div className="flex justify-center bg-stone-100/70 p-4 rounded-3xl border border-stone-200 min-h-[620px] max-h-[820px] overflow-y-auto">
               <div
                 className={`transition-all duration-300 ${devicePreview === 'mobile'
-                    ? 'w-full max-w-[420px] bg-transparent'
-                    : 'w-full max-w-[580px] bg-transparent'
+                  ? 'w-full max-w-[420px] bg-transparent'
+                  : 'w-full max-w-[580px] bg-transparent'
                   }`}
               >
                 <InvitationCard

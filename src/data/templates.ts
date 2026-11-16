@@ -36,6 +36,24 @@ export const TEMPLATES: Template[] = [
     },
     fontFamily: 'Quicksand',
     styleName: 'Scrapbook Youth'
+  },
+  {
+    id: 'vintage-film-roll',
+    name: 'Cuộn Phim Thanh Xuân (Vintage Film)',
+    category: 'thanh-xuan',
+    categoryName: 'Cuộn Phim Hoài Niệm',
+    description: 'Phong cách cuộn phim 35mm điện ảnh hoài niệm, vé xem phim vintage có cuống vé rời, dải phim timeline và bảng The End hoài niệm.',
+    previewImage: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80',
+    badge: 'Mẫu Điện Ảnh Mới',
+    defaultColors: {
+      primary: '#382113',
+      secondary: '#C27803',
+      background: '#F7F2EA',
+      text: '#231A16',
+      accent: '#F59E0B',
+    },
+    fontFamily: 'Cormorant Garamond',
+    styleName: 'Vintage Cinema 35mm'
   }
 ];
 
@@ -280,6 +298,117 @@ export const GREEN_STUDENT_INVITATION: InvitationData = {
   status: 'published',
   views: 388,
   shares: 112,
+  createdAt: '2026-11-14T10:00:00Z',
+  updatedAt: '2026-11-15T10:00:00Z'
+};
+
+export const FILM_ROLL_INVITATION: InvitationData = {
+  ...SAMPLE_INVITATION,
+  id: 'gp-vintage-film-roll',
+  slug: 'cuon-phim-thanh-xuan',
+  templateId: 'vintage-film-roll',
+  studentName: 'Hoàng Ngọc Bảo Anh',
+  namePart1: 'BẢO',
+  namePart2: 'ANH',
+  nickname: 'Bảo Anh',
+  className: '12A1',
+  schoolName: 'Tên trường của bạn',
+  schoolYear: '2024 — 2027',
+  senderName: 'Tên gọi',
+  guestName: 'Bạn thân mến',
+  friendPhotoTime: '07:00 - 11:30 (Đón bạn bè chụp ảnh kỷ niệm)',
+  title: 'Thanh Xuân',
+  date: '2026-12-31',
+  dayOfWeek: 'Thứ Năm',
+  startTime: '07:00',
+  endTime: '11:30',
+  gatheringLocation: 'Sân trường',
+  shootLocation: 'Sân trường',
+  detailedAddress: 'Địa chỉ trường của bạn',
+  googleMapsUrl: 'https://www.google.com/maps/search/San+Truong',
+  dressCode: 'Áo dài trắng hoặc đồng phục trường của bạn nhé!',
+  note: 'Nhớ đến đúng giờ và mang theo nụ cười thật tươi nhé!',
+  inviteMessage: 'Ba năm cấp ba trôi nhanh như một cái chớp mắt. Ngày chụp kỷ yếu sắp đến rồi — mình mong có cậu ở đó, cùng lưu lại khoảnh khắc thanh xuân rực rỡ nhất của chúng mình!',
+  wishMessage: 'Thanh xuân không có nếu như — chỉ có những ngày ta đã sống hết mình.',
+  signature: 'Thương! ♡',
+  avatarPhoto: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80',
+  groupPhoto: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1200&q=80',
+  primaryColor: '#382113',
+  secondaryColor: '#C27803',
+  fontFamily: 'Cormorant Garamond',
+  timeline: [
+    {
+      id: 'tl-1',
+      time: '06:30',
+      title: 'Trang điểm & thay trang phục',
+      location: 'Phòng học lớp 12A1',
+      note: 'Chuẩn bị trang phục thanh xuân'
+    },
+    {
+      id: 'tl-2',
+      time: '07:30',
+      title: 'Chụp ảnh tập thể cả lớp',
+      location: 'Cổng chính & Giảng đường',
+      note: 'Chụp cùng giáo viên chủ nhiệm và cả lớp'
+    },
+    {
+      id: 'tl-3',
+      time: '09:00',
+      title: 'Chụp concept, nhóm bạn thân',
+      location: 'Sân trường & Vườn cây',
+      note: 'Thời gian chụp tự do cùng bạn bè'
+    },
+    {
+      id: 'tl-4',
+      time: '10:30',
+      title: 'Ảnh cá nhân, tặng hoa & lưu bút',
+      location: 'Hành lang & Sân bóng',
+      note: 'Ký lưu bút và tặng hoa tốt nghiệp'
+    }
+  ],
+  gallery: [
+    'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=800&q=80'
+  ],
+  rsvps: [
+    {
+      id: 'rsvp-1',
+      invitationId: 'gp-vintage-film-roll',
+      guestName: 'Mỹ Duyên',
+      relation: 'Bạn thân',
+      status: 'confirmed',
+      message: 'Hẹn gặp cậu trong những thước phim thanh xuân đẹp nhất nhé!',
+      createdAt: '2026-11-15T09:00:00Z'
+    },
+    {
+      id: 'rsvp-2',
+      invitationId: 'gp-vintage-film-roll',
+      guestName: 'Quốc Huy',
+      relation: 'Bạn cùng lớp',
+      status: 'confirmed',
+      message: 'Chúc cuộn phim thanh xuân của bạn đạt 100 điểm rực rỡ!',
+      createdAt: '2026-11-15T10:30:00Z'
+    }
+  ],
+  componentsVisible: {
+    showCountdown: true,
+    showLocationMap: true,
+    showDressCode: true,
+    showSchedule: true,
+    showFriendPhotoTime: true,
+    showWishes: true,
+    showMusic: true,
+    showRSVP: true
+  },
+  creatorName: 'Hoàng Ngọc Bảo Anh',
+  creatorEmail: 'baoanh.film@gmail.com',
+  status: 'published',
+  views: 420,
+  shares: 135,
   createdAt: '2026-11-14T10:00:00Z',
   updatedAt: '2026-11-15T10:00:00Z'
 };

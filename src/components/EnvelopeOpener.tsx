@@ -26,6 +26,7 @@ export default function EnvelopeOpener({
   const [opening, setOpening] = useState(false);
 
   const isNotebookStyle = templateId === 'green-student';
+  const isFilmRollStyle = templateId === 'vintage-film-roll' || templateId === 'film-roll';
 
   const handleOpenClick = () => {
     setOpening(true);
@@ -37,6 +38,14 @@ export default function EnvelopeOpener({
         spread: 80,
         origin: { y: 0.6 },
         colors: ['#D6BCFA', '#F472B6', '#FDE047', '#A7F3D0', '#C4B5FD', '#F43F5E']
+      });
+    } else if (isFilmRollStyle) {
+      // Warm golden cinema confetti
+      confetti({
+        particleCount: 95,
+        spread: 85,
+        origin: { y: 0.6 },
+        colors: ['#F59E0B', '#D97706', '#B45309', '#FDE68A', '#78350F']
       });
     } else {
       // Crimson fireworks confetti
@@ -146,7 +155,99 @@ export default function EnvelopeOpener({
   }
 
   // ==============================================================
-  // 2. MẪU BÌ THƯ SƠN HOÀNG GIA CRIMSON SPOTLIGHT (MẶC ĐỊNH)
+  // 2. MẪU CUỘN PHIM THANH XUÂN (VINTAGE CINEMA CLAPPER OPENER)
+  // ==============================================================
+  if (isFilmRollStyle) {
+    return (
+      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center p-4 bg-gradient-to-br from-[#1C1410] via-[#2A1D17] to-[#120D0A] backdrop-blur-md overflow-hidden select-none font-cormorant">
+
+        {/* Floating background cinema film icons */}
+        <div className="absolute top-12 left-10 text-3xl opacity-35 animate-bounce pointer-events-none" style={{ animationDuration: '4s' }}>
+          🎬
+        </div>
+        <div className="absolute top-24 right-16 text-2xl opacity-35 animate-pulse pointer-events-none" style={{ animationDuration: '3s' }}>
+          🎞️
+        </div>
+        <div className="absolute bottom-20 left-16 text-2xl opacity-30 animate-pulse pointer-events-none" style={{ animationDuration: '5s' }}>
+          ✨
+        </div>
+        <div className="absolute bottom-16 right-12 text-3xl opacity-35 animate-bounce pointer-events-none" style={{ animationDuration: '6s' }}>
+          ⭐
+        </div>
+
+        <div className={`flex flex-col items-center justify-center max-w-sm w-full transition-all duration-700 ${opening ? 'scale-125 opacity-0 rotate-3' : 'scale-100 opacity-100'}`}>
+
+          {/* Heading prompt */}
+          <div className="text-center mb-6 space-y-1">
+            <span className="text-[10px] sm:text-[11px] font-courier uppercase tracking-[0.25em] text-amber-400/80 block">
+              PREMIERE INVITATION
+            </span>
+            <p className="text-base sm:text-lg font-bold text-[#F7F2EA]">
+              Cuộn phim thanh xuân của <span className="text-amber-400">{guestName || 'Cậu'}</span>
+            </p>
+            <p className="text-xs sm:text-sm text-stone-300 font-caveat text-lg">
+              đã sẵn sàng bấm máy!
+            </p>
+          </div>
+
+          {/* Cinema Clapperboard / Golden Ticket 3D Card */}
+          <div className="relative w-68 sm:w-76 h-88 sm:h-96 rounded-2xl bg-gradient-to-b from-[#382113] via-[#2A170B] to-[#1F1108] shadow-2xl shadow-black/70 border-2 border-amber-500/40 p-5 flex flex-col justify-between text-center transition-all duration-500 hover:scale-102 group overflow-hidden">
+            
+            {/* Clapperboard Top Chevrons */}
+            <div className="w-full h-8 bg-amber-400/10 rounded-lg border border-amber-400/30 flex items-center justify-around overflow-hidden px-1">
+              <span className="w-4 h-full bg-amber-400/20 transform -skew-x-20" />
+              <span className="w-4 h-full bg-amber-400/20 transform -skew-x-20" />
+              <span className="w-4 h-full bg-amber-400/20 transform -skew-x-20" />
+              <span className="w-4 h-full bg-amber-400/20 transform -skew-x-20" />
+              <span className="w-4 h-full bg-amber-400/20 transform -skew-x-20" />
+              <span className="w-4 h-full bg-amber-400/20 transform -skew-x-20" />
+            </div>
+
+            {/* Title & Details */}
+            <div className="space-y-2 py-4">
+              <span className="text-[9px] font-courier uppercase tracking-widest text-amber-300/80 block">
+                SPECIAL CINEMA ROLL
+              </span>
+              <h3 className="text-3xl sm:text-4xl font-bold font-cormorant text-white tracking-tight leading-none">
+                Thanh Xuân
+              </h3>
+              <span className="text-xl font-caveat text-amber-400 block font-semibold">
+                cuộn phim cuối cấp
+              </span>
+              <div className="pt-2">
+                <span className="inline-block px-3 py-1 rounded-full border border-amber-400/40 text-[10px] font-courier text-amber-300 tracking-wider uppercase bg-amber-950/40">
+                  LỚP {classNameStr || '12A1'}
+                </span>
+              </div>
+            </div>
+
+            {/* Bottom Details */}
+            <div className="pt-2 border-t border-amber-500/20 text-[10px] font-courier text-stone-400 flex items-center justify-between">
+              <span>ROLL #01</span>
+              <span className="text-amber-400 font-bold">35MM FILM</span>
+              <span>ISO 400</span>
+            </div>
+          </div>
+
+          {/* Pill Button below ticket */}
+          <div className="mt-8">
+            <button
+              type="button"
+              onClick={handleOpenClick}
+              className="px-6 py-2.5 rounded-full border-2 border-dashed border-amber-500/70 hover:border-amber-400 bg-amber-500/10 hover:bg-amber-500/20 text-amber-200 font-courier font-bold text-xs sm:text-sm tracking-wider uppercase shadow-lg transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center gap-2 cursor-pointer animate-pulse"
+            >
+              <span>chạm để phát phim</span>
+              <span className="text-sm font-normal">▶</span>
+            </button>
+          </div>
+
+        </div>
+      </div>
+    );
+  }
+
+  // ==============================================================
+  // 3. MẪU BÌ THƯ SƠN HOÀNG GIA CRIMSON SPOTLIGHT (MẶC ĐỊNH)
   // ==============================================================
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#240303]/85 backdrop-blur-md">

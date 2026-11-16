@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { SAMPLE_INVITATION, GREEN_STUDENT_INVITATION } from '@/data/templates';
+import { SAMPLE_INVITATION, GREEN_STUDENT_INVITATION, FILM_ROLL_INVITATION } from '@/data/templates';
 import { InvitationData, RSVP } from '@/types/invitation';
 import {
   isMysqlConfigured,
@@ -22,7 +22,7 @@ export async function GET(
     if (dbItem) {
       try {
         await incrementViewsInDb(slug);
-      } catch (_) {}
+      } catch (_) { }
       dbItem.views = (dbItem.views || 0) + 1;
       return NextResponse.json(dbItem);
     }
@@ -31,6 +31,9 @@ export async function GET(
   }
 
   // 2. Fallback cho mẫu template mặc định nếu slug là preset demo
+  if (slug.includes('cuon-phim') || slug.includes('film')) {
+    return NextResponse.json(FILM_ROLL_INVITATION);
+  }
   if (slug.includes('green-student')) {
     return NextResponse.json(GREEN_STUDENT_INVITATION);
   }

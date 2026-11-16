@@ -1,4 +1,4 @@
-# ========================================================
+﻿# ========================================================
 # GP STUDIO99 – ĐÓNG GÓI BẢN PRODUCTION CHO INET CPANEL
 # ========================================================
 $ErrorActionPreference = "Stop"
@@ -28,6 +28,7 @@ Copy-Item -Path "package.json" -Destination $stagingDir
 if (Test-Path "package-lock.json") { Copy-Item -Path "package-lock.json" -Destination $stagingDir }
 Copy-Item -Path "next.config.js" -Destination $stagingDir
 Copy-Item -Path "server.js" -Destination $stagingDir
+if (Test-Path "app.js") { Copy-Item -Path "app.js" -Destination $stagingDir }
 Copy-Item -Path ".env.example" -Destination $stagingDir
 Copy-Item -Path "README_INET_DEPLOY.md" -Destination $stagingDir
 

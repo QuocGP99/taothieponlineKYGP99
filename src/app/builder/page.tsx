@@ -16,8 +16,7 @@ import {
   Download, RefreshCw, Smartphone, Monitor, ArrowLeft, User, Clock, Users, Navigation, ExternalLink, Plus, Trash2, Camera, Image as ImageIcon
 } from 'lucide-react';
 import { generateGoogleMapsUrl } from '@/lib/maps';
-import * as htmlToImage from 'html-to-image';
-import confetti from 'canvas-confetti';
+import { triggerConfetti } from '@/lib/confetti';
 
 // Hàm nén ảnh tự động để tránh tràn bộ nhớ LocalStorage và Payload
 const compressImage = (file: File, maxWidth = 1200, quality = 0.82): Promise<string> => {
@@ -109,7 +108,7 @@ function BuilderContent() {
     setFormData(prev => ({ ...prev, creatorEmail: mockGoogleUser.email }));
     setIsAuthenticated(true);
 
-    confetti({
+    triggerConfetti({
       particleCount: 80,
       spread: 70,
       origin: { y: 0.6 },
@@ -271,7 +270,7 @@ function BuilderContent() {
       setCurrentStep(4);
 
       // Pháo hoa ăn mừng
-      confetti({
+      triggerConfetti({
         particleCount: 120,
         spread: 90,
         origin: { y: 0.5 },

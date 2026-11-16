@@ -7,7 +7,7 @@ import {
   Calendar, Clock, MapPin, Navigation, Share2, Check, Copy,
   Sparkles, Heart, Send, CheckSquare, Square, Download, ExternalLink, ArrowRight
 } from 'lucide-react';
-import confetti from 'canvas-confetti';
+import { triggerConfetti } from '@/lib/confetti';
 
 interface ScrapbookInvitationProps {
   data: InvitationData;
@@ -140,7 +140,7 @@ export default function ScrapbookInvitation({
         });
       }
 
-      confetti({
+      triggerConfetti({
         particleCount: 50,
         spread: 60,
         origin: { y: 0.8 },

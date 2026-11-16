@@ -7,7 +7,7 @@ import {
   Calendar, Clock, MapPin, Share2, Check, Copy,
   Sparkles, Send, ArrowRight, Film, Video
 } from 'lucide-react';
-import confetti from 'canvas-confetti';
+import { triggerConfetti } from '@/lib/confetti';
 
 interface VintageFilmInvitationProps {
   data: InvitationData;
@@ -148,7 +148,7 @@ export default function VintageFilmInvitation({
         });
       }
 
-      confetti({
+      triggerConfetti({
         particleCount: 55,
         spread: 65,
         origin: { y: 0.8 },

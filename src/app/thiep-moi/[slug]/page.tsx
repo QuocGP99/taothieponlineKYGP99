@@ -16,7 +16,6 @@ import {
   Share2, Camera, Heart, Download, Calendar,
   MapPin, Phone, Sparkles, AlertCircle, ArrowLeft, Edit3, Eye
 } from 'lucide-react';
-import * as htmlToImage from 'html-to-image';
 import Link from 'next/link';
 
 export default function PublicInvitationPage() {
@@ -92,8 +91,9 @@ export default function PublicInvitationPage() {
 
   // Download Card as image
   const handleDownloadCard = async () => {
-    if (!cardRef.current) return;
+    if (!cardRef.current || typeof window === 'undefined') return;
     try {
+      const htmlToImage = await import('html-to-image');
       const dataUrl = await htmlToImage.toPng(cardRef.current, { quality: 0.95, pixelRatio: 2 });
       const link = document.createElement('a');
       link.download = `Thiep-Moi-${invitation?.studentName || 'GP-Studio99'}.png`;

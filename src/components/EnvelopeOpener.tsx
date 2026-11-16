@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import confetti from 'canvas-confetti';
+import { triggerConfetti } from '@/lib/confetti';
 import { Mail, Sparkles, Heart } from 'lucide-react';
 
 interface EnvelopeOpenerProps {
@@ -33,7 +33,7 @@ export default function EnvelopeOpener({
 
     if (isNotebookStyle) {
       // Pastel confetti in lavender, pink, yellow, mint
-      confetti({
+      triggerConfetti({
         particleCount: 90,
         spread: 80,
         origin: { y: 0.6 },
@@ -41,7 +41,7 @@ export default function EnvelopeOpener({
       });
     } else if (isFilmRollStyle) {
       // Warm golden cinema confetti
-      confetti({
+      triggerConfetti({
         particleCount: 95,
         spread: 85,
         origin: { y: 0.6 },
@@ -49,7 +49,7 @@ export default function EnvelopeOpener({
       });
     } else {
       // Crimson fireworks confetti
-      confetti({
+      triggerConfetti({
         particleCount: 85,
         spread: 75,
         origin: { y: 0.6 },
@@ -192,7 +192,7 @@ export default function EnvelopeOpener({
 
           {/* Cinema Clapperboard / Golden Ticket 3D Card */}
           <div className="relative w-68 sm:w-76 h-88 sm:h-96 rounded-2xl bg-gradient-to-b from-[#382113] via-[#2A170B] to-[#1F1108] shadow-2xl shadow-black/70 border-2 border-amber-500/40 p-5 flex flex-col justify-between text-center transition-all duration-500 hover:scale-102 group overflow-hidden">
-            
+
             {/* Clapperboard Top Chevrons */}
             <div className="w-full h-8 bg-amber-400/10 rounded-lg border border-amber-400/30 flex items-center justify-around overflow-hidden px-1">
               <span className="w-4 h-full bg-amber-400/20 transform -skew-x-20" />
@@ -252,10 +252,10 @@ export default function EnvelopeOpener({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#240303]/85 backdrop-blur-md">
       <div className={`max-w-md w-full relative transition-all duration-700 ${opening ? 'scale-110 opacity-0' : 'scale-100 opacity-100'}`}>
-        
+
         {/* Envelope Body */}
         <div className="bg-gradient-to-br from-[#FFF8F8] via-white to-[#FEE2E2] rounded-3xl p-8 shadow-2xl border-4 border-[#890F0D]/30 text-center relative overflow-hidden">
-          
+
           {/* Top Envelope Flap decor */}
           <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-[#890F0D]/15 to-transparent pointer-events-none" />
 

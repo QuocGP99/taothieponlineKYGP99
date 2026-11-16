@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { X, Sparkles, ShieldCheck, Mail, ArrowRight, CheckCircle2 } from 'lucide-react';
-import confetti from 'canvas-confetti';
+import { triggerConfetti } from '@/lib/confetti';
 
 interface GoogleLoginModalProps {
   isOpen: boolean;
@@ -57,7 +57,7 @@ export default function GoogleLoginModal({
       }
 
       // Bắn pháo hoa chào mừng
-      confetti({
+      triggerConfetti({
         particleCount: 80,
         spread: 70,
         origin: { y: 0.6 },

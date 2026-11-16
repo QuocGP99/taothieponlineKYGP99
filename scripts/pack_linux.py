@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 r"""
-GP STUDIO99 – ĐÓNG GÓI CHUẨN LINUX CHO HOSTING INET (CPANEL)
-Sử dụng thư mục build hiển thị 'build_output' (thay cho '.next' ẩn)
-để loại bỏ 100% lỗi permission denied và checkdir error trên cPanel.
-Tạo tệp .zip POSIX forward-slashes (/) với phân quyền 0755/0644.
+GP STUDIO99 – ĐÓNG GÓI NEXT.JS STANDALONE TỰ CHẠY CHO INET CPANEL
+Giải pháp hoàn hảo: Đã tích hợp sẵn toàn bộ node_modules và server.js tự động.
+Người dùng KHÔNG CẦN CHẠY 'npm install' và KHÔNG CẦN CHẠY 'build' trên hosting,
+tránh 100% lỗi 'no free processes' do giới hạn tiến trình của iNET.
 """
 
 import os
@@ -17,64 +17,57 @@ import time
 def main():
     root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
     os.chdir(root_dir)
-    print(">>> [1/4] Kiểm tra thư mục bản build 'build_output'...")
+    print(">>> [1/4] Chạy bản build Standalone tối ưu...")
     
-    if not os.path.exists('build_output'):
-        print(">>> Thư mục build_output chưa tồn tại. Đang chạy npm run build...")
-        subprocess.check_call('npm run build', shell=True)
+    # Đảm bảo bản build standalone mới nhất
+    subprocess.check_call('npm run build', shell=True)
+    
+    standalone_dir = os.path.join(root_dir, '.next', 'standalone')
+    if not os.path.exists(standalone_dir):
+        print("Lỗi: Không tìm thấy thư mục .next/standalone!")
+        sys.exit(1)
         
-    staging_dir = os.path.join(root_dir, '.staging-linux-pack')
+    staging_dir = os.path.join(root_dir, '.staging-standalone-pack')
     output_zip = os.path.join(root_dir, 'thiep-online-inet-deploy.zip')
     
-    # Dọn dẹp
     if os.path.exists(output_zip):
         os.remove(output_zip)
     if os.path.exists(staging_dir):
         shutil.rmtree(staging_dir)
         
-    print(">>> [2/4] Sao chép các tệp cần thiết...")
-    os.makedirs(staging_dir, exist_ok=True)
+    print(">>> [2/4] Sao chép toàn bộ gói Standalone tự chạy...")
+    shutil.copytree(standalone_dir, staging_dir)
     
-    # 1. Các tệp root
-    files_to_copy = [
-        'package.json',
-        'package-lock.json',
-        'next.config.js',
-        'server.js',
-        'app.js',
-        '.env.example',
-        'README_INET_DEPLOY.md'
-    ]
-    for f in files_to_copy:
-        if os.path.exists(f):
-            shutil.copy2(f, os.path.join(staging_dir, f))
-            
-    # 2. Các thư mục source
-    folders_to_copy = ['public', 'database', 'src', 'bin']
-    for folder in folders_to_copy:
-        if os.path.exists(folder):
-            shutil.copytree(folder, os.path.join(staging_dir, folder))
-            
-    # 3. Thư mục build_output (bỏ qua cache)
-    print(">>> [3/4] Sao chép thư mục bản build 'build_output' (không chứa cache)...")
-    dest_build = os.path.join(staging_dir, 'build_output')
-    os.makedirs(dest_build, exist_ok=True)
-    for item in os.listdir('build_output'):
-        if item == 'cache':
-            continue
-        s_item = os.path.join('build_output', item)
-        d_item = os.path.join(dest_build, item)
-        if os.path.isdir(s_item):
-            shutil.copytree(s_item, d_item)
-        else:
-            shutil.copy2(s_item, d_item)
-            
-    # 4. Nén zip với POSIX forward-slashes (/) và phân quyền 0755 / 0644
-    print(">>> [4/4] Đang nén zip với phân quyền thư mục 0755 và tệp 0644...")
+    # Chép public và .next/static theo chuẩn Next.js Standalone
+    public_src = os.path.join(root_dir, 'public')
+    if os.path.exists(public_src):
+        shutil.copytree(public_src, os.path.join(staging_dir, 'public'))
+        
+    static_src = os.path.join(root_dir, '.next', 'static')
+    static_dest = os.path.join(staging_dir, '.next', 'static')
+    if os.path.exists(static_src) and not os.path.exists(static_dest):
+        shutil.copytree(static_src, static_dest)
+        
+    # Chép thêm các file điều hướng cPanel
+    extra_files = ['app.js', 'bin', 'database', '.env.example', 'README_INET_DEPLOY.md']
+    for item in extra_files:
+        src = os.path.join(root_dir, item)
+        dst = os.path.join(staging_dir, item)
+        if os.path.exists(src):
+            if os.path.isdir(src):
+                shutil.copytree(src, dst)
+            else:
+                shutil.copy2(src, dst)
+                
+    # Sao chép .env nếu có
+    if os.path.exists('.env'):
+        shutil.copy2('.env', os.path.join(staging_dir, '.env'))
+        
+    print(">>> [3/4] Đang nén tệp zip Standalone chuẩn Linux POSIX (quyền 0755/0644)...")
     created_dirs = set()
     now_tuple = time.localtime(time.time())[:6]
 
-    with zipfile.ZipFile(output_zip, 'w', zipfile.ZIP_DEFLATED, compresslevel=9) as zipf:
+    with zipfile.ZipFile(output_zip, 'w', zipfile.ZIP_DEFLATED, compresslevel=6) as zipf:
         for current_root, dirs, files in os.walk(staging_dir):
             rel_root = os.path.relpath(current_root, staging_dir).replace('\\', '/')
             if rel_root != '.':
@@ -98,7 +91,6 @@ def main():
                 abs_file = os.path.join(current_root, file)
                 rel_file = os.path.relpath(abs_file, staging_dir).replace('\\', '/')
                 
-                # Đảm bảo các thư mục cha đều đã được ghi nhận quyền 0755
                 parent_dir = os.path.dirname(rel_file)
                 if parent_dir:
                     parts = parent_dir.split('/')
@@ -115,7 +107,6 @@ def main():
                     content = f_data.read()
                     
                 f_info = zipfile.ZipInfo(rel_file, now_tuple)
-                # Phân quyền tệp tin chuẩn Linux: 0644 (-rw-r--r--)
                 f_info.external_attr = 0o644 << 16
                 zipf.writestr(f_info, content)
 
@@ -124,10 +115,11 @@ def main():
     
     size_mb = round(os.path.getsize(output_zip) / (1024 * 1024), 2)
     print("=" * 60)
-    print(f" HOÀN TẤT! Đã đóng gói thiep-online-inet-deploy.zip")
-    print(f" Dung lượng: {size_mb} MB")
-    print(f" Thư mục build: 'build_output' (100% tệp hiển thị, KHÔNG có tệp ẩn .next)")
-    print(f" Đã bao gồm app.js, server.js, bin/www, package.json chuẩn iNET")
+    print(f" HOÀN TẤT! Đã đóng gói Standalone: thiep-online-inet-deploy.zip")
+    print(f" Dung lượng gói đầy đủ (bao gồm cả node_modules tối thiểu): {size_mb} MB")
+    print(" -> KHÔNG CẦN CHẠY 'npm install' trên iNET!")
+    print(" -> KHÔNG CẦN CHẠY 'build' trên iNET!")
+    print(" -> CHỈ CẦN GIẢI NÉN VÀ BẤM RESTART!")
     print("=" * 60)
 
 if __name__ == '__main__':

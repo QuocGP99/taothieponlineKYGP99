@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  distDir: 'build_output',
   reactStrictMode: false,
   images: {
     unoptimized: true,

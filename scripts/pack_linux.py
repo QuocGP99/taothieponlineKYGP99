@@ -2,21 +2,27 @@
 # -*- coding: utf-8 -*-
 r"""
 GP STUDIO99 – ĐÓNG GÓI CHUẨN LINUX CHO HOSTING INET (CPANEL)
-Loại bỏ hoàn toàn thư mục .next theo yêu cầu để build trực tiếp trên máy chủ iNET.
-Tạo tệp .zip siêu nhẹ, sử dụng POSIX forward-slashes (/) và phân quyền chuẩn 0755/0644.
+Sử dụng thư mục build hiển thị 'build_output' (thay cho '.next' ẩn)
+để loại bỏ 100% lỗi permission denied và checkdir error trên cPanel.
+Tạo tệp .zip POSIX forward-slashes (/) với phân quyền 0755/0644.
 """
 
 import os
 import sys
 import shutil
 import zipfile
+import subprocess
 import time
 
 def main():
     root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
     os.chdir(root_dir)
-    print(">>> [1/3] Chuẩn bị đóng gói mã nguồn (KHÔNG KÈM .next)...")
+    print(">>> [1/4] Kiểm tra thư mục bản build 'build_output'...")
     
+    if not os.path.exists('build_output'):
+        print(">>> Thư mục build_output chưa tồn tại. Đang chạy npm run build...")
+        subprocess.check_call('npm run build', shell=True)
+        
     staging_dir = os.path.join(root_dir, '.staging-linux-pack')
     output_zip = os.path.join(root_dir, 'thiep-online-inet-deploy.zip')
     
@@ -26,7 +32,7 @@ def main():
     if os.path.exists(staging_dir):
         shutil.rmtree(staging_dir)
         
-    print(">>> [2/3] Sao chép mã nguồn, cấu hình và tệp khởi động...")
+    print(">>> [2/4] Sao chép các tệp cần thiết...")
     os.makedirs(staging_dir, exist_ok=True)
     
     # 1. Các tệp root
@@ -49,8 +55,22 @@ def main():
         if os.path.exists(folder):
             shutil.copytree(folder, os.path.join(staging_dir, folder))
             
-    # 3. Nén zip với POSIX forward-slashes (/) và phân quyền 0755 / 0644
-    print(">>> [3/3] Đang nén zip với phân quyền thư mục 0755 và tệp 0644...")
+    # 3. Thư mục build_output (bỏ qua cache)
+    print(">>> [3/4] Sao chép thư mục bản build 'build_output' (không chứa cache)...")
+    dest_build = os.path.join(staging_dir, 'build_output')
+    os.makedirs(dest_build, exist_ok=True)
+    for item in os.listdir('build_output'):
+        if item == 'cache':
+            continue
+        s_item = os.path.join('build_output', item)
+        d_item = os.path.join(dest_build, item)
+        if os.path.isdir(s_item):
+            shutil.copytree(s_item, d_item)
+        else:
+            shutil.copy2(s_item, d_item)
+            
+    # 4. Nén zip với POSIX forward-slashes (/) và phân quyền 0755 / 0644
+    print(">>> [4/4] Đang nén zip với phân quyền thư mục 0755 và tệp 0644...")
     created_dirs = set()
     now_tuple = time.localtime(time.time())[:6]
 
@@ -104,9 +124,10 @@ def main():
     
     size_mb = round(os.path.getsize(output_zip) / (1024 * 1024), 2)
     print("=" * 60)
-    print(f" HOÀN TẤT! Đã đóng gói thiep-online-inet-deploy.zip (KHÔNG KÈM .next)")
-    print(f" Dung lượng siêu nhẹ: {size_mb} MB")
-    print(f" Sẵn sàng để chạy 'npm install' và 'npm run build' trên iNET!")
+    print(f" HOÀN TẤT! Đã đóng gói thiep-online-inet-deploy.zip")
+    print(f" Dung lượng: {size_mb} MB")
+    print(f" Thư mục build: 'build_output' (100% tệp hiển thị, KHÔNG có tệp ẩn .next)")
+    print(f" Đã bao gồm app.js, server.js, bin/www, package.json chuẩn iNET")
     print("=" * 60)
 
 if __name__ == '__main__':

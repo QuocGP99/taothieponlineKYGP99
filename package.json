@@ -2,6 +2,7 @@
   "name": "thiep-online-ky-yeu-gp",
   "version": "1.0.0",
   "private": true,
+  "main": "app.js",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

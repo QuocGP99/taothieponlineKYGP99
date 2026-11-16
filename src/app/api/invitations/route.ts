@@ -1,97 +1,51 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
 import { SAMPLE_INVITATION, GREEN_STUDENT_INVITATION } from '@/data/templates';
 import { InvitationData } from '@/types/invitation';
 import { isMysqlConfigured, getAllInvitationsFromDb, saveInvitationToDb } from '@/lib/mysql';
 
-const DATA_FILE = path.join(process.cwd(), 'src', 'data', 'db.json');
-
-function readDb(): InvitationData[] {
-  try {
-    if (!fs.existsSync(DATA_FILE)) {
-      const initial = [SAMPLE_INVITATION, GREEN_STUDENT_INVITATION];
-      fs.mkdirSync(path.dirname(DATA_FILE), { recursive: true });
-      fs.writeFileSync(DATA_FILE, JSON.stringify(initial, null, 2), 'utf-8');
-      return initial;
-    }
-    const content = fs.readFileSync(DATA_FILE, 'utf-8');
-    return JSON.parse(content);
-  } catch (err) {
-    console.error('Error reading JSON DB fallback:', err);
-    return [SAMPLE_INVITATION, GREEN_STUDENT_INVITATION];
-  }
-}
-
-function writeDb(data: InvitationData[]): void {
-  try {
-    fs.mkdirSync(path.dirname(DATA_FILE), { recursive: true });
-    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf-8');
-  } catch (err) {
-    console.error('Error writing JSON DB fallback:', err);
-  }
-}
-
-// GET: Lấy danh sách thiệp mời
+// GET: Lấy danh sách thiệp mời trực tiếp từ cơ sở dữ liệu MySQL
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const email = searchParams.get('email') || undefined;
 
-  // 1. Thử truy vấn từ MySQL iNET nếu đã cấu hình
-  if (isMysqlConfigured()) {
-    try {
-      const dbList = await getAllInvitationsFromDb(email);
-      if (dbList && dbList.length > 0) {
-        return NextResponse.json(dbList);
-      }
-    } catch (err) {
-      console.warn('[API/Invitations] Không thể lấy từ MySQL, chuyển sang JSON fallback:', err);
+  try {
+    const dbList = await getAllInvitationsFromDb(email);
+    // Nếu trong MySQL chưa có thiệp nào, trả về 2 mẫu demo mặc định để giao diện không bị trống
+    if (!dbList || dbList.length === 0) {
+      const defaults = email ? [] : [SAMPLE_INVITATION, GREEN_STUDENT_INVITATION];
+      return NextResponse.json(defaults);
     }
+    return NextResponse.json(dbList);
+  } catch (err: any) {
+    console.error('[API/Invitations GET MySQL Error]:', err);
+    return NextResponse.json(
+      { error: 'Lỗi truy vấn cơ sở dữ liệu MySQL: ' + err.message },
+      { status: 500 }
+    );
   }
-
-  // 2. Fallback sang file JSON
-  let invitations = readDb();
-  if (email) {
-    invitations = invitations.filter(i => i.creatorEmail?.toLowerCase() === email.toLowerCase());
-  }
-
-  return NextResponse.json(invitations);
 }
 
-// POST: Tạo mới hoặc cập nhật thiệp mời
+// POST: Tạo mới hoặc cập nhật thiệp mời trực tiếp vào MySQL
 export async function POST(request: Request) {
   try {
     const newInvitation = await request.json();
-    let savedToMysql = false;
 
-    // 1. Lưu vào MySQL iNET nếu đã cấu hình
-    if (isMysqlConfigured()) {
-      try {
-        savedToMysql = await saveInvitationToDb(newInvitation);
-        console.log(`[API/Invitations] Đã lưu thiệp [${newInvitation.slug}] vào MySQL iNET.`);
-      } catch (err: any) {
-        console.error('[API/Invitations] Lỗi lưu MySQL:', err.message);
-      }
+    if (!newInvitation || !newInvitation.slug) {
+      return NextResponse.json({ error: 'Dữ liệu thiệp mời không hợp lệ.' }, { status: 400 });
     }
 
-    // 2. Đồng thời lưu vào file JSON dự phòng
-    const invitations = readDb();
-    const idx = invitations.findIndex(item => item.id === newInvitation.id || item.slug === newInvitation.slug);
-    if (idx >= 0) {
-      invitations[idx] = { ...invitations[idx], ...newInvitation, updatedAt: new Date().toISOString() };
-    } else {
-      invitations.unshift({
-        ...newInvitation,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      });
+    const success = await saveInvitationToDb(newInvitation);
+    if (!success) {
+      return NextResponse.json(
+        { error: 'Không thể lưu thiệp mời vào cơ sở dữ liệu MySQL.' },
+        { status: 500 }
+      );
     }
-    writeDb(invitations);
 
     return NextResponse.json({
       success: true,
       invitation: newInvitation,
-      storageEngine: savedToMysql ? 'mysql' : 'json_fallback'
+      storageEngine: 'mysql'
     });
   } catch (err: any) {
     console.error('[API/Invitations POST Error]:', err);

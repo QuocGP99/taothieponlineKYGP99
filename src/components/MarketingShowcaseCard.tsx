@@ -56,11 +56,11 @@ export default function MarketingShowcaseCard({
             <div className="space-y-2.5 text-xs sm:text-sm text-stone-200">
               <div className="flex items-start gap-2.5">
                 <CheckCircle2 className="w-4 h-4 text-[#FF758F] shrink-0 mt-0.5" />
-                <span>Hàng chục concept: thanh xuân, áo dài, vest, Thái Lan, Cổ phục, Bohemian, Party đêm...</span>
+                <span>Hàng chục concept: thanh xuân, áo dài, vest, Thái Lan, Cổ phục, Party đêm...</span>
               </div>
               <div className="flex items-start gap-2.5">
                 <CheckCircle2 className="w-4 h-4 text-[#FF758F] shrink-0 mt-0.5" />
-                <span>Nhận chụp THPT, THCS, đại học, mầm non – tiểu học trọn gói tại Đà Nẵng, Quảng Nam, Huế</span>
+                <span>Nhận chụp THPT, THCS, đại học, tiểu học trọn gói tại Đà Nẵng và miền Trung</span>
               </div>
               <div className="flex items-start gap-2.5">
                 <CheckCircle2 className="w-4 h-4 text-[#FF758F] shrink-0 mt-0.5" />

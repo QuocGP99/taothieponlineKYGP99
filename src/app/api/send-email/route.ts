@@ -64,6 +64,45 @@ export async function POST(request: Request) {
       </html>
     `;
 
+    // 1. Thử gửi qua Custom SMTP (iNET OxMail / cPanel Mail)
+    const smtpHost = process.env.SMTP_HOST;
+    const smtpUser = process.env.SMTP_USER;
+    const smtpPass = process.env.SMTP_PASSWORD || process.env.SMTP_PASS;
+    const smtpPort = Number(process.env.SMTP_PORT || 465);
+
+    if (smtpHost && smtpUser && smtpPass) {
+      try {
+        const nodemailer = await import('nodemailer');
+        const transporter = nodemailer.createTransport({
+          host: smtpHost,
+          port: smtpPort,
+          secure: smtpPort === 465,
+          auth: {
+            user: smtpUser,
+            pass: smtpPass
+          },
+          tls: {
+            rejectUnauthorized: false
+          }
+        });
+
+        await transporter.sendMail({
+          from: `"GP Studio99 Kỷ Yếu" <${smtpUser}>`,
+          to,
+          subject: `[GP Studio99] Thiệp mời kỷ yếu của ${creatorName || 'bạn'} đã sẵn sàng! 🎓`,
+          html: emailHtml
+        });
+
+        return NextResponse.json({
+          success: true,
+          provider: 'inet_smtp',
+          message: `Email xác nhận thiệp mời đã được gửi thành công qua iNET SMTP đến ${to}`
+        });
+      } catch (err: any) {
+        console.error('Error sending via iNET SMTP:', err);
+      }
+    }
+
     const resendApiKey = process.env.RESEND_API_KEY;
 
     if (resendApiKey) {

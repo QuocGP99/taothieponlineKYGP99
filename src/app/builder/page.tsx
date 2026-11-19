@@ -9,15 +9,17 @@ import InvitationCard from '@/components/InvitationCard';
 import ShareModal from '@/components/ShareModal';
 import GoogleLoginModal from '@/components/GoogleLoginModal';
 import { SAMPLE_INVITATION, GREEN_STUDENT_INVITATION, FILM_ROLL_INVITATION, CYBER_FUTURISTIC_INVITATION, PREMADE_MESSAGES } from '@/data/templates';
-import { InvitationData, TimelineItem } from '@/types/invitation';
-import { saveInvitation } from '@/lib/storage';
+import { InvitationData, TimelineItem, InvitationRecipient } from '@/types/invitation';
+import { saveInvitation, getInvitationBySlug } from '@/lib/storage';
+import RecipientManager from '@/components/RecipientManager';
 import {
   Sparkles, Check, ChevronRight, ChevronLeft, Upload,
   Palette, Type, Eye, Send, Save, AlertCircle, Copy, Share2,
-  Download, RefreshCw, Smartphone, Monitor, ArrowLeft, User, Clock, Users, Navigation, ExternalLink, Plus, Trash2, Camera, Image as ImageIcon
+  Download, RefreshCw, Smartphone, Monitor, ArrowLeft, User, Clock, Users, Navigation, ExternalLink, Plus, Trash2, Camera, Image as ImageIcon, Music, HelpCircle, VolumeX
 } from 'lucide-react';
 import { generateGoogleMapsUrl } from '@/lib/maps';
 import { triggerConfetti } from '@/lib/confetti';
+import { YOUTH_SONGS } from '@/components/MusicPlayer';
 
 // Hàm nén ảnh tự động để tránh tràn bộ nhớ LocalStorage và Payload
 const compressImage = (file: File, maxWidth = 1200, quality = 0.82): Promise<string> => {
@@ -82,6 +84,10 @@ function BuilderContent() {
       id: `inv-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
       slug: `thiep-${Date.now().toString(36)}`,
       templateId: targetTemplateId,
+      guestName: '', // Không để cứng Mỹ Linh, để người dùng tự nhập hoặc tạo link riêng cho từng người
+      recipients: [],
+      gallery: [], // Mặc định để rỗng theo yêu cầu để người dùng tự thêm ảnh
+      musicTrack: 'dong-bang',
       status: 'published',
       views: 0,
       shares: 0,
@@ -142,6 +148,31 @@ function BuilderContent() {
     }
   }, []);
 
+  // Nạp dữ liệu thiệp đã có nếu được truyền query param ?slug= hoặc ?edit=
+  const editSlug = searchParams.get('slug') || searchParams.get('edit');
+  useEffect(() => {
+    if (!editSlug) return;
+    const loadExisting = async () => {
+      try {
+        const local = getInvitationBySlug(editSlug);
+        if (local) {
+          setFormData(local);
+          return;
+        }
+        const res = await fetch(`/api/invitations/${editSlug}`);
+        if (res.ok) {
+          const remote = await res.json();
+          if (remote && remote.slug) {
+            setFormData(remote);
+          }
+        }
+      } catch (err) {
+        console.warn('Lỗi tải dữ liệu thiệp để chỉnh sửa:', err);
+      }
+    };
+    loadExisting();
+  }, [editSlug]);
+
   // Tải ảnh chân dung (Tự động nén chất lượng cao, tối ưu dung lượng)
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -185,6 +216,15 @@ function BuilderContent() {
         console.error('Error compressing gallery photo:', err);
       }
     }
+    if (e.target) e.target.value = '';
+  };
+
+  // Xóa ảnh khỏi album kỷ niệm
+  const handleRemoveGalleryPhoto = (removeIndex: number) => {
+    setFormData(prev => ({
+      ...prev,
+      gallery: (prev.gallery || []).filter((_, idx) => idx !== removeIndex)
+    }));
   };
 
   // Thêm mốc lịch trình
@@ -218,38 +258,61 @@ function BuilderContent() {
     }));
   };
 
+  // Hàm chuyển đổi chuỗi tiếng Việt có dấu thành slug URL chuẩn & an toàn
+  const toCleanSlug = (str: string) => {
+    return (str || '')
+      .toLowerCase()
+      .replace(/đ/g, 'd')
+      .replace(/Đ/g, 'd')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  };
+
   // Tạo URL thân thiện
   const generateSlug = () => {
-    const namePart = (formData.studentName || 'hoang-ngoc')
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9]/g, '-')
-      .replace(/-+/g, '-');
-    const schoolPart = (formData.schoolName || 'dai-hoc-dong-a')
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9]/g, '-')
-      .replace(/-+/g, '-');
-    const randomSuffix = Math.random().toString(36).substr(2, 4);
+    const namePart = toCleanSlug(formData.studentName) || 'hoc-sinh';
+    const schoolPart = toCleanSlug(formData.schoolName) || 'ky-yeu';
+    const randomSuffix = Math.random().toString(36).substring(2, 6);
     return `${namePart}-${schoolPart}-${randomSuffix}`;
   };
 
-  // Xuất bản thiệp NGAY LẬP TỨC - KHÔNG CẦN GMAIL
+  // Xuất bản thiệp NGAY LẬP TỨC - ĐỒNG BỘ VÀO POSTGRESQL PRISMA
   const handlePublish = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setIsSubmitting(true);
     setErrorMessage('');
 
     try {
+      // Đảm bảo thông tin email của tài khoản người tạo được gắn chặt chẽ
+      const authUserStr = typeof window !== 'undefined' ? localStorage.getItem('gp_auth_user') : null;
+      let userEmail = formData.creatorEmail;
+      let userName = formData.creatorName || formData.studentName;
+      if (authUserStr) {
+        try {
+          const u = JSON.parse(authUserStr);
+          if (u.email) userEmail = u.email;
+          if (u.name) userName = u.name;
+        } catch (e) {}
+      }
+
+      if (!userEmail) {
+        setIsAuthenticated(false);
+        throw new Error('Vui lòng xác thực tài khoản để lưu thiệp vào trang cá nhân của bạn.');
+      }
+
       const finalSlug = formData.slug.startsWith('thiep-') ? generateSlug() : formData.slug;
-      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (typeof window !== 'undefined' ? (window.location.hostname.includes('vercel.app') ? 'https://taothiepkyyeugp99.io.vn' : window.location.origin) : 'https://taothiepkyyeugp99.io.vn');
+      const baseUrl = (typeof window !== 'undefined' && window.location.origin)
+        ? window.location.origin
+        : (process.env.NEXT_PUBLIC_APP_URL || 'https://taothiepkyyeugp99.io.vn');
       const fullUrl = `${baseUrl}/thiep-moi/${finalSlug}`;
 
       const finalInvitation: InvitationData = {
         ...formData,
-        creatorName: formData.studentName,
+        creatorEmail: userEmail,
+        creatorName: userName,
         senderName: formData.studentName,
         slug: finalSlug,
         status: 'published',
@@ -259,17 +322,19 @@ function BuilderContent() {
       // 1. Lưu cục bộ trình duyệt
       saveInvitation(finalInvitation);
 
-      // 2. Đồng bộ server API nếu có
-      try {
-        await fetch('/api/invitations', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(finalInvitation)
-        });
-      } catch (err) {
-        console.warn('Server sync error (using local):', err);
+      // 2. Đồng bộ server API PostgreSQL qua Prisma
+      const res = await fetch('/api/invitations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(finalInvitation)
+      });
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || 'Máy chủ không thể lưu thiệp mời vào cơ sở dữ liệu. Vui lòng kiểm tra lại kết nối!');
       }
 
+      setFormData(finalInvitation);
       setPublishedUrl(fullUrl);
       setPublishSuccess(true);
       setCurrentStep(4);
@@ -286,6 +351,27 @@ function BuilderContent() {
       setErrorMessage(err.message || 'Có lỗi xảy ra khi xuất bản thiệp');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  // Cập nhật danh sách người nhận thiệp riêng (lưu cục bộ & đồng bộ server)
+  const handleUpdateRecipients = async (newRecipients: InvitationRecipient[]) => {
+    const updated: InvitationData = {
+      ...formData,
+      recipients: newRecipients,
+      updatedAt: new Date().toISOString()
+    };
+    setFormData(updated);
+    saveInvitation(updated);
+
+    try {
+      await fetch('/api/invitations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updated)
+      });
+    } catch (err) {
+      console.warn('Lỗi đồng bộ danh sách người nhận lên server:', err);
     }
   };
 
@@ -471,47 +557,42 @@ function BuilderContent() {
                   </div>
                 </div>
 
-                {/* Tên chia 2 bên Poster */}
-                <div className="space-y-3">
+                {/* Tên của bạn cho mọi template */}
+                <div className="space-y-2">
                   <label className="block text-xs font-extrabold text-[#720000] uppercase tracking-wide">
-                    ✏️ 2. Tên hiển thị hai bên ảnh Poster
+                    ✏️ 2. Tên của bạn (Tên chủ thiệp)
                   </label>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <span className="text-[11px] text-stone-600 block mb-1 font-bold">Tên bên trái (VD: HOÀNG)</span>
-                      <input
-                        type="text"
-                        value={formData.namePart1 || 'HOÀNG'}
-                        onChange={e => {
-                          const val = e.target.value.toUpperCase();
-                          setFormData(prev => ({
-                            ...prev,
-                            namePart1: val,
-                            studentName: `${val} ${prev.namePart2 || 'NGỌC'}`
-                          }));
-                        }}
-                        placeholder="VD: HOÀNG"
-                        className="w-full px-3.5 py-2 rounded-xl border border-stone-300 text-sm font-extrabold text-[#720000] focus:ring-2 focus:ring-[#890F0D] outline-none uppercase"
-                      />
-                    </div>
-                    <div>
-                      <span className="text-[11px] text-stone-600 block mb-1 font-bold">Tên bên phải (VD: NGỌC)</span>
-                      <input
-                        type="text"
-                        value={formData.namePart2 || 'NGỌC'}
-                        onChange={e => {
-                          const val = e.target.value.toUpperCase();
-                          setFormData(prev => ({
-                            ...prev,
-                            namePart2: val,
-                            studentName: `${prev.namePart1 || 'HOÀNG'} ${val}`
-                          }));
-                        }}
-                        placeholder="VD: NGỌC"
-                        className="w-full px-3.5 py-2 rounded-xl border border-stone-300 text-sm font-extrabold text-[#720000] focus:ring-2 focus:ring-[#890F0D] outline-none uppercase"
-                      />
-                    </div>
-                  </div>
+                  <input
+                    type="text"
+                    required
+                    value={formData.studentName || ''}
+                    onChange={e => {
+                      const fullName = e.target.value;
+                      const parts = fullName.trim().split(/\s+/);
+                      let part1 = '';
+                      let part2 = '';
+                      if (parts.length === 1) {
+                        part1 = '';
+                        part2 = parts[0].toUpperCase();
+                      } else if (parts.length > 1) {
+                        part2 = parts[parts.length - 1].toUpperCase();
+                        part1 = parts.slice(0, parts.length - 1).join(' ').toUpperCase();
+                      }
+                      setFormData(prev => ({
+                        ...prev,
+                        studentName: fullName,
+                        namePart1: part1,
+                        namePart2: part2,
+                        senderName: fullName,
+                        creatorName: fullName
+                      }));
+                    }}
+                    placeholder="VD: Hoàng Ngọc hoặc Bảo Anh, Phương Linh..."
+                    className="w-full px-4 py-3 rounded-2xl border-2 border-stone-200 text-sm font-extrabold text-[#720000] focus:border-[#890F0D] focus:ring-4 focus:ring-[#890F0D]/10 outline-none transition-all placeholder:text-stone-400 placeholder:font-normal"
+                  />
+                  <p className="text-[11px] text-stone-500">
+                    Hệ thống sẽ tự động hiển thị tên bạn cân đối trên poster và toàn bộ thiệp mời của mọi template.
+                  </p>
                 </div>
 
                 {/* Lời chào & Tên khách mời */}
@@ -523,9 +604,9 @@ function BuilderContent() {
                     <span className="text-[11px] text-stone-600 block mb-1 font-bold">Tên người nhận thiệp (hoặc nhóm bạn):</span>
                     <input
                       type="text"
-                      value={formData.guestName || 'Mỹ Linh'}
+                      value={formData.guestName || ''}
                       onChange={e => setFormData({ ...formData, guestName: e.target.value })}
-                      placeholder="VD: Mỹ Linh / Bạn thân mến / Cả nhà mình"
+                      placeholder="VD: Bạn thân mến / Cả nhà mình (hoặc để trống)"
                       className="w-full px-3.5 py-2 rounded-xl border border-stone-300 text-sm font-bold text-stone-800 focus:ring-2 focus:ring-[#890F0D] outline-none"
                     />
                     <p className="text-[11px] text-stone-400 mt-1">
@@ -789,35 +870,116 @@ function BuilderContent() {
                   />
                 </div>
 
-                {/* Thêm ảnh vào Album ảnh kỷ niệm */}
+                {/* Quản lý Album ảnh kỷ niệm thanh xuân */}
                 <div className="p-4 rounded-2xl bg-[#FFF8F8] border border-[#890F0D]/20 space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="text-xs font-extrabold text-[#720000] uppercase tracking-wide flex items-center gap-1.5">
                         <ImageIcon className="w-4 h-4 text-[#890F0D]" />
-                        <span>Album ảnh kỷ niệm ({formData.gallery?.length || 0} ảnh)</span>
+                        <span>Khoảnh khắc thanh xuân ({formData.gallery?.length || 0} ảnh)</span>
                       </h4>
-                      <p className="text-[11px] text-stone-500">Thêm ảnh cá nhân hoặc ảnh tập thể lớp</p>
+                      <p className="text-[11px] text-stone-500">Thêm, sửa và xóa ảnh kỷ niệm của bạn</p>
                     </div>
 
-                    <label className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#890F0D] text-white text-xs font-bold shadow-xs cursor-pointer hover:bg-[#720000] transition-colors">
+                    <label className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#890F0D] text-white text-xs font-bold shadow-xs cursor-pointer hover:bg-[#720000] transition-colors">
                       <Plus className="w-3.5 h-3.5" />
-                      <span>Thêm ảnh</span>
+                      <span>+ Thêm ảnh từ máy</span>
                       <input
                         type="file"
                         accept="image/*"
+                        multiple
                         className="hidden"
                         onChange={handleGalleryUpload}
                       />
                     </label>
                   </div>
 
-                  <div className="grid grid-cols-4 gap-2">
-                    {(formData.gallery || []).slice(0, 4).map((img, idx) => (
-                      <div key={idx} className="aspect-square rounded-xl overflow-hidden border border-[#890F0D]/20 bg-stone-100">
-                        <img src={img} alt="Gallery" className="w-full h-full object-cover" />
-                      </div>
+                  {/* Danh sách ảnh hiện có */}
+                  {formData.gallery && formData.gallery.length > 0 ? (
+                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5 pt-1">
+                      {formData.gallery.map((img, idx) => (
+                        <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-[#890F0D]/20 bg-stone-100 group shadow-xs">
+                          <img src={img} alt={`Gallery ${idx + 1}`} className="w-full h-full object-cover" />
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveGalleryPhoto(idx)}
+                            className="absolute top-1.5 right-1.5 p-1 rounded-full bg-red-600 text-white shadow-md hover:bg-red-700 transition-colors cursor-pointer"
+                            title="Xóa ảnh này"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="py-5 px-3 rounded-xl border border-dashed border-[#890F0D]/30 bg-white text-center space-y-1">
+                      <p className="text-xs font-bold text-[#890F0D]">Album đang để trống</p>
+                      <p className="text-[11px] text-stone-500">
+                        Bấm nút "+ Thêm ảnh từ máy" ở trên để chọn ảnh từ máy tính của bạn.
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Hướng dẫn cập nhật template cố định từ thư mục máy tính */}
+                  <div className="p-3 bg-white rounded-xl border border-stone-200 text-[11px] text-stone-600 space-y-1">
+                    <span className="font-bold text-stone-800 flex items-center gap-1">
+                      <HelpCircle className="w-3.5 h-3.5 text-[#890F0D]" />
+                      <span>Hướng dẫn thêm ảnh từ thư mục máy tính:</span>
+                    </span>
+                    <p className="leading-relaxed">
+                      • <strong>Cách 1 (Nhanh nhất):</strong> Bấm <em>"+ Thêm ảnh từ máy"</em> để tải ảnh trực tiếp từ máy bạn lên thiệp.<br />
+                      • <strong>Cách 2 (Cố định trong template):</strong> Copy ảnh từ máy vào thư mục <code>public/images/</code> của dự án (VD: <code>public/images/anh-ky-yeu-1.jpg</code>), đường dẫn ảnh khi đó sẽ là <code>/images/anh-ky-yeu-1.jpg</code>.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Chọn nhạc nền kỷ yếu cho thiệp mời */}
+                <div className="p-4 rounded-2xl bg-white border border-[#890F0D]/20 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-xs font-extrabold text-[#720000] uppercase tracking-wide flex items-center gap-1.5">
+                        <Music className="w-4 h-4 text-[#890F0D]" />
+                        <span>Chọn nhạc nền thanh xuân</span>
+                      </h4>
+                      <p className="text-[11px] text-stone-500">Âm nhạc tự động phát gợi nhớ kỷ niệm khi mở thiệp</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                    {Object.entries(YOUTH_SONGS).map(([key, song]) => (
+                      <button
+                        key={key}
+                        type="button"
+                        onClick={() => setFormData({ ...formData, musicTrack: key })}
+                        className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex items-start gap-2.5 ${
+                          (formData.musicTrack || 'dong-bang') === key
+                            ? 'bg-[#FFF5F5] border-[#890F0D] ring-2 ring-[#890F0D]/15 text-[#720000]'
+                            : 'bg-stone-50 border-stone-200 hover:bg-stone-100 text-stone-700'
+                        }`}
+                      >
+                        <Music className={`w-4 h-4 mt-0.5 shrink-0 ${(formData.musicTrack || 'dong-bang') === key ? 'text-[#890F0D]' : 'text-stone-400'}`} />
+                        <div>
+                          <span className="font-bold block text-xs">{song.title}</span>
+                          <span className="text-[10px] text-stone-500 block mt-0.5">{song.desc}</span>
+                        </div>
+                      </button>
                     ))}
+
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, musicTrack: 'none' })}
+                      className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex items-start gap-2.5 ${
+                        formData.musicTrack === 'none'
+                          ? 'bg-stone-200 border-stone-400 text-stone-900 font-bold'
+                          : 'bg-stone-50 border-stone-200 hover:bg-stone-100 text-stone-700'
+                      }`}
+                    >
+                      <VolumeX className="w-4 h-4 mt-0.5 shrink-0 text-stone-400" />
+                      <div>
+                        <span className="font-bold block text-xs">Tắt nhạc nền</span>
+                        <span className="text-[10px] text-stone-500 block mt-0.5">Không phát âm thanh khi mở thiệp</span>
+                      </div>
+                    </button>
                   </div>
                 </div>
 
@@ -849,7 +1011,7 @@ function BuilderContent() {
                         })}
                         className="rounded text-[#890F0D] w-4 h-4"
                       />
-                      <span>Sổ lưu bút lời chúc</span>
+                      <span>Gửi lời chúc riêng tư</span>
                     </label>
                     <label className="flex items-center gap-2 p-2 rounded-xl border border-stone-200 cursor-pointer hover:bg-stone-50">
                       <input
@@ -873,7 +1035,7 @@ function BuilderContent() {
                         })}
                         className="rounded text-[#890F0D] w-4 h-4"
                       />
-                      <span>Nhạc thanh xuân</span>
+                      <span>Bật nút âm nhạc</span>
                     </label>
                   </div>
                 </div>
@@ -955,6 +1117,16 @@ function BuilderContent() {
                         <Eye className="w-4 h-4 text-[#890F0D]" />
                         <span>Mở trang thiệp trực tiếp</span>
                       </a>
+                    </div>
+
+                    {/* TRÌNH QUẢN LÝ DANH SÁCH NGƯỜI NHẬN & TẠO LINK MỜI RIÊNG HÀNG LOẠT */}
+                    <div className="pt-4 border-t border-[#890F0D]/15 text-left">
+                      <RecipientManager
+                        invitationSlug={formData.slug}
+                        recipients={formData.recipients || []}
+                        onUpdateRecipients={handleUpdateRecipients}
+                        studentName={formData.studentName}
+                      />
                     </div>
                   </div>
                 ) : (

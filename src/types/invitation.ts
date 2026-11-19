@@ -50,11 +50,24 @@ export interface GuestWish {
   createdAt: string;
 }
 
+export type GuestGroup = 'friend' | 'classmate' | 'family' | 'teacher' | 'other';
+
+export interface InvitationRecipient {
+  id: string;
+  name: string;
+  group: GuestGroup;
+  status?: 'confirmed' | 'maybe' | 'declined' | 'pending';
+  createdAt: string;
+}
+
 export interface InvitationData {
   id: string;
   slug: string;
   templateId: string;
   
+  // Danh sách người nhận thiệp riêng biệt & cá nhân hóa
+  recipients?: InvitationRecipient[];
+
   // Thông tin cá nhân học sinh (chủ nhân thiệp)
   studentName: string;
   namePart1?: string; // Tên hiển thị bên trái (VD: HOÀNG, BẢO)
@@ -118,6 +131,9 @@ export interface InvitationData {
     showMusic: boolean;
     showRSVP: boolean;
   };
+  
+  // Nhạc nền thiệp mời ('dong-bang' | 'nu-cuoi-18-20' | 'tam-biet-nhe' | 'piano-chill' | 'none')
+  musicTrack?: string;
   
   // Thông tin người tạo (Email không còn bắt buộc)
   creatorName: string;

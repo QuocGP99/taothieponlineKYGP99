@@ -382,7 +382,7 @@ export default function EnvelopeOpener({
           </span>
 
           <h2 className="text-2xl font-black text-[#720000] mt-4">
-            Gửi Đến Bạn Bè & Người Thân
+            {guestName ? `Thân gửi: ${guestName}` : 'Gửi Đến Bạn Bè & Người Thân'}
           </h2>
 
           <p className="text-sm font-bold text-stone-700 mt-1">

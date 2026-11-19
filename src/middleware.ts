@@ -3,14 +3,19 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
-  if (request.nextUrl.pathname.startsWith("/admin")) {
+  const path = request.nextUrl.pathname;
+
+  // Nếu truy cập route admin NHƯNG KHÔNG PHẢI là trang login admin
+  if (path.startsWith("/admin") && path !== "/admin/login") {
     const token = await getToken({
       req: request,
       secret: process.env.NEXTAUTH_SECRET,
     });
 
     if (!token || token.role !== "admin") {
-      return NextResponse.redirect(new URL("/login", request.url));
+      const loginUrl = new URL("/admin/login", request.url);
+      loginUrl.searchParams.set("callbackUrl", path);
+      return NextResponse.redirect(loginUrl);
     }
   }
 

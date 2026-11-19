@@ -2,19 +2,20 @@ import { NextResponse } from 'next/server';
 import { SAMPLE_INVITATION, GREEN_STUDENT_INVITATION, FILM_ROLL_INVITATION, CYBER_FUTURISTIC_INVITATION } from '@/data/templates';
 import { InvitationData, RSVP } from '@/types/invitation';
 import {
-  isMysqlConfigured,
+  isDbConfigured,
   getInvitationFromDb,
   incrementViewsInDb,
   incrementSharesInDb,
-  addRsvpToDb
-} from '@/lib/mysql';
+  addRsvpToDb,
+  deleteInvitationFromDb
+} from '@/lib/db';
 
 // GET: Lấy thông tin chi tiết một thiệp mời từ MySQL theo slug
 export async function GET(
   request: Request,
   { params }: { params: { slug: string } }
 ) {
-  const { slug } = params;
+  const slug = decodeURIComponent(params.slug || '').trim().toLowerCase();
 
   try {
     // 1. Tìm thiệp trong MySQL
@@ -30,18 +31,18 @@ export async function GET(
     console.warn(`[API/Slug GET MySQL Warning for ${slug}]:`, err.message);
   }
 
-  // 2. Fallback cho mẫu template mặc định nếu slug là preset demo
-  if (slug.includes('cyber') || slug.includes('2030') || slug.includes('futuristic')) {
-    return NextResponse.json(CYBER_FUTURISTIC_INVITATION);
-  }
-  if (slug.includes('cuon-phim') || slug.includes('film')) {
-    return NextResponse.json(FILM_ROLL_INVITATION);
-  }
-  if (slug.includes('green-student')) {
-    return NextResponse.json(GREEN_STUDENT_INVITATION);
-  }
-  if (slug.includes('hoang-ngoc') || slug === 'sample' || slug.includes('crimson')) {
-    return NextResponse.json(SAMPLE_INVITATION);
+  // 2. Fallback cho mẫu template mặc định nếu ĐÚNG là slug của các preset demo
+  const DEMO_PRESET_SLUGS: Record<string, any> = {
+    'cyber-2030': CYBER_FUTURISTIC_INVITATION,
+    'cuon-phim-thanh-xuan': FILM_ROLL_INVITATION,
+    'green-student': GREEN_STUDENT_INVITATION,
+    'hoang-ngoc-dai-hoc-dong-a-2027': SAMPLE_INVITATION,
+    'sample': SAMPLE_INVITATION,
+    'modern-crimson-spotlight': SAMPLE_INVITATION,
+  };
+
+  if (DEMO_PRESET_SLUGS[slug]) {
+    return NextResponse.json(DEMO_PRESET_SLUGS[slug]);
   }
 
   return NextResponse.json({ error: 'Không tìm thấy thiệp mời kỷ yếu trong cơ sở dữ liệu.' }, { status: 404 });
@@ -52,7 +53,7 @@ export async function POST(
   request: Request,
   { params }: { params: { slug: string } }
 ) {
-  const { slug } = params;
+  const slug = decodeURIComponent(params.slug || '').trim().toLowerCase();
   try {
     const body = await request.json();
 
@@ -79,12 +80,29 @@ export async function POST(
 
     if (body.action === 'share') {
       await incrementSharesInDb(slug);
-      return NextResponse.json({ success: true, storageEngine: 'mysql' });
+      return NextResponse.json({ success: true, storageEngine: 'prisma' });
     }
 
     return NextResponse.json({ success: true });
   } catch (err: any) {
-    console.error(`[API/Slug POST MySQL Error for ${slug}]:`, err);
+    console.error(`[API/Slug POST Error for ${slug}]:`, err);
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
+}
+
+// DELETE: Xóa thiệp mời khỏi cơ sở dữ liệu (Dành cho Admin)
+export async function DELETE(
+  request: Request,
+  { params }: { params: { slug: string } }
+) {
+  const slug = decodeURIComponent(params.slug || '').trim().toLowerCase();
+  try {
+    const success = await deleteInvitationFromDb(slug);
+    if (!success) {
+      return NextResponse.json({ error: 'Không thể xóa thiệp' }, { status: 500 });
+    }
+    return NextResponse.json({ success: true, message: 'Đã xóa thiệp thành công' });
+  } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

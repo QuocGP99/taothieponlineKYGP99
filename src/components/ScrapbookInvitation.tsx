@@ -642,7 +642,7 @@ export default function ScrapbookInvitation({
           {/* Link to create invitation */}
           <div className="pt-3">
             <a
-              href="/builder"
+              href="/builder?template=green-student"
               className="inline-flex items-center gap-1 text-[11px] font-bold text-rose-600 hover:text-rose-700 hover:underline"
             >
               <span>Tạo thiệp kỷ yếu miễn phí như thế này</span>

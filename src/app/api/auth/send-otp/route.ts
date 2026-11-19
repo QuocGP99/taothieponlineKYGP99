@@ -1,39 +1,70 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generate6DigitOTP, saveOTP, createVerificationToken } from '@/lib/otpStore';
 import { sendOtpEmail } from '@/lib/mailer';
-import { isMysqlConfigured, saveOtpToDb } from '@/lib/mysql';
+import { isDbConfigured, saveOtpToDb } from '@/lib/db';
+import { validateEmailInput } from '@/lib/validation';
+import prisma from '@/lib/prisma';
 
 export async function POST(req: NextRequest) {
   try {
     const { email } = await req.json();
 
-    if (!email || typeof email !== 'string' || !email.includes('@')) {
+    const validation = validateEmailInput(email);
+    if (!validation.isValid) {
       return NextResponse.json(
-        { success: false, message: 'Địa chỉ Gmail không hợp lệ. Vui lòng nhập đúng định dạng (VD: tenban@gmail.com).' },
+        { success: false, message: validation.error, suggestion: validation.suggestion },
         { status: 400 }
       );
     }
 
     const normalizedEmail = email.trim().toLowerCase();
-    
-    // Kiểm tra định dạng email cơ bản
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(normalizedEmail)) {
-      return NextResponse.json(
-        { success: false, message: 'Địa chỉ Gmail không đúng định dạng. Vui lòng kiểm tra lại.' },
-        { status: 400 }
-      );
+
+    // 0. NẾU TÀI KHOẢN ĐÃ TỒN TẠI TRÊN HỆ THỐNG: ĐĂNG NHẬP LUÔN, KHÔNG BẮT OTP
+    if (isDbConfigured()) {
+      try {
+        const existingUser = await prisma.user.findUnique({
+          where: { email: normalizedEmail }
+        });
+
+        if (existingUser) {
+          const token = existingUser.token || `gp_user_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+
+          try {
+            await prisma.user.update({
+              where: { email: normalizedEmail },
+              data: { lastLogin: new Date(), token }
+            });
+          } catch (e) { }
+
+          return NextResponse.json({
+            success: true,
+            isExistingUser: true,
+            message: `Chào mừng bạn quay lại! Đăng nhập thành công vào tài khoản ${normalizedEmail}.`,
+            user: {
+              email: existingUser.email,
+              name: existingUser.name || normalizedEmail.split('@')[0].toUpperCase(),
+              avatar: existingUser.avatar || null,
+              provider: existingUser.provider || 'email_otp',
+              token,
+              loginAt: new Date().toISOString()
+            }
+          });
+        }
+      } catch (err: any) {
+        console.warn('[AUTH] Lỗi kiểm tra user hiện có:', err.message);
+      }
     }
 
+    // NẾU LÀ TÀI KHOẢN MỚI: TẠO MÃ OTP VÀ GỬI EMAIL XÁC THỰC LẦN ĐẦU
     const otp = generate6DigitOTP();
     const verificationToken = createVerificationToken(normalizedEmail, otp, 300); // 5 phút
 
-    // 1. Lưu vào MySQL nếu có cấu hình
-    if (isMysqlConfigured()) {
+    // 1. Lưu vào Database nếu có cấu hình
+    if (isDbConfigured()) {
       try {
         await saveOtpToDb(normalizedEmail, otp, 300);
       } catch (err: any) {
-        console.warn('[AUTH] Lỗi lưu OTP vào MySQL:', err.message);
+        console.warn('[AUTH] Lỗi lưu OTP vào DB:', err.message);
       }
     }
 
@@ -46,6 +77,7 @@ export async function POST(req: NextRequest) {
     if (mailResult.success) {
       return NextResponse.json({
         success: true,
+        isExistingUser: false,
         verificationToken,
         message: `Mã xác thực 6 số đã được gửi từ lienhe@taothiepkyyeugp99.io.vn đến hộp thư: ${normalizedEmail}. Vui lòng kiểm tra hộp thư đến (hoặc mục Thư rác/Spam).`,
         isLiveEmail: true,

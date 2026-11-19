@@ -5,13 +5,13 @@ import { InvitationData } from '@/types/invitation';
 import PosterHeroSection from './PosterHeroSection';
 import TimelineSection from './TimelineSection';
 import PhotoGallerySection from './PhotoGallerySection';
-import GuestbookSection from './GuestbookSection';
+// import GuestbookSection from './GuestbookSection';
 import ScrapbookInvitation from './ScrapbookInvitation';
 import VintageFilmInvitation from './VintageFilmInvitation';
 import CyberFuturisticInvitation from './CyberFuturisticInvitation';
 import { RSVP } from '@/types/invitation';
-import { 
-  Calendar, Clock, MapPin, Navigation, Shirt, 
+import {
+  Calendar, Clock, MapPin, Navigation, Shirt,
   Share2, ExternalLink, Heart, Sparkles, Check, Copy,
   Gift, Phone, Tag
 } from 'lucide-react';
@@ -28,9 +28,9 @@ interface InvitationCardProps {
   onRSVPSubmit?: (rsvp: Omit<RSVP, 'id' | 'createdAt'>) => Promise<void> | void;
 }
 
-export default function InvitationCard({ 
-  data, 
-  isInteractive = false, 
+export default function InvitationCard({
+  data,
+  isInteractive = false,
   onRSVPClick,
   onUpdate,
   guestName,
@@ -94,7 +94,7 @@ export default function InvitationCard({
   // Tính toán đếm ngược đến ngày chụp kỷ yếu
   useEffect(() => {
     if (!data.date) return;
-    
+
     const calculateTime = () => {
       const target = new Date(`${data.date}T${data.startTime || '13:00'}:00`);
       const now = new Date();
@@ -129,7 +129,7 @@ export default function InvitationCard({
 
   return (
     <div ref={cardRef} className="max-w-xl mx-auto w-full relative transition-all space-y-6 pb-12">
-      
+
       {/* ============================================================== */}
       {/* 1. HERO POSTER SECTION (Chuẩn phong cách ảnh tham khảo)          */}
       {/* ============================================================== */}
@@ -196,9 +196,9 @@ export default function InvitationCard({
       {/* 4. LỊCH TRÌNH BUỔI CHỤP (TIMELINE)                              */}
       {/* ============================================================== */}
       {data.componentsVisible?.showSchedule !== false && (
-        <TimelineSection 
-          items={data.timeline} 
-          friendPhotoTime={data.friendPhotoTime} 
+        <TimelineSection
+          items={data.timeline}
+          friendPhotoTime={data.friendPhotoTime}
         />
       )}
 
@@ -222,7 +222,7 @@ export default function InvitationCard({
       )}
 
       {/* ============================================================== */}
-      {/* 6. BỘ SƯU TẬP ẢNH & NÚT "THÊM ẢNH CỦA BẠN"                      */}
+      {/* 6. BỘ SƯU TẬP ẢNH KỶ NIỆM THANH XUÂN                           */}
       {/* ============================================================== */}
       <PhotoGallerySection
         photos={data.gallery}
@@ -233,7 +233,12 @@ export default function InvitationCard({
             onUpdate({ gallery: [newUrl, ...(data.gallery || [])] });
           }
         } : undefined}
-        onEditPrompt={onEditPrompt}
+        onRemovePhoto={isInteractive && onUpdate ? (removeIdx) => {
+          if (onUpdate && data.gallery) {
+            const nextList = data.gallery.filter((_, idx) => idx !== removeIdx);
+            onUpdate({ gallery: nextList });
+          }
+        } : undefined}
       />
 
       {/* ============================================================== */}
@@ -271,43 +276,7 @@ export default function InvitationCard({
       </div>
 
       {/* ============================================================== */}
-      {/* 8. SỔ LƯU BÚT / GỬI LỜI CHÚC TƯƠNG TÁC                         */}
-      {/* ============================================================== */}
-      {data.componentsVisible?.showWishes !== false && (
-        <GuestbookSection
-          wishes={data.wishes}
-          studentName={data.studentName}
-          onSendWish={(wish) => {
-            if (onUpdate) {
-              const newWishItem = {
-                id: `wish-${Date.now()}`,
-                ...wish,
-                createdAt: new Date().toISOString()
-              };
-              onUpdate({ wishes: [newWishItem, ...(data.wishes || [])] });
-            }
-          }}
-        />
-      )}
-
-      {/* ============================================================== */}
-      {/* 9. NÚT XÁC NHẬN THAM GIA (RSVP) NẾU CÓ                           */}
-      {/* ============================================================== */}
-      {onRSVPClick && (
-        <div className="max-w-md mx-auto text-center px-4">
-          <button
-            type="button"
-            onClick={onRSVPClick}
-            className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-[#890F0D] via-[#720000] to-[#890F0D] text-white font-extrabold text-sm shadow-xl hover:shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-          >
-            <Heart className="w-4 h-4 fill-white" />
-            <span>Xác nhận tham gia & Tặng quà tinh thần</span>
-          </button>
-        </div>
-      )}
-
-      {/* ============================================================== */}
-      {/* 10. CHIA SẺ THIỆP QUA ĐƯỜNG LINK & ZALO                         */}
+      {/* 8. CHIA SẺ THIỆP QUA ĐƯỜNG LINK & ZALO                         */}
       {/* ============================================================== */}
       <div className="max-w-md mx-auto bg-white/95 backdrop-blur-md rounded-3xl p-6 shadow-xl border border-[#890F0D]/15 text-center">
         <h4 className="font-extrabold text-[#720000] text-sm uppercase tracking-wider mb-2">

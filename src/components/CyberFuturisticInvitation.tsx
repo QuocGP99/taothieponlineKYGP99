@@ -766,7 +766,7 @@ export default function CyberFuturisticInvitation({
 
           <div className="pt-2">
             <a
-              href="/builder"
+              href="/builder?template=cyber-y2k-futuristic"
               className="inline-flex items-center gap-1 font-pixel text-[11px] font-bold text-black hover:text-[#FF2E93] hover:underline"
             >
               <span>Tạo thiệp kỷ yếu 3D miễn phí như thế này</span>

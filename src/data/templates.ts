@@ -132,13 +132,8 @@ export const SAMPLE_INVITATION: InvitationData = {
     }
   ],
 
-  // Bộ sưu tập ảnh & Album của bạn
-  gallery: [
-    '/images/poster-reference.jpg',
-    'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=800&q=80'
-  ],
+  // Bộ sưu tập ảnh & Album của bạn (Mặc định để rỗng để người tạo tự thêm ảnh)
+  gallery: [],
 
   // Lời chúc từ bạn bè (Guestbook)
   wishes: [
@@ -273,14 +268,7 @@ export const GREEN_STUDENT_INVITATION: InvitationData = {
       note: 'Ký lưu bút và tặng hoa tốt nghiệp'
     }
   ],
-  gallery: [
-    'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=800&q=80'
-  ],
+  gallery: [],
   rsvps: [
     {
       id: 'rsvp-1',
@@ -384,14 +372,7 @@ export const FILM_ROLL_INVITATION: InvitationData = {
       note: 'Ký lưu bút và tặng hoa tốt nghiệp'
     }
   ],
-  gallery: [
-    'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=800&q=80'
-  ],
+  gallery: [],
   rsvps: [
     {
       id: 'rsvp-1',
@@ -486,14 +467,7 @@ export const CYBER_FUTURISTIC_INVITATION: InvitationData = {
       note: 'Ký vào sổ Guestbook 3D và nhận hoa lưu niệm'
     }
   ],
-  gallery: [
-    'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=700&q=80',
-    'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=700&q=80',
-    'https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&w=700&q=80',
-    'https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=700&q=80',
-    'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=700&q=80',
-    'https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=700&q=80'
-  ],
+  gallery: [],
   wishes: [
     {
       id: 'wish-1',

@@ -1,0 +1,157 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  avatar    String?
+  provider  String   @default("google")
+  token     String?
+  createdAt DateTime @default(now()) @map("created_at")
+  lastLogin DateTime @default(now()) @updatedAt @map("last_login")
+
+  @@index([email])
+  @@map("users")
+}
+
+model Invitation {
+  id                String   @id @default(uuid())
+  slug              String   @unique
+  templateId        String   @default("modern-crimson-spotlight") @map("template_id")
+  creatorEmail      String?  @map("creator_email")
+  creatorName       String?  @map("creator_name")
+  creatorPhone      String?  @map("creator_phone")
+  
+  // Thông tin học sinh (chủ thiệp)
+  studentName       String   @map("student_name")
+  namePart1         String?  @map("name_part1")
+  namePart2         String?  @map("name_part2")
+  nickname          String?
+  className         String   @map("class_name")
+  schoolName        String   @map("school_name")
+  schoolYear        String   @default("2024 – 2027") @map("school_year")
+  senderName        String?  @map("sender_name")
+  guestName         String?  @map("guest_name")
+  
+  // Sự kiện & lịch trình chụp ảnh
+  friendPhotoTime   String?  @map("friend_photo_time")
+  title             String
+  date              String
+  dayOfWeek         String?  @map("day_of_week")
+  startTime         String   @map("start_time")
+  endTime           String?  @map("end_time")
+  gatheringLocation String?  @map("gathering_location")
+  shootLocation     String   @map("shoot_location")
+  detailedAddress   String?  @map("detailed_address")
+  googleMapsUrl     String?  @map("google_maps_url")
+  dressCode         String?  @map("dress_code")
+  note              String?
+  
+  // Lời nhắn
+  inviteMessage     String?  @map("invite_message")
+  wishMessage       String?  @map("wish_message")
+  signature         String?
+  
+  // Hình ảnh
+  avatarPhoto       String?  @map("avatar_photo")
+  groupPhoto        String?  @map("group_photo")
+  bgImage           String?  @map("bg_image")
+  
+  // Cấu hình JSON (chuỗi stringified JSON)
+  gallery           String?
+  timeline          String?
+  wishesJson        String?  @map("wishes")
+  stickers          String?
+  componentsVisible String?  @map("components_visible")
+  
+  // Cá nhân hóa giao diện
+  primaryColor      String   @default("#890F0D") @map("primary_color")
+  secondaryColor    String?  @default("#720000") @map("secondary_color")
+  fontFamily        String   @default("Plus Jakarta Sans") @map("font_family")
+  fontSize          String   @default("md") @map("font_size")
+  textAlign         String   @default("center") @map("text_align")
+  
+  // Trạng thái & thống kê lượt xem/chia sẻ
+  views             Int      @default(0)
+  shares            Int      @default(0)
+  status            String   @default("published")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @default(now()) @updatedAt @map("updated_at")
+
+  rsvps             Rsvp[]
+  wishes            Wish[]
+
+  @@index([slug])
+  @@index([creatorEmail])
+  @@map("invitations")
+}
+
+model Rsvp {
+  id              String      @id @default(uuid())
+  invitationId    String      @map("invitation_id")
+  invitationSlug  String?     @map("invitation_slug")
+  guestName       String      @map("guest_name")
+  relation        String?     @default("Bạn thân")
+  status          String      @default("confirmed")
+  phone           String?
+  message         String?
+  virtualGift     String?     @default("bouquet") @map("virtual_gift")
+  companionCount  Int         @default(0) @map("companion_count")
+  createdAt       DateTime    @default(now()) @map("created_at")
+
+  invitation      Invitation  @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+
+  @@index([invitationId])
+  @@index([invitationSlug])
+  @@map("rsvps")
+}
+
+model Wish {
+  id              String      @id @default(uuid())
+  invitationId    String      @map("invitation_id")
+  invitationSlug  String?     @map("invitation_slug")
+  senderName      String      @map("sender_name")
+  relation        String?
+  message         String
+  createdAt       DateTime    @default(now()) @map("created_at")
+
+  invitation      Invitation  @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+
+  @@index([invitationId])
+  @@index([invitationSlug])
+  @@map("wishes")
+}
+
+model OtpCode {
+  id        Int      @id @default(autoincrement())
+  email     String
+  otp       String
+  expiresAt DateTime @map("expires_at")
+  isUsed    Boolean  @default(false) @map("is_used")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([email, otp, isUsed])
+  @@map("otp_codes")
+}
+
+model Lead {
+  id            String   @id @default(uuid())
+  fullName      String   @map("full_name")
+  phone         String
+  schoolClass   String   @map("school_class")
+  studentCount  Int?     @map("student_count")
+  region        String?  @default("Đà Nẵng")
+  expectedMonth String?  @default("Chưa rõ") @map("expected_month")
+  notes         String?
+  discountCode  String?  @default("GPKY10-XUAN2026") @map("discount_code")
+  status        String   @default("new")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@map("leads")
+}

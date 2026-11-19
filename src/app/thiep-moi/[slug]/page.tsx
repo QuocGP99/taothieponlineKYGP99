@@ -1,40 +1,50 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import InvitationCard from '@/components/InvitationCard';
 import EnvelopeOpener from '@/components/EnvelopeOpener';
 import RSVPSection from '@/components/RSVPSection';
 import MusicPlayer from '@/components/MusicPlayer';
-import PetalsEffect from '@/components/PetalsEffect';
 import ShareModal from '@/components/ShareModal';
-import GoogleLoginModal from '@/components/GoogleLoginModal';
 import { InvitationData, RSVP } from '@/types/invitation';
 import { getInvitationBySlug, addRSVP, incrementViewCount, incrementShareCount } from '@/lib/storage';
 import { SAMPLE_INVITATION, GREEN_STUDENT_INVITATION, FILM_ROLL_INVITATION, CYBER_FUTURISTIC_INVITATION } from '@/data/templates';
 import {
   Share2, Camera, Heart, Download, Calendar,
-  MapPin, Phone, Sparkles, AlertCircle, ArrowLeft, Edit3, Eye
+  MapPin, Phone, Sparkles, AlertCircle, ArrowLeft, Eye
 } from 'lucide-react';
 import Link from 'next/link';
+
+// Danh sách các slug demo tĩnh chính thức
+const DEMO_PRESET_MAP: Record<string, InvitationData> = {
+  'cyber-2030': CYBER_FUTURISTIC_INVITATION,
+  'cuon-phim-thanh-xuan': FILM_ROLL_INVITATION,
+  'green-student': GREEN_STUDENT_INVITATION,
+  'hoang-ngoc-dai-hoc-dong-a-2027': SAMPLE_INVITATION,
+  'sample': SAMPLE_INVITATION,
+  'modern-crimson-spotlight': SAMPLE_INVITATION,
+};
 
 export default function PublicInvitationPage() {
   const router = useRouter();
   const params = useParams();
-  const slug = (params?.slug as string) || '';
+  const searchParams = useSearchParams();
+  const rawSlug = (params?.slug as string) || '';
+  const slug = decodeURIComponent(rawSlug).trim().toLowerCase();
 
-  const isPresetTemplate = slug.includes('cyber') || slug.includes('2030') || slug.includes('futuristic') || slug.includes('cuon-phim') || slug.includes('film') || slug.includes('green-student') || slug.includes('hoang-ngoc') || slug === 'sample';
+  // Đọc tên người nhận cá nhân hóa từ query param ?to= hoặc ?guest=
+  const toParam = searchParams?.get('to') || searchParams?.get('guest');
+  const groupParam = searchParams?.get('group') || searchParams?.get('role');
+  const personalizedGuestName = toParam ? decodeURIComponent(toParam).trim() : '';
+
+  const isPresetTemplate = !!DEMO_PRESET_MAP[slug];
   const [invitation, setInvitation] = useState<InvitationData | null>(() => {
-    if (slug.includes('cyber') || slug.includes('2030') || slug.includes('futuristic')) return CYBER_FUTURISTIC_INVITATION;
-    if (slug.includes('cuon-phim') || slug.includes('film')) return FILM_ROLL_INVITATION;
-    if (slug.includes('green-student')) return GREEN_STUDENT_INVITATION;
-    if (slug.includes('hoang-ngoc') || slug === 'sample') return SAMPLE_INVITATION;
-    return null;
+    return DEMO_PRESET_MAP[slug] || null;
   });
   const [loading, setLoading] = useState(!isPresetTemplate);
   const [envelopeOpen, setEnvelopeOpen] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
-  const [googleModalOpen, setGoogleModalOpen] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
   // Fetch invitation data from local storage or server API
@@ -51,12 +61,14 @@ export default function PublicInvitationPage() {
         incrementViewCount(slug);
       }
 
-      // 2. Also try server API
+      // 2. Also try server API PostgreSQL qua Prisma
       try {
         const res = await fetch(`/api/invitations/${slug}`);
         if (res.ok) {
           const remoteItem = await res.json();
-          setInvitation(remoteItem);
+          if (remoteItem && remoteItem.slug) {
+            setInvitation(remoteItem);
+          }
         }
       } catch (err) {
         console.warn('Could not fetch from server API:', err);
@@ -70,7 +82,7 @@ export default function PublicInvitationPage() {
 
   // Handle RSVP submission
   const handleRSVPSubmit = async (rsvpData: Omit<RSVP, 'id' | 'createdAt'>) => {
-    if (!invitation && !slug.includes('bao-anh') && !slug.includes('12a1')) return;
+    if (!activeData) return;
 
     // 1. Update local storage
     const newLocalRsvp = addRSVP(slug, rsvpData);
@@ -78,7 +90,7 @@ export default function PublicInvitationPage() {
       setInvitation(prev => prev ? { ...prev, rsvps: [newLocalRsvp, ...(prev.rsvps || [])] } : prev);
     }
 
-    // 2. Update server API
+    // 2. Update server API PostgreSQL
     try {
       await fetch(`/api/invitations/${slug}`, {
         method: 'POST',
@@ -86,23 +98,27 @@ export default function PublicInvitationPage() {
         body: JSON.stringify({ action: 'rsvp', ...rsvpData })
       });
     } catch (err) {
-      console.warn('Server RSVP error:', err);
+      console.warn('Error saving RSVP to server:', err);
     }
   };
 
-  // Download Card as image
-  const handleDownloadCard = async () => {
-    if (!cardRef.current || typeof window === 'undefined') return;
-    try {
-      const htmlToImage = await import('html-to-image');
-      const dataUrl = await htmlToImage.toPng(cardRef.current, { quality: 0.95, pixelRatio: 2 });
-      const link = document.createElement('a');
-      link.download = `Thiep-Moi-${invitation?.studentName || 'GP-Studio99'}.png`;
-      link.href = dataUrl;
-      link.click();
-    } catch (e) {
-      console.error(e);
-      alert('Không thể tạo ảnh thiệp, bạn có thể chụp ảnh màn hình nhé!');
+  // Chia sẻ liên kết thiệp
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: activeData?.title || 'Thiệp Mời Kỷ Yếu',
+        text: `Kỷ yếu của ${studentDisplayName} – Trân trọng mời ${guestDisplayName}!`,
+        url: window.location.href,
+      }).catch(() => setShareModalOpen(true));
+    } else {
+      setShareModalOpen(true);
+    }
+  };
+
+  // Tải thiệp về máy (Lưu kỷ niệm)
+  const handleDownloadCard = () => {
+    if (typeof window !== 'undefined') {
+      window.print();
     }
   };
 
@@ -119,40 +135,8 @@ export default function PublicInvitationPage() {
     );
   }
 
-  // Fallback to sample invitation if slug is demo or template
-  const activeData = invitation || (
-    slug.includes('cyber') || slug.includes('2030') || slug.includes('futuristic')
-      ? CYBER_FUTURISTIC_INVITATION
-      : (slug.includes('cuon-phim') || slug.includes('film')
-        ? FILM_ROLL_INVITATION
-        : (slug.includes('green-student')
-          ? GREEN_STUDENT_INVITATION
-          : (slug.includes('bao-anh') || slug.includes('12a1') || slug.includes('hoang-ngoc') || slug === 'sample' || slug.includes('crimson') || slug.includes('spotlight')
-            ? SAMPLE_INVITATION
-            : null)))
-  );
-
-  const isTemplatePreview =
-    slug.includes('cyber') ||
-    slug.includes('2030') ||
-    slug.includes('futuristic') ||
-    slug.includes('cuon-phim') ||
-    slug.includes('film') ||
-    slug.includes('green-student') ||
-    slug.includes('hoang-ngoc') ||
-    slug.includes('sample') ||
-    slug.includes('crimson') ||
-    slug.includes('spotlight');
-
-  const handleEditTemplate = () => {
-    const user = typeof window !== 'undefined' ? localStorage.getItem('gp_auth_user') : null;
-    const targetTemplateId = activeData?.templateId || (slug.includes('cyber') || slug.includes('2030') ? 'cyber-y2k-futuristic' : (slug.includes('green-student') ? 'green-student' : 'modern-crimson-spotlight'));
-    if (user) {
-      router.push(`/builder?template=${targetTemplateId}`);
-    } else {
-      setGoogleModalOpen(true);
-    }
-  };
+  // Dữ liệu thực tế hoặc fallback NẾU ĐÚNG là slug của demo template
+  const activeData = invitation || DEMO_PRESET_MAP[slug] || null;
 
   if (!activeData) {
     return (
@@ -178,9 +162,13 @@ export default function PublicInvitationPage() {
 
   const defaultBase = process.env.NEXT_PUBLIC_APP_URL || 'https://taothiepkyyeugp99.io.vn';
   const currentUrl = typeof window !== 'undefined' 
-    ? (window.location.hostname.includes('vercel.app') ? `${defaultBase}/thiep-moi/${slug}` : window.location.href)
+    ? window.location.href
     : `${defaultBase}/thiep-moi/${slug}`;
   const studentDisplayName = activeData.studentName || activeData.senderName || 'mình';
+  
+  // Tên người nhận hiển thị: Ưu tiên tên cá nhân hóa từ query param ?to=, nếu không có mới dùng guestName của thiệp
+  const guestDisplayName = personalizedGuestName || activeData.guestName || 'Bạn thân mến';
+
   const isNotebookStyle = activeData.templateId === 'green-student';
   const isFilmRollStyle = activeData.templateId === 'vintage-film-roll' || activeData.templateId === 'film-roll';
   const isCyberStyle = activeData.templateId === 'cyber-y2k-futuristic' || activeData.templateId === 'cyber-2030' || activeData.templateId === 'futuristic-3d';
@@ -195,8 +183,6 @@ export default function PublicInvitationPage() {
             ? 'bg-gradient-to-b from-[#FFF5F8] via-[#FAF5FF] to-[#F3E8FF] selection:bg-[#FCE7F3] selection:text-[#9D174D]' 
             : 'bg-[#FAF8F8] selection:bg-[#FEE2E2] selection:text-[#720000]'))
     }`}>
-      <PetalsEffect />
-
       {/* Floating Navigation: Back to Home (Left) */}
       <Link
         href="/"
@@ -207,59 +193,60 @@ export default function PublicInvitationPage() {
         <span className="hidden sm:inline">Trang chủ</span>
       </Link>
 
-      {/* Floating Tools: Share & Download Card (Right) */}
-      <div className="fixed top-4 right-16 sm:right-20 z-40 flex items-center gap-2">
+      {/* Floating Action Buttons: Share & Download (Right) */}
+      <div className="fixed top-4 right-4 z-40 flex items-center gap-2">
         <button
           type="button"
-          onClick={() => {
-            incrementShareCount(slug);
-            setShareModalOpen(true);
-          }}
-          className="p-2.5 rounded-full bg-white/85 hover:bg-white text-stone-700 hover:text-[#890F0D] shadow-md border border-stone-200/60 backdrop-blur transition-all cursor-pointer"
-          title="Chia sẻ thiệp"
+          onClick={handleShare}
+          className="p-2.5 sm:px-3.5 sm:py-2 rounded-full bg-white/85 hover:bg-white text-stone-700 hover:text-[#890F0D] shadow-md border border-stone-200/60 backdrop-blur transition-all flex items-center gap-1.5 text-xs font-bold"
+          title="Chia sẻ thiệp mời"
         >
           <Share2 className="w-4 h-4" />
+          <span className="hidden sm:inline">Chia sẻ</span>
         </button>
 
         <button
           type="button"
           onClick={handleDownloadCard}
-          className="p-2.5 rounded-full bg-white/85 hover:bg-white text-stone-700 hover:text-[#890F0D] shadow-md border border-stone-200/60 backdrop-blur transition-all cursor-pointer"
-          title="Tải ảnh thiệp PNG"
+          className="p-2.5 sm:px-3.5 sm:py-2 rounded-full bg-white/85 hover:bg-white text-stone-700 hover:text-[#890F0D] shadow-md border border-stone-200/60 backdrop-blur transition-all flex items-center gap-1.5 text-xs font-bold"
+          title="In / Tải thiệp về máy"
         >
           <Download className="w-4 h-4" />
+          <span className="hidden sm:inline">Lưu ảnh</span>
         </button>
       </div>
 
-      {/* Background Youth Music Player (Fixed top-4 right-4) */}
-      <MusicPlayer />
+      {/* Background Youth Music Player */}
+      {activeData.componentsVisible?.showMusic !== false && (
+        <MusicPlayer musicTrack={activeData.musicTrack} />
+      )}
 
-      {/* Interactive Envelope / Notebook Opener (Modal/Curtain) */}
+      {/* Interactive Envelope / Notebook Opener */}
       <EnvelopeOpener
         classNameStr={activeData.className}
         schoolName={activeData.schoolName}
         senderName={studentDisplayName}
-        guestName={activeData.guestName}
+        guestName={guestDisplayName}
         templateId={activeData.templateId}
         isOpen={envelopeOpen}
         onOpen={() => setEnvelopeOpen(true)}
       />
 
-      {/* Main Content Area: CHỈ GIỮ LẠI THỰC TẾ NGƯỜI NHẬN */}
-      <main className="max-w-xl mx-auto px-4 py-8 sm:py-12 flex-1 w-full space-y-8 animate-fade-in pb-28">
+      {/* Main Content Area: CHẾ ĐỘ XEM CHỈ ĐỌC DÀNH CHO NGƯỜI NHẬN */}
+      <main className="max-w-xl mx-auto px-4 py-8 sm:py-12 flex-1 w-full space-y-8 animate-fade-in pb-16">
 
-        {/* Master Invitation Card (Chế độ Xem Preview Template: Chỉ Đọc) */}
+        {/* Master Invitation Card (Chế độ xem thiệp mời: Chỉ Đọc, KHÔNG CÓ CÔNG CỤ EDIT) */}
         <div className="animate-fade-in">
           <InvitationCard
             data={activeData}
             isInteractive={false}
+            guestName={guestDisplayName}
             cardRef={cardRef}
-            onEditPrompt={handleEditTemplate}
             onRSVPSubmit={handleRSVPSubmit}
           />
         </div>
 
-        {/* RSVP & Guestbook Section (Chỉ hiển thị cho các mẫu khác; mẫu Sổ Lưu Bút, Cuộn Phim và Cyber 2030 đã tích hợp trực tiếp) */}
+        {/* RSVP Section (Đơn giản, tinh gọn, riêng tư) */}
         {!isNotebookStyle && !isFilmRollStyle && !isCyberStyle && activeData.componentsVisible?.showRSVP !== false && (
           <RSVPSection
             slug={slug}
@@ -271,61 +258,6 @@ export default function PublicInvitationPage() {
 
       </main>
 
-      {/* ============================================================== */}
-      {/* FLOATING ACTION BAR: 2 CHẾ ĐỘ PREVIEW & CHỈNH SỬA TEMPLATE    */}
-      {/* (Chuẩn theo mẫu thieponline.id.vn/invitation/green-student)   */}
-      {/* ============================================================== */}
-      {isTemplatePreview && (
-        <div className="fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#890F0D]/20 py-3 px-4 sm:px-6 shadow-2xl">
-          <div className="max-w-xl mx-auto flex items-center justify-between gap-3">
-
-            {/* Mode 1 indicator: Preview Template */}
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-              <div className="text-left">
-                <span className="text-[11px] sm:text-xs font-bold text-stone-800 flex items-center gap-1.5">
-                  <Eye className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                  <span>1. Xem Preview Template</span>
-                </span>
-                <span className="text-[10px] text-stone-500 hidden sm:block">
-                  Mẫu: <strong className="text-[#890F0D]">
-                    {isCyberStyle 
-                      ? 'Cyber 2030 (Neo-Futuristic 3D)' 
-                      : (isNotebookStyle 
-                        ? 'Sổ Lưu Bút (Scrapbook)' 
-                        : (isFilmRollStyle ? 'Cuộn Phim Hoài Niệm' : 'Modern Crimson Spotlight'))}
-                  </strong>
-                </span>
-              </div>
-            </div>
-
-            {/* Mode 2 action: Edit template -> Requires Google Login */}
-            <button
-              type="button"
-              onClick={handleEditTemplate}
-              className="px-5 sm:px-7 py-2.5 sm:py-3 rounded-2xl font-black text-xs sm:text-sm text-white bg-gradient-to-r from-[#720000] via-[#890F0D] to-[#B91C1C] hover:from-[#540000] hover:to-[#720000] shadow-lg shadow-[#890F0D]/30 hover:scale-105 active:scale-95 flex items-center gap-2 cursor-pointer transition-all"
-            >
-              <Edit3 className="w-4 h-4" />
-              <span>2. Chỉnh sửa template này</span>
-            </button>
-
-          </div>
-        </div>
-      )}
-
-      {/* Google Login Modal (Khi click Chỉnh sửa template mà chưa đăng nhập) */}
-      <GoogleLoginModal
-        isOpen={googleModalOpen}
-        onClose={() => setGoogleModalOpen(false)}
-        templateName={activeData.templateId === 'green-student' ? 'Green Student (Mùa Phượng Cuối)' : 'Modern Crimson Spotlight'}
-        redirectUrl={`/builder?template=${activeData.templateId || (slug.includes('green-student') ? 'green-student' : 'modern-crimson-spotlight')}`}
-        onSuccess={() => {
-          setGoogleModalOpen(false);
-          const target = activeData.templateId || (slug.includes('green-student') ? 'green-student' : 'modern-crimson-spotlight');
-          router.push(`/builder?template=${target}`);
-        }}
-      />
-
       {/* Share Modal Dialog */}
       <ShareModal
         isOpen={shareModalOpen}
@@ -333,7 +265,7 @@ export default function PublicInvitationPage() {
         url={currentUrl}
         title={activeData.title}
         className={activeData.className}
-        onDownloadImage={handleDownloadCard}
+        studentName={studentDisplayName}
       />
     </div>
   );

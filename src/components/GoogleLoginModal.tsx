@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X, Sparkles, ShieldCheck, Mail, ArrowRight, ArrowLeft, RefreshCw, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { triggerConfetti } from '@/lib/confetti';
+import { validateEmailInput } from '@/lib/validation';
 
 interface GoogleLoginModalProps {
   isOpen: boolean;
@@ -21,6 +22,8 @@ export default function GoogleLoginModal({
 }: GoogleLoginModalProps) {
   const [step, setStep] = useState<1 | 2>(1);
   const [email, setEmail] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [emailSuggestion, setEmailSuggestion] = useState('');
   const [otpDigits, setOtpDigits] = useState<string[]>(['', '', '', '', '', '']);
   const [verificationToken, setVerificationToken] = useState<string>('');
   const [loading, setLoading] = useState(false);
@@ -44,6 +47,29 @@ export default function GoogleLoginModal({
 
   if (!isOpen) return null;
 
+  const handleEmailChange = (val: string) => {
+    setEmail(val);
+    if (emailError) {
+      const check = validateEmailInput(val);
+      if (check.isValid) {
+        setEmailError('');
+        setEmailSuggestion('');
+      }
+    }
+  };
+
+  const handleEmailBlur = () => {
+    if (!email.trim()) return;
+    const check = validateEmailInput(email);
+    if (!check.isValid) {
+      setEmailError(check.error);
+      setEmailSuggestion(check.suggestion || '');
+    } else {
+      setEmailError('');
+      setEmailSuggestion('');
+    }
+  };
+
   // Bước 1: Gửi mã OTP từ lienhe@taothiepkyyeugp99.io.vn
   const handleSendOTP = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -51,13 +77,16 @@ export default function GoogleLoginModal({
     setSuccessMessage('');
 
     const cleanEmail = email.trim().toLowerCase();
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const validation = validateEmailInput(cleanEmail);
 
-    if (!cleanEmail || !emailRegex.test(cleanEmail)) {
-      setErrorMessage('Địa chỉ Gmail không đúng định dạng. Vui lòng nhập đúng (VD: tenban@gmail.com).');
+    if (!validation.isValid) {
+      setEmailError(validation.error);
+      setEmailSuggestion(validation.suggestion || '');
       return;
     }
 
+    setEmailError('');
+    setEmailSuggestion('');
     setLoading(true);
 
     try {
@@ -71,6 +100,25 @@ export default function GoogleLoginModal({
 
       if (!res.ok || !data.success) {
         throw new Error(data.message || 'Không thể gửi mã xác thực. Vui lòng kiểm tra lại cấu hình.');
+      }
+
+      // NẾU TÀI KHOẢN ĐÃ CÓ TRÊN HỆ THỐNG: ĐĂNG NHẬP THẲNG, BỎ QUA OTP!
+      if (data.isExistingUser && data.user) {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('gp_auth_user', JSON.stringify(data.user));
+        }
+        triggerConfetti({
+          particleCount: 80,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#4285F4', '#EA4335', '#FBBC05', '#34A853', '#890F0D']
+        });
+        if (onSuccess) onSuccess(data.user);
+        onClose();
+        if (redirectUrl) {
+          window.location.href = redirectUrl;
+        }
+        return;
       }
 
       setVerificationToken(data.verificationToken || '');
@@ -235,22 +283,51 @@ export default function GoogleLoginModal({
                 Địa chỉ Gmail của bạn:
               </label>
               <div className="relative">
-                <Mail className="w-4 h-4 text-stone-400 absolute left-3.5 top-3.5" />
+                <Mail className={`w-4 h-4 absolute left-3.5 top-3.5 transition-colors ${emailError ? 'text-rose-500' : 'text-stone-400'}`} />
                 <input
                   type="email"
                   required
                   placeholder="vidu: hocsinh.kyeu@gmail.com"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-3 py-3 rounded-xl border border-stone-300 text-sm focus:ring-2 focus:ring-[#890F0D] focus:border-[#890F0D] outline-none transition-all placeholder:text-stone-400"
+                  onChange={(e) => handleEmailChange(e.target.value)}
+                  onBlur={handleEmailBlur}
+                  className={`w-full pl-10 pr-3 py-3 rounded-xl border text-sm outline-none transition-all placeholder:text-stone-400 ${
+                    emailError
+                      ? 'border-rose-500 bg-rose-50/20 text-stone-900 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-600'
+                      : 'border-stone-300 focus:ring-2 focus:ring-[#890F0D] focus:border-[#890F0D]'
+                  }`}
                 />
               </div>
+
+              {/* Báo lỗi trực tiếp ngay bên dưới thanh nhập */}
+              {emailError && (
+                <div className="mt-2.5 p-2.5 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 flex flex-col gap-1.5 animate-fadeIn">
+                  <div className="flex items-start gap-1.5">
+                    <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                    <span className="font-semibold leading-relaxed">{emailError}</span>
+                  </div>
+                  {emailSuggestion && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEmail(emailSuggestion);
+                        setEmailError('');
+                        setEmailSuggestion('');
+                      }}
+                      className="self-start text-[11px] font-bold text-[#890F0D] bg-white hover:bg-[#890F0D] hover:text-white px-2.5 py-1 rounded-lg border border-[#890F0D]/30 transition-all shadow-xs cursor-pointer flex items-center gap-1"
+                    >
+                      <span>💡 Đổi nhanh thành:</span>
+                      <span className="underline">{emailSuggestion}</span>
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
 
             <button
               type="submit"
               disabled={loading || !email.trim()}
-              className="w-full py-3.5 px-5 rounded-2xl bg-[#890F0D] hover:bg-[#720000] text-white font-bold text-sm shadow-lg shadow-[#890F0D]/25 flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-3.5 px-5 rounded-2xl bg-[#890F0D] hover:bg-[#720000] text-white font-bold text-sm shadow-lg shadow-[#890F0D]/25 flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               {loading ? (
                 <>

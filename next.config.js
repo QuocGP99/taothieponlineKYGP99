@@ -11,6 +11,15 @@ const nextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: '/invitation/:slug*',
+        destination: '/thiep-moi/:slug*',
+        permanent: true,
+      },
+    ];
+  },
   async rewrites() {
     return [
       {
@@ -18,8 +27,8 @@ const nextConfig = {
         destination: '/admin',
       },
       {
-        source: '/invitation/:slug',
-        destination: '/thiep-moi/:slug',
+        source: '/invitation/:slug*',
+        destination: '/thiep-moi/:slug*',
       },
     ];
   },

@@ -1,38 +1,38 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
-import { Camera, Plus, Image as ImageIcon, X } from 'lucide-react';
+import { Camera, Plus, Image as ImageIcon, X, Trash2 } from 'lucide-react';
 
 interface PhotoGallerySectionProps {
   photos?: string[];
   studentName?: string;
   isEditable?: boolean;
   onAddPhoto?: (newPhotoUrl: string) => void;
-  onEditPrompt?: () => void;
+  onRemovePhoto?: (index: number) => void;
 }
 
 export default function PhotoGallerySection({
   photos = [],
-  studentName = 'Hoàng Ngọc',
+  studentName = 'chủ thiệp',
   isEditable = false,
   onAddPhoto,
-  onEditPrompt
+  onRemovePhoto
 }: PhotoGallerySectionProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activePhoto, setActivePhoto] = useState<string | null>(null);
 
-  const defaultPhotos = [
-    '/images/poster-reference.jpg',
-    'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=800&q=80'
-  ];
+  const photoList = Array.isArray(photos) ? photos : [];
 
-  const photoList = photos.length > 0 ? photos : defaultPhotos;
+  // Nếu không có ảnh và đang ở chế độ xem công khai (khách xem link) -> Ẩn toàn bộ để thiệp gọn gàng
+  if (photoList.length === 0 && !isEditable) {
+    return null;
+  }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && onAddPhoto) {
+    const files = e.target.files;
+    if (!files || files.length === 0 || !onAddPhoto) return;
+
+    Array.from(files).forEach(file => {
       const reader = new FileReader();
       reader.onload = () => {
         if (typeof reader.result === 'string') {
@@ -40,7 +40,9 @@ export default function PhotoGallerySection({
         }
       };
       reader.readAsDataURL(file);
-    }
+    });
+
+    if (e.target) e.target.value = '';
   };
 
   return (
@@ -58,72 +60,99 @@ export default function PhotoGallerySection({
           </div>
         </div>
 
-        {/* Nút Thêm ảnh của bạn (Chỉ hiển thị khi có onAddPhoto hoặc có onEditPrompt) */}
-        {onAddPhoto ? (
+        {/* Nút Thêm ảnh (CHỈ hiển thị cho chủ tạo thiệp khi chỉnh sửa) */}
+        {isEditable && onAddPhoto && (
           <>
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#890F0D] hover:bg-[#720000] text-white text-xs font-bold shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#890F0D] hover:bg-[#720000] text-white text-xs font-bold shadow-md transition-all cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span>Thêm ảnh của bạn</span>
+              <span>Thêm ảnh</span>
             </button>
             <input
               ref={fileInputRef}
               type="file"
               accept="image/*"
+              multiple
               className="hidden"
               onChange={handleFileChange}
             />
           </>
-        ) : onEditPrompt ? (
-          <button
-            type="button"
-            onClick={onEditPrompt}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-stone-100 hover:bg-[#890F0D] hover:text-white text-stone-700 text-xs font-bold border border-stone-200 transition-all cursor-pointer"
-            title="Đăng nhập để thêm ảnh vào template"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Thêm ảnh (Cần đăng nhập)</span>
-          </button>
-        ) : null}
+        )}
       </div>
 
       {/* Grid danh sách ảnh */}
-      <div className="grid grid-cols-2 gap-2.5">
-        {photoList.map((photo, idx) => (
-          <div
-            key={idx}
-            onClick={() => setActivePhoto(photo)}
-            className="group relative aspect-square rounded-2xl overflow-hidden border border-[#890F0D]/15 bg-stone-100 cursor-pointer shadow-xs hover:shadow-md transition-all"
-          >
-            <img
-              src={photo}
-              alt={`Kỷ niệm ${idx + 1}`}
-              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=600&q=80';
-              }}
-            />
-            <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold">
-              <span>Xem ảnh</span>
-            </div>
-          </div>
-        ))}
+      {photoList.length > 0 ? (
+        <div className="grid grid-cols-2 gap-2.5">
+          {photoList.map((photo, idx) => (
+            <div
+              key={idx}
+              className="group relative aspect-square rounded-2xl overflow-hidden border border-[#890F0D]/15 bg-stone-100 shadow-xs hover:shadow-md transition-all"
+            >
+              <img
+                src={photo}
+                alt={`Kỷ niệm ${idx + 1}`}
+                onClick={() => setActivePhoto(photo)}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 cursor-pointer"
+              />
+              
+              {/* Nút Xóa ảnh (Chỉ dành cho chủ thiệp khi chỉnh sửa) */}
+              {isEditable && onRemovePhoto && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRemovePhoto(idx);
+                  }}
+                  className="absolute top-2 right-2 p-1.5 rounded-full bg-red-600/90 hover:bg-red-700 text-white shadow-md transition-all opacity-90 hover:opacity-100 cursor-pointer"
+                  title="Xóa ảnh này"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              )}
 
-        {/* Ô bấm thêm ảnh nhanh dạng thẻ */}
-        <div
-          onClick={() => fileInputRef.current?.click()}
-          className="aspect-square rounded-2xl border-2 border-dashed border-[#890F0D]/30 hover:border-[#890F0D] bg-[#FFF8F8] hover:bg-[#FEE2E2]/40 flex flex-col items-center justify-center gap-1.5 text-stone-500 hover:text-[#890F0D] cursor-pointer transition-all p-3 text-center"
-        >
-          <div className="w-9 h-9 rounded-full bg-[#890F0D]/10 flex items-center justify-center text-[#890F0D]">
-            <Camera className="w-5 h-5" />
-          </div>
-          <span className="text-xs font-bold">+ Thêm ảnh</span>
-          <span className="text-[10px] text-stone-400">Tải ảnh kỷ niệm cùng {studentName}</span>
+              <div 
+                onClick={() => setActivePhoto(photo)}
+                className="absolute inset-x-0 bottom-0 py-1 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity text-center text-white text-[10px] font-bold cursor-pointer"
+              >
+                Xem phóng to
+              </div>
+            </div>
+          ))}
+
+          {/* Ô thêm ảnh nhanh (CHỈ hiển thị khi chủ thiệp chỉnh sửa) */}
+          {isEditable && onAddPhoto && (
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              className="aspect-square rounded-2xl border-2 border-dashed border-[#890F0D]/30 hover:border-[#890F0D] bg-[#FFF8F8] hover:bg-[#FEE2E2]/40 flex flex-col items-center justify-center gap-1.5 text-stone-500 hover:text-[#890F0D] cursor-pointer transition-all p-3 text-center"
+            >
+              <div className="w-9 h-9 rounded-full bg-[#890F0D]/10 flex items-center justify-center text-[#890F0D]">
+                <Camera className="w-5 h-5" />
+              </div>
+              <span className="text-xs font-bold">+ Thêm ảnh</span>
+              <span className="text-[10px] text-stone-400">Chọn ảnh từ máy tính</span>
+            </div>
+          )}
         </div>
-      </div>
+      ) : (
+        /* Trạng thái rỗng khi chủ thiệp đang tạo thiệp */
+        isEditable && (
+          <div
+            onClick={() => fileInputRef.current?.click()}
+            className="py-8 px-4 rounded-2xl border-2 border-dashed border-[#890F0D]/30 hover:border-[#890F0D] bg-[#FFF8F8] flex flex-col items-center justify-center gap-2 text-center cursor-pointer transition-all"
+          >
+            <div className="w-12 h-12 rounded-2xl bg-[#890F0D]/10 flex items-center justify-center text-[#890F0D]">
+              <Camera className="w-6 h-6" />
+            </div>
+            <p className="text-xs font-bold text-[#720000]">Chưa có ảnh nào trong album</p>
+            <span className="text-[11px] text-stone-500 max-w-xs">
+              Bấm vào đây để chọn ảnh kỷ yếu / thanh xuân từ máy tính của bạn
+            </span>
+          </div>
+        )
+      )}
 
       {/* Lightbox xem ảnh lớn */}
       {activePhoto && (
@@ -134,15 +163,14 @@ export default function PhotoGallerySection({
           <button
             type="button"
             onClick={() => setActivePhoto(null)}
-            className="absolute top-5 right-5 w-10 h-10 rounded-full bg-white/20 hover:bg-white text-white hover:text-black flex items-center justify-center transition-colors"
+            className="absolute top-5 right-5 w-10 h-10 rounded-full bg-white/20 hover:bg-white text-white hover:text-black flex items-center justify-center transition-colors cursor-pointer"
           >
             <X className="w-6 h-6" />
           </button>
           <img
             src={activePhoto}
-            alt="Phóng to ảnh"
-            className="max-w-full max-h-[85vh] rounded-2xl shadow-2xl object-contain border border-white/20"
-            onClick={(e) => e.stopPropagation()}
+            alt="Xem ảnh lớn"
+            className="max-w-full max-h-[85vh] object-contain rounded-2xl shadow-2xl"
           />
         </div>
       )}

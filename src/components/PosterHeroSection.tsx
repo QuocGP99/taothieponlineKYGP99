@@ -166,7 +166,7 @@ export default function PosterHeroSection({
     setIsEditingName(false);
   };
 
-  const currentGuest = guestName || data.guestName || 'Mỹ Linh';
+  const currentGuest = guestName || data.guestName || 'Bạn thân mến';
   const mapsUrl = data.googleMapsUrl || generateGoogleMapsUrl(data.schoolName || data.shootLocation);
   const avatarSrc = data.avatarPhoto || '/images/poster-reference.jpg';
 
@@ -208,23 +208,13 @@ export default function PosterHeroSection({
           <div className="absolute bottom-32 left-5 w-2.5 h-2.5 bg-red-400/80 rounded-full -rotate-45 pointer-events-none" />
           <div className="absolute bottom-24 right-7 w-3.5 h-3 bg-red-500/80 rounded-full rotate-30 pointer-events-none" />
 
-          {/* Nút chỉnh sửa nhanh khi ở chế độ tương tác/builder */}
-          {isEditable ? (
+          {/* Nút chỉnh sửa nhanh CHỈ hiển thị khi ở chế độ builder (isEditable === true) */}
+          {isEditable && (
             <div className="absolute top-3.5 right-3.5 z-30 flex items-center gap-1.5 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[11px] font-bold text-amber-300 border border-amber-300/30">
               <Sparkles className="w-3 h-3 animate-spin" />
               <span>Bấm vào ảnh & chữ để đổi nhanh</span>
             </div>
-          ) : onEditPrompt ? (
-            <button
-              type="button"
-              onClick={onEditPrompt}
-              className="absolute top-3.5 right-3.5 z-30 flex items-center gap-1.5 bg-[#890F0D]/90 hover:bg-[#720000] backdrop-blur-md px-3 py-1.5 rounded-full text-[11px] font-bold text-white border border-white/20 shadow-lg transition-all cursor-pointer hover:scale-105 active:scale-95"
-              title="Đăng nhập Google để chỉnh sửa mẫu này"
-            >
-              <Edit3 className="w-3.5 h-3.5 text-amber-300" />
-              <span>Chỉnh sửa mẫu này</span>
-            </button>
-          ) : null}
+          )}
 
           {/* Nội dung Header */}
           <div className="relative z-10 text-center space-y-1 mb-3">
@@ -240,12 +230,10 @@ export default function PosterHeroSection({
                   setPart1Input(part1);
                   setPart2Input(part2);
                   setIsEditingName(true);
-                } else if (onEditPrompt) {
-                  onEditPrompt();
                 }
               }}
               className={`text-5xl sm:text-6xl font-black text-[#890F0D] tracking-tight ${
-                isEditable || onEditPrompt ? 'cursor-pointer hover:opacity-90' : ''
+                isEditable ? 'cursor-pointer hover:opacity-90' : ''
               }`}
               style={{ fontFamily: "'Playfair Display', serif" }}
             >
@@ -277,12 +265,10 @@ export default function PosterHeroSection({
               onClick={() => {
                 if (isEditable) {
                   fileInputRef.current?.click();
-                } else if (onEditPrompt) {
-                  onEditPrompt();
                 }
               }}
               className={`bg-white p-3.5 pb-6 rounded-2xs shadow-[0_15px_35px_rgba(0,0,0,0.12)] border border-stone-200/70 rotate-[-1deg] transition-transform duration-300 ${
-                isEditable || onEditPrompt ? 'cursor-pointer hover:rotate-0 hover:scale-[1.01]' : ''
+                isEditable ? 'cursor-pointer hover:rotate-0 hover:scale-[1.01]' : ''
               }`}
             >
               {/* Vùng ảnh học sinh */}
@@ -396,23 +382,13 @@ export default function PosterHeroSection({
         {/* Lớp hạt nhiễu mờ & ánh sáng tâm điểm */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-red-400/20 blur-3xl pointer-events-none z-0" />
 
-        {/* Nút chỉnh sửa nhanh khi ở chế độ tương tác/builder */}
-        {isEditable ? (
+        {/* Nút chỉnh sửa nhanh CHỈ hiển thị khi ở chế độ builder (isEditable === true) */}
+        {isEditable && (
           <div className="absolute top-3 right-3 z-30 flex items-center gap-1.5 bg-black/50 backdrop-blur-md px-2.5 py-1 rounded-full text-[11px] font-bold text-amber-300 border border-amber-300/30">
             <Sparkles className="w-3 h-3 animate-spin" />
             <span>Bấm vào ảnh & tên để đổi nhanh</span>
           </div>
-        ) : onEditPrompt ? (
-          <button
-            type="button"
-            onClick={onEditPrompt}
-            className="absolute top-3 right-3 z-30 flex items-center gap-1.5 bg-black/60 hover:bg-[#890F0D] backdrop-blur-md px-3 py-1.5 rounded-full text-[11px] font-bold text-white border border-white/20 shadow-lg transition-all cursor-pointer hover:scale-105 active:scale-95"
-            title="Đăng nhập Google để chỉnh sửa mẫu này"
-          >
-            <Edit3 className="w-3.5 h-3.5 text-amber-300" />
-            <span>Chỉnh sửa mẫu này</span>
-          </button>
-        ) : null}
+        )}
 
         {/* Nội dung Poster */}
         <div className="relative z-10 px-6 pt-7 pb-6 flex flex-col items-center">
@@ -442,12 +418,10 @@ export default function PosterHeroSection({
                   setPart1Input(part1);
                   setPart2Input(part2);
                   setIsEditingName(true);
-                } else if (onEditPrompt) {
-                  onEditPrompt();
                 }
               }}
               className={`w-5/12 text-center pr-1 transition-all ${
-                isEditable ? 'cursor-pointer hover:scale-105 hover:text-amber-200' : (onEditPrompt ? 'cursor-pointer hover:text-amber-200/90' : '')
+                isEditable ? 'cursor-pointer hover:scale-105 hover:text-amber-200' : ''
               }`}
             >
               <h2 
@@ -464,12 +438,7 @@ export default function PosterHeroSection({
 
             {/* Khung ảnh chân dung học sinh ở trung tâm */}
             <div 
-              onClick={() => {
-                if (!isEditable && onEditPrompt) {
-                  onEditPrompt();
-                }
-              }}
-              className={`relative w-36 h-48 sm:w-44 sm:h-56 shrink-0 z-20 group ${!isEditable && onEditPrompt ? 'cursor-pointer' : ''}`}
+              className="relative w-36 h-48 sm:w-44 sm:h-56 shrink-0 z-20 group"
             >
               <div className="w-full h-full rounded-2xl overflow-hidden border-2 border-white/80 shadow-[0_10px_25px_rgba(0,0,0,0.6)] relative bg-black/30">
                 <img
@@ -518,12 +487,10 @@ export default function PosterHeroSection({
                   setPart1Input(part1);
                   setPart2Input(part2);
                   setIsEditingName(true);
-                } else if (onEditPrompt) {
-                  onEditPrompt();
                 }
               }}
               className={`w-5/12 text-center pl-1 transition-all ${
-                isEditable ? 'cursor-pointer hover:scale-105 hover:text-amber-200' : (onEditPrompt ? 'cursor-pointer hover:text-amber-200/90' : '')
+                isEditable ? 'cursor-pointer hover:scale-105 hover:text-amber-200' : ''
               }`}
             >
               <h2 

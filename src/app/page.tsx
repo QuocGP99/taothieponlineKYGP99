@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import PetalsEffect from '@/components/PetalsEffect';
 import PromoBannerBar from '@/components/PromoBannerBar';
 import MarketingShowcaseCard from '@/components/MarketingShowcaseCard';
 import GoogleLoginModal from '@/components/GoogleLoginModal';
@@ -38,7 +37,6 @@ export default function HomePage() {
 
   return (
     <div className="relative min-h-screen flex flex-col bg-[#FAF8F8] selection:bg-[#FEE2E2] selection:text-[#720000]">
-      <PetalsEffect />
       <PromoBannerBar />
       <Navbar />
 
@@ -153,7 +151,7 @@ export default function HomePage() {
                       <div className="flex flex-wrap items-center gap-2">
                         {/* 1. Xem Preview Template */}
                         <a
-                          href={`/invitation/${previewSlug}`}
+                          href={`/thiep-moi/${previewSlug}`}
                           className="flex-1 py-3 px-3 rounded-xl text-xs font-bold text-stone-800 bg-stone-100 hover:bg-stone-200 border border-stone-200 transition-colors flex items-center justify-center gap-1.5"
                         >
                           <Eye className="w-4 h-4 text-stone-600" />

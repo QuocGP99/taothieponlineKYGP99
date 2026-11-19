@@ -686,7 +686,7 @@ export default function VintageFilmInvitation({
 
           <div className="pt-3">
             <a
-              href="/builder"
+              href="/builder?template=vintage-film-roll"
               className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-400/80 hover:text-amber-300 hover:underline"
             >
               <span>Tạo thiệp kỷ yếu miễn phí như thế này</span>

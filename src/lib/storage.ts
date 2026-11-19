@@ -5,24 +5,23 @@ const LOCAL_STORAGE_KEY = 'gp_invitations_v1';
 
 export const getStoredInvitations = (): InvitationData[] => {
   if (typeof window === 'undefined') {
-    return [SAMPLE_INVITATION];
+    return [];
   }
   
   try {
     const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (!raw) {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify([SAMPLE_INVITATION]));
-      return [SAMPLE_INVITATION];
+      return [];
     }
     const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed) || parsed.length === 0) {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify([SAMPLE_INVITATION]));
-      return [SAMPLE_INVITATION];
+    if (!Array.isArray(parsed)) {
+      return [];
     }
-    return parsed;
+    // Lọc bỏ mẫu mặc định nếu trước đó đã vô tình bị lưu vào localStorage
+    return parsed.filter(item => item && item.id !== 'gp-hoang-ngoc-dong-a');
   } catch (e) {
     console.error('Error reading localStorage invitations:', e);
-    return [SAMPLE_INVITATION];
+    return [];
   }
 };
 
@@ -47,7 +46,10 @@ export const saveInvitation = (invitation: InvitationData): void => {
 
 export const getInvitationBySlug = (slug: string): InvitationData | null => {
   const list = getStoredInvitations();
-  return list.find(item => item.slug === slug || item.id === slug) || null;
+  const found = list.find(item => item.slug === slug || item.id === slug);
+  if (found) return found;
+  if (slug === 'sample' || slug.includes('hoang-ngoc')) return SAMPLE_INVITATION;
+  return null;
 };
 
 export const addRSVP = (slugOrId: string, rsvp: Omit<RSVP, 'id' | 'createdAt'>): RSVP | null => {

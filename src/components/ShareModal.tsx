@@ -12,6 +12,7 @@ interface ShareModalProps {
   url: string;
   title: string;
   className: string;
+  studentName?: string;
   onDownloadImage?: () => Promise<void>;
 }
 
@@ -21,6 +22,7 @@ export default function ShareModal({
   url,
   title,
   className,
+  studentName,
   onDownloadImage
 }: ShareModalProps) {
   const [copied, setCopied] = useState(false);
@@ -35,7 +37,7 @@ export default function ShareModal({
     setTimeout(() => setCopied(false), 2500);
   };
 
-  const shareText = encodeURIComponent(`🎓 Thiệp mời chụp ảnh kỷ yếu của mình: ${title} - Bạn ghé qua chụp ảnh kỷ niệm cùng mình nhé!`);
+  const shareText = encodeURIComponent(`🎓 Thiệp mời chụp ảnh kỷ yếu của ${studentName || title || 'mình'}: Bạn ghé qua chụp ảnh kỷ niệm cùng mình nhé!`);
   const encodedUrl = encodeURIComponent(url);
 
   const handleFacebookShare = () => {

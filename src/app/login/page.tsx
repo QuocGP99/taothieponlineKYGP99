@@ -10,16 +10,19 @@ import {
   AlertCircle, ShieldCheck, Sparkles, Key
 } from 'lucide-react';
 import { triggerConfetti } from '@/lib/confetti';
+import { validateEmailInput } from '@/lib/validation';
 
 export const dynamic = 'force-dynamic';
 
 function LoginCard() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTarget = searchParams?.get('redirect') || '/builder';
+  const redirectTarget = searchParams?.get('redirect') || '/dashboard';
 
   const [step, setStep] = useState<1 | 2>(1);
   const [email, setEmail] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [emailSuggestion, setEmailSuggestion] = useState('');
   const [otpDigits, setOtpDigits] = useState(['', '', '', '', '', '']);
   const [verificationToken, setVerificationToken] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
@@ -28,7 +31,16 @@ function LoginCard() {
   const [countdown, setCountdown] = useState(60);
   const [canResend, setCanResend] = useState(false);
 
+  // Kiểm tra session hiện có khi tải trang
+  useEffect(() => {
+    const savedUser = localStorage.getItem('gp_auth_user');
+    if (savedUser) {
+      router.push(redirectTarget);
+    }
+  }, [router, redirectTarget]);
+
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
 
   // Đếm ngược 60s gửi lại mã
   useEffect(() => {
@@ -43,6 +55,29 @@ function LoginCard() {
     return () => clearInterval(timer);
   }, [step, countdown]);
 
+  const handleEmailChange = (val: string) => {
+    setEmail(val);
+    if (emailError) {
+      const check = validateEmailInput(val);
+      if (check.isValid) {
+        setEmailError('');
+        setEmailSuggestion('');
+      }
+    }
+  };
+
+  const handleEmailBlur = () => {
+    if (!email.trim()) return;
+    const check = validateEmailInput(email);
+    if (!check.isValid) {
+      setEmailError(check.error);
+      setEmailSuggestion(check.suggestion || '');
+    } else {
+      setEmailError('');
+      setEmailSuggestion('');
+    }
+  };
+
   // Bước 1: Gửi mã OTP từ lienhe@taothiepkyyeugp99.io.vn
   const handleSendOTP = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -50,13 +85,16 @@ function LoginCard() {
     setSuccessMessage('');
 
     const cleanEmail = email.trim().toLowerCase();
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const validation = validateEmailInput(cleanEmail);
 
-    if (!cleanEmail || !emailRegex.test(cleanEmail)) {
-      setErrorMessage('Vui lòng nhập đúng định dạng Gmail (VD: tenban@gmail.com).');
+    if (!validation.isValid) {
+      setEmailError(validation.error);
+      setEmailSuggestion(validation.suggestion || '');
       return;
     }
 
+    setEmailError('');
+    setEmailSuggestion('');
     setIsLoading(true);
 
     try {
@@ -72,6 +110,27 @@ function LoginCard() {
         throw new Error(data.message || 'Không thể gửi mã xác thực. Vui lòng thử lại.');
       }
 
+      // NẾU TÀI KHOẢN ĐÃ CÓ TRÊN HỆ THỐNG: ĐĂNG NHẬP THẲNG, BỎ QUA OTP!
+      if (data.isExistingUser && data.user) {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('gp_auth_user', JSON.stringify(data.user));
+        }
+
+        triggerConfetti({
+          particleCount: 100,
+          spread: 80,
+          origin: { y: 0.6 },
+          colors: ['#890F0D', '#B91C1C', '#E11D48', '#F59E0B', '#10B981']
+        });
+
+        setSuccessMessage(data.message || 'Đăng nhập thành công! Đang chuyển hướng...');
+        setTimeout(() => {
+          router.push(redirectTarget);
+        }, 300);
+        return;
+      }
+
+      // NẾU LÀ TÀI KHOẢN MỚI: BƯỚC 2 NHẬP MÃ OTP 6 SỐ
       setVerificationToken(data.verificationToken || '');
       setSuccessMessage(data.message || 'Mã xác thực 6 số đã được gửi thành công.');
       setStep(2);
@@ -194,7 +253,7 @@ function LoginCard() {
         </div>
 
         <span className="inline-block text-[10px] font-extrabold uppercase tracking-widest text-[#890F0D] bg-[#890F0D]/10 px-3 py-1 rounded-full border border-[#890F0D]/20">
-          XÁC THỰC TÀI KHOẢN TẠO THIỆP
+          XÁC THỰC & ĐĂNG NHẬP
         </span>
 
         <h1 className="text-2xl font-black text-stone-900 leading-snug">
@@ -204,7 +263,7 @@ function LoginCard() {
         <p className="text-xs text-stone-600 leading-relaxed font-normal">
           {step === 1 ? (
             <>
-              Hệ thống sẽ gửi mã 6 số từ <strong className="text-stone-800 font-semibold">lienhe@taothiepkyyeugp99.io.vn</strong> đến Gmail của bạn để xác nhận quyền tạo thiệp.
+              Nhập Gmail của bạn. Nếu tài khoản đã có trên hệ thống, bạn sẽ được <strong className="text-[#890F0D] font-bold">chuyển thẳng vào trang quản lý thiệp</strong>. Tài khoản mới sẽ nhận mã xác thực 6 số để kích hoạt lần đầu.
             </>
           ) : (
             <>
@@ -230,17 +289,47 @@ function LoginCard() {
               Địa chỉ Gmail của bạn:
             </label>
             <div className="relative">
-              <Mail className="w-5 h-5 text-stone-400 absolute left-4 top-3.5" />
+              <Mail className={`w-5 h-5 absolute left-4 top-3.5 transition-colors ${emailError ? 'text-rose-500' : 'text-stone-400'}`} />
               <input
                 type="email"
                 required
                 placeholder="vidu: hocsinh.kyeu@gmail.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 rounded-2xl border-2 border-stone-200 text-sm focus:border-[#890F0D] focus:ring-4 focus:ring-[#890F0D]/10 outline-none transition-all placeholder:text-stone-400"
+                onChange={(e) => handleEmailChange(e.target.value)}
+                onBlur={handleEmailBlur}
+                className={`w-full pl-12 pr-4 py-3 rounded-2xl border-2 text-sm outline-none transition-all placeholder:text-stone-400 ${
+                  emailError
+                    ? 'border-rose-500 bg-rose-50/20 text-stone-900 focus:border-rose-600 focus:ring-4 focus:ring-rose-500/15'
+                    : 'border-stone-200 focus:border-[#890F0D] focus:ring-4 focus:ring-[#890F0D]/10'
+                }`}
               />
             </div>
-            <p className="text-[11px] text-stone-500 mt-1.5 flex items-center gap-1">
+
+            {/* Báo lỗi trực tiếp ngay bên dưới thanh nhập */}
+            {emailError && (
+              <div className="mt-2.5 p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 flex flex-col gap-2 animate-fadeIn">
+                <div className="flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                  <span className="font-semibold leading-relaxed">{emailError}</span>
+                </div>
+                {emailSuggestion && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEmail(emailSuggestion);
+                      setEmailError('');
+                      setEmailSuggestion('');
+                    }}
+                    className="self-start text-[11px] font-bold text-[#890F0D] bg-white hover:bg-[#890F0D] hover:text-white px-3 py-1.5 rounded-lg border border-[#890F0D]/30 transition-all shadow-xs cursor-pointer flex items-center gap-1.5"
+                  >
+                    <span>💡 Đổi nhanh thành:</span>
+                    <span className="underline">{emailSuggestion}</span>
+                  </button>
+                )}
+              </div>
+            )}
+
+            <p className="text-[11px] text-stone-500 mt-2 flex items-center gap-1">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
               <span>Gửi an toàn từ hòm thư lienhe@taothiepkyyeugp99.io.vn</span>
             </p>
@@ -254,11 +343,11 @@ function LoginCard() {
             {isLoading ? (
               <>
                 <RefreshCw className="w-5 h-5 animate-spin" />
-                <span>Đang gửi mã xác thực...</span>
+                <span>Đang kiểm tra tài khoản...</span>
               </>
             ) : (
               <>
-                <span>Gửi mã xác thực 6 số</span>
+                <span>Tiếp tục đăng nhập</span>
                 <ArrowRight className="w-5 h-5" />
               </>
             )}

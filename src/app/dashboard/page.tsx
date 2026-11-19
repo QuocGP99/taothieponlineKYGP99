@@ -5,12 +5,13 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { InvitationData } from '@/types/invitation';
-import { getStoredInvitations, deleteInvitation } from '@/lib/storage';
+import { InvitationData, InvitationRecipient } from '@/types/invitation';
+import { getStoredInvitations, deleteInvitation, saveInvitation } from '@/lib/storage';
+import RecipientManager from '@/components/RecipientManager';
 import { SAMPLE_INVITATION } from '@/data/templates';
-import { 
-  User, LogOut, PlusCircle, Eye, Share2, Copy, Check, 
-  Trash2, Edit3, Heart, MessageSquareHeart, Sparkles, 
+import {
+  User, LogOut, PlusCircle, Eye, Share2, Copy, Check,
+  Trash2, Edit3, Heart, MessageSquareHeart, Sparkles,
   Calendar, MapPin, Clock, Camera, ExternalLink, ArrowRight
 } from 'lucide-react';
 
@@ -21,44 +22,103 @@ export default function UserDashboardPage() {
   const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
   const [selectedInvitation, setSelectedInvitation] = useState<InvitationData | null>(null);
 
-  // Kiểm tra trạng thái đăng nhập
+  // Kiểm tra trạng thái đăng nhập và tải đúng danh sách thiệp của người dùng
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('gp_auth_user');
+      let userEmail = '';
       if (stored) {
         try {
           const user = JSON.parse(stored);
           if (user?.email) {
             setCurrentUser(user);
+            userEmail = user.email.trim().toLowerCase();
           }
         } catch (e) {
           console.error(e);
         }
       }
-      // Tải danh sách thiệp
-      const all = getStoredInvitations();
-      setInvitations(all.length > 0 ? all : [SAMPLE_INVITATION]);
-      if (all.length > 0) {
-        setSelectedInvitation(all[0]);
-      } else {
-        setSelectedInvitation(SAMPLE_INVITATION);
+
+      if (!userEmail) {
+        setInvitations([]);
+        setSelectedInvitation(null);
+        return;
       }
+
+      const fetchUserInvs = async (email: string) => {
+        let remoteList: InvitationData[] = [];
+        try {
+          const res = await fetch(`/api/invitations?email=${encodeURIComponent(email)}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (Array.isArray(data)) {
+              remoteList = data;
+            }
+          }
+        } catch (err) {
+          console.warn('Lỗi tải thiệp từ máy chủ:', err);
+        }
+
+        // Lấy từ localStorage và lọc những thiệp thuộc về tài khoản này (hoặc chưa gắn creatorEmail trên cùng máy)
+        const localList = getStoredInvitations();
+        const userLocal = localList.filter(
+          item => item && (!item.creatorEmail || item.creatorEmail.trim().toLowerCase() === email)
+        );
+
+        // Hợp nhất dữ liệu tránh trùng lặp
+        const map = new Map<string, InvitationData>();
+        remoteList.forEach(item => map.set(item.id || item.slug, item));
+        userLocal.forEach(item => {
+          const key = item.id || item.slug;
+          if (!map.has(key)) {
+            map.set(key, { ...item, creatorEmail: email });
+          }
+        });
+        const merged = Array.from(map.values());
+
+        setInvitations(merged);
+        setSelectedInvitation(merged.length > 0 ? merged[0] : null);
+      };
+
+      fetchUserInvs(userEmail);
     }
   }, []);
+
+  // Cập nhật danh sách người nhận thiệp riêng
+  const handleUpdateRecipients = async (newRecipients: InvitationRecipient[]) => {
+    if (!selectedInvitation) return;
+    const updated: InvitationData = {
+      ...selectedInvitation,
+      recipients: newRecipients,
+      updatedAt: new Date().toISOString()
+    };
+    setSelectedInvitation(updated);
+    setInvitations(prev => prev.map(inv => (inv.id === updated.id || inv.slug === updated.slug) ? updated : inv));
+    saveInvitation(updated);
+
+    try {
+      await fetch('/api/invitations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updated)
+      });
+    } catch (err) {
+      console.warn('Lỗi đồng bộ danh sách người nhận lên server:', err);
+    }
+  };
 
   // Xử lý đăng xuất
   const handleLogout = () => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('gp_auth_user');
+      window.location.href = '/'; // Ép tải lại trang mới
     }
-    setCurrentUser(null);
-    router.push('/');
   };
 
   // Sao chép link thiệp
   const handleCopyLink = (slug: string) => {
     if (typeof window !== 'undefined') {
-      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (window.location.hostname.includes('vercel.app') ? 'https://taothiepkyyeugp99.io.vn' : window.location.origin);
+      const baseUrl = window.location.origin || process.env.NEXT_PUBLIC_APP_URL || 'https://taothiepkyyeugp99.io.vn';
       const url = `${baseUrl}/thiep-moi/${slug}`;
       navigator.clipboard.writeText(url);
       setCopiedSlug(slug);
@@ -157,7 +217,7 @@ export default function UserDashboardPage() {
       </div>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-8">
-        
+
         {/* Metric Cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div className="bg-white p-5 rounded-2xl border border-[#890F0D]/15 shadow-sm">
@@ -199,7 +259,7 @@ export default function UserDashboardPage() {
 
         {/* Content Columns: List of Invitations & Details */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
+
           {/* Left Column: Danh sách thiệp */}
           <div className="lg:col-span-5 space-y-4">
             <div className="flex items-center justify-between">
@@ -212,87 +272,116 @@ export default function UserDashboardPage() {
             </div>
 
             <div className="space-y-3">
-              {invitations.map((inv) => {
-                const isSelected = selectedInvitation?.id === inv.id;
-                return (
-                  <div
-                    key={inv.id}
-                    onClick={() => setSelectedInvitation(inv)}
-                    className={`p-4 rounded-2xl border-2 transition-all cursor-pointer relative ${
-                      isSelected
-                        ? 'border-[#890F0D] bg-[#FFF8F8] shadow-md ring-2 ring-[#890F0D]/15'
-                        : 'border-stone-200 bg-white hover:border-[#890F0D]/30 hover:bg-stone-50'
-                    }`}
+              {invitations.length === 0 ? (
+                <div className="bg-white p-8 rounded-3xl border border-[#890F0D]/15 text-center space-y-4 shadow-xs">
+                  <div className="w-14 h-14 rounded-2xl bg-[#FFF5F5] text-[#890F0D] flex items-center justify-center mx-auto border border-[#890F0D]/20">
+                    <Sparkles className="w-7 h-7" />
+                  </div>
+                  <div>
+                    <h3 className="font-extrabold text-stone-900 text-sm">Bạn chưa tạo thiệp kỷ yếu nào</h3>
+                    <p className="text-xs text-stone-500 mt-1 max-w-xs mx-auto">
+                      Hãy tạo ngay chiếc thiệp mời cá nhân đầu tiên để gửi cho bạn bè và lưu giữ thanh xuân!
+                    </p>
+                  </div>
+                  <Link
+                    href="/builder"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-[#720000] to-[#890F0D] hover:opacity-95 shadow-md transition-all"
                   >
-                    <div className="flex gap-3.5 items-center">
-                      <div className="w-16 h-20 rounded-xl overflow-hidden bg-stone-200 border border-[#890F0D]/20 shrink-0 shadow-xs">
-                        <img
-                          src={inv.avatarPhoto || '/images/poster-reference.jpg'}
-                          alt={inv.studentName}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-
-                      <div className="flex-1 min-w-0 space-y-1">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-[#890F0D]/10 text-[#890F0D] uppercase">
-                            {inv.className || 'Kỷ yếu'}
-                          </span>
-                          <span className="text-[10px] text-stone-400 font-mono">
-                            {inv.date}
-                          </span>
+                    <PlusCircle className="w-4 h-4" />
+                    <span>Tạo thiệp đầu tiên của bạn</span>
+                  </Link>
+                </div>
+              ) : (
+                invitations.map((inv) => {
+                  const isSelected = selectedInvitation?.id === inv.id;
+                  return (
+                    <div
+                      key={inv.id}
+                      onClick={() => setSelectedInvitation(inv)}
+                      className={`p-4 rounded-2xl border-2 transition-all cursor-pointer relative ${isSelected
+                          ? 'border-[#890F0D] bg-[#FFF8F8] shadow-md ring-2 ring-[#890F0D]/15'
+                          : 'border-stone-200 bg-white hover:border-[#890F0D]/30 hover:bg-stone-50'
+                        }`}
+                    >
+                      <div className="flex gap-3.5 items-center">
+                        <div className="w-16 h-20 rounded-xl overflow-hidden bg-stone-200 border border-[#890F0D]/20 shrink-0 shadow-xs">
+                          <img
+                            src={inv.avatarPhoto || '/images/poster-reference.jpg'}
+                            alt={inv.studentName}
+                            className="w-full h-full object-cover"
+                          />
                         </div>
 
-                        <h3 className="font-extrabold text-sm text-[#720000] truncate">
-                          {inv.studentName || 'Chưa đặt tên'}
-                        </h3>
-                        <p className="text-xs text-stone-600 truncate font-medium">
-                          {inv.schoolName}
-                        </p>
-                      </div>
-                    </div>
+                        <div className="flex-1 min-w-0 space-y-1">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-[#890F0D]/10 text-[#890F0D] uppercase">
+                              {inv.className || 'Kỷ yếu'}
+                            </span>
+                            <span className="text-[10px] text-stone-400 font-mono">
+                              {inv.date}
+                            </span>
+                          </div>
 
-                    {/* Action buttons on card */}
-                    <div className="mt-3 pt-2.5 border-t border-stone-100 flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-1">
-                        <Link
-                          href={`/thiep-moi/${inv.slug}`}
-                          target="_blank"
-                          onClick={(e) => e.stopPropagation()}
-                          className="px-2.5 py-1 rounded-lg text-[11px] font-bold text-[#890F0D] bg-white border border-[#890F0D]/20 hover:bg-[#FFF5F5] flex items-center gap-1"
-                        >
-                          <Eye className="w-3 h-3" />
-                          <span>Xem</span>
-                        </Link>
+                          <h3 className="font-extrabold text-sm text-[#720000] truncate">
+                            {inv.studentName || 'Chưa đặt tên'}
+                          </h3>
+                          <p className="text-xs text-stone-600 truncate font-medium">
+                            {inv.schoolName}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Action buttons on card */}
+                      <div className="mt-3 pt-2.5 border-t border-stone-100 flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1">
+                          <Link
+                            href={`/thiep-moi/${inv.slug}`}
+                            target="_blank"
+                            onClick={(e) => e.stopPropagation()}
+                            className="px-2.5 py-1 rounded-lg text-[11px] font-bold text-[#890F0D] bg-white border border-[#890F0D]/20 hover:bg-[#FFF5F5] flex items-center gap-1"
+                          >
+                            <Eye className="w-3 h-3" />
+                            <span>Xem</span>
+                          </Link>
+
+                          <Link
+                            href={`/builder?slug=${inv.slug}`}
+                            onClick={(e) => e.stopPropagation()}
+                            className="px-2.5 py-1 rounded-lg text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200 hover:bg-amber-100 flex items-center gap-1"
+                          >
+                            <Edit3 className="w-3 h-3" />
+                            <span>Sửa</span>
+                          </Link>
+
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCopyLink(inv.slug);
+                            }}
+                            className="px-2.5 py-1 rounded-lg text-[11px] font-bold text-stone-600 bg-white border border-stone-200 hover:bg-stone-50 flex items-center gap-1"
+                          >
+                            {copiedSlug === inv.slug ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                            <span>{copiedSlug === inv.slug ? 'Đã chép' : 'Link'}</span>
+                          </button>
+                        </div>
 
                         <button
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleCopyLink(inv.slug);
+                            handleDelete(inv.id, inv.slug);
                           }}
-                          className="px-2.5 py-1 rounded-lg text-[11px] font-bold text-stone-600 bg-white border border-stone-200 hover:bg-stone-50 flex items-center gap-1"
+                          className="p-1 text-stone-400 hover:text-red-600 rounded transition-colors"
+                          title="Xóa thiệp này"
                         >
-                          {copiedSlug === inv.slug ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
-                          <span>{copiedSlug === inv.slug ? 'Đã chép' : 'Link'}</span>
+                          <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
-
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(inv.id, inv.slug);
-                        }}
-                        className="p-1 text-stone-400 hover:text-red-600 rounded transition-colors"
-                        title="Xóa thiệp này"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })
+              )}
             </div>
           </div>
 
@@ -312,6 +401,13 @@ export default function UserDashboardPage() {
 
                   <div className="flex gap-2">
                     <Link
+                      href={`/builder?slug=${selectedInvitation.slug}`}
+                      className="px-3.5 py-2 rounded-xl text-xs font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 shadow-xs flex items-center gap-1.5 transition-colors"
+                    >
+                      <Edit3 className="w-3.5 h-3.5 text-amber-700" />
+                      <span>Chỉnh sửa thiệp</span>
+                    </Link>
+                    <Link
                       href={`/thiep-moi/${selectedInvitation.slug}`}
                       target="_blank"
                       className="px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-[#890F0D] hover:bg-[#720000] shadow-sm flex items-center gap-1.5"
@@ -322,7 +418,15 @@ export default function UserDashboardPage() {
                   </div>
                 </div>
 
-                {/* Sổ lưu bút Lời chúc từ bạn bè */}
+                {/* 1. QUẢN LÝ DANH SÁCH NGƯỜI NHẬN & LINK MỜI RIÊNG TỪNG NGƯỜI */}
+                <RecipientManager
+                  invitationSlug={selectedInvitation.slug}
+                  recipients={selectedInvitation.recipients || []}
+                  onUpdateRecipients={handleUpdateRecipients}
+                  studentName={selectedInvitation.studentName}
+                />
+
+                {/* 2. Sổ lưu bút Lời chúc từ bạn bè (Riêng tư - chỉ chủ thiệp thấy) */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <h4 className="text-xs font-extrabold text-[#720000] uppercase tracking-wide flex items-center gap-1.5">
